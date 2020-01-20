@@ -1,6 +1,16 @@
-load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 
 py_binary(
     name = "login_server",
-    srcs = ["login_server.py"],
+    srcs = ["main.py"],
+    main = "main.py",
+    deps = [
+        ":session",
+        "//login_server/packets:login_challenge",
+    ],
+)
+
+py_library(
+    name = "session",
+    srcs = ["session.py"],
 )

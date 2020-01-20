@@ -18,3 +18,14 @@ rules_python()
 load("@bazel_federation//setup:rules_python.bzl", "rules_python_setup")
 
 rules_python_setup(use_pip = True)
+
+load("@rules_python//python:pip.bzl", "pip_import")
+
+pip_import(
+    name = "requirements",
+    requirements = "//:requirements.txt",
+)
+
+load("@requirements//:requirements.bzl", "pip_install")
+
+pip_install()
