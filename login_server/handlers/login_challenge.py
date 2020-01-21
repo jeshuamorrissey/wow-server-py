@@ -9,13 +9,18 @@ def handle_login_challenge(pkt: login_challenge.ClientLoginChallenge,
                            state: Dict) -> List[bytes]:
     account = db.db.get(f'account::{pkt.account_name.lower()}', None)
     if not account:
-        return []
+        return [
+            login_challenge.ServerLoginChallenge.build(
+                dict(
+                    error=3,
+                    challenge=None,
+                ))
+        ]
 
     b, B = srp.GenerateEphemeral(account['verifier'])
 
     state['account'] = account
     state['b'] = b
-    print(account)
     return [
         login_challenge.ServerLoginChallenge.build(
             dict(

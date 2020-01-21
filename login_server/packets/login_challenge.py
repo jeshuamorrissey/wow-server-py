@@ -29,13 +29,13 @@ ServerLoginChallenge = Struct(
     "challenge" / If(
         lambda self: self.error == 0,
         Struct(
-            "B" / BytesInteger(32),
+            "B" / BytesInteger(32, swapped=True),
             "g_len" / Const(b'\x01'),
             "g" / Const(int(srp.g).to_bytes(1, 'little')),
             "N_len" / Const(int(32).to_bytes(1, 'little')),
             "N" / Const(int(srp.N).to_bytes(32, 'little')),
-            "salt" / BytesInteger(32),
-            "crc_salt" / BytesInteger(16),
-            "unk2" / Const(b'\x01'),
+            "salt" / BytesInteger(32, swapped=True),
+            "crc_salt" / BytesInteger(16, swapped=True),
+            "unk2" / Const(b'\x00'),
         )),
 )

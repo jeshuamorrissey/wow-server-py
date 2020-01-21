@@ -14,7 +14,7 @@ def setup_db(db: sqlitedict.SqliteDict):
     db['account::jeshua'] = {
         'account_name': 'jeshua',
         'salt': salt,
-        'verifier': srp.GenerateVerifier('JESHUA', 'jeshua', salt),
+        'verifier': srp.GenerateVerifier('JESHUA', 'JESHUA', salt),
     }
 
     db.commit()
@@ -25,6 +25,7 @@ def main(args: argparse.Namespace):
         setup_db(sqlite_db)
         db.db = sqlite_db
 
+        socketserver.TCPServer.allow_reuse_address = True
         with socketserver.TCPServer((args.host, args.port),
                                     session.Session) as server:
             logging.info(f'Serving AUTH server @ {args.host}:{args.port}...')
