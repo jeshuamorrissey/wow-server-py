@@ -1,1 +1,2 @@
-kaitaistruct==0.8
+construct==2.10.53
+sqlitedict==1.6.0

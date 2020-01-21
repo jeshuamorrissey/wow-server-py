@@ -1,20 +1,34 @@
 import argparse
 import logging
 import socketserver
-import sys
+import tempfile
+import sqlitedict
 
-from login_server import session
-from login_server.packets import login_challenge
+import login_server.handlers  # register all of the handlers
+import login_server.packets  # register all of the packets
+from login_server import db, session, srp
+
+
+def setup_db(db: sqlitedict.SqliteDict):
+    salt = srp.Random(32)
+    db['account::jeshua'] = {
+        'account_name': 'jeshua',
+        'salt': salt,
+        'verifier': srp.GenerateVerifier('JESHUA', 'jeshua', salt),
+    }
+
+    db.commit()
 
 
 def main(args: argparse.Namespace):
-    print(login_challenge.LoginChallenge.from_bytes(b'\x00\x01').error)
-    with socketserver.ThreadingTCPServer((args.host, args.port),
-                                         session.Session) as server:
-        logging.info(f'Serving AUTH server @ {args.host}:{args.port}...')
-        server.serve_forever()
+    with sqlitedict.SqliteDict(args.db_file) as sqlite_db:
+        setup_db(sqlite_db)
+        db.db = sqlite_db
 
-    return 0
+        with socketserver.TCPServer((args.host, args.port),
+                                    session.Session) as server:
+            logging.info(f'Serving AUTH server @ {args.host}:{args.port}...')
+            server.serve_forever()
 
 
 if __name__ == '__main__':
@@ -28,6 +42,10 @@ if __name__ == '__main__':
                                  type=str,
                                  default='localhost',
                                  help='The host to list for connections on.')
-
+    argument_parser.add_argument('--db_file',
+                                 type=str,
+                                 default='/tmp/wow.db',
+                                 help='The file to use for the game database.')
     logging.getLogger().setLevel(logging.DEBUG)
-    sys.exit(main(argument_parser.parse_args()))
+
+    main(argument_parser.parse_args())

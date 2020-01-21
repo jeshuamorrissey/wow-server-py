@@ -2,3 +2,4 @@
 .vscode
 bazel-*
 .mypy*
+__pycache__
