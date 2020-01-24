@@ -6,10 +6,10 @@ py_binary(
     srcs = ["main.py"],
     main = "main.py",
     deps = [
-        ":db",
         ":router",
         ":session",
         ":srp",
+        "//database",
         "//login_server/handlers",
         "//login_server/packets",
     ],
@@ -39,15 +39,6 @@ py_library(
     deps = [
         ":op_code",
         requirement("construct"),
-    ],
-)
-
-py_library(
-    name = "db",
-    srcs = ["db.py"],
-    visibility = ["//login_server:__subpackages__"],
-    deps = [
-        requirement("sqlitedict"),
     ],
 )
 

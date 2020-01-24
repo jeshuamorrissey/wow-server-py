@@ -3,16 +3,8 @@ load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
     name = "packets",
-    srcs = ["__init__.py"],
+    srcs = glob(["*.py"]),
     visibility = ["//login_server:__subpackages__"],
-    deps = [
-        ":login_challenge",
-    ],
-)
-
-py_library(
-    name = "login_challenge",
-    srcs = ["login_challenge.py"],
     deps = [
         "//login_server:op_code",
         "//login_server:srp",

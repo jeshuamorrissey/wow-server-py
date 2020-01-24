@@ -1,33 +1,37 @@
-from typing import Dict, List
+from typing import Any, Dict, List, Text
 
-from login_server import db, op_code, router, srp
+from database import db
+from database.account import Account
+from login_server import op_code, router, session, srp
+from login_server.handlers import constants as c
 from login_server.packets import login_challenge
 
 
 @router.Handler(op_code.Client.LOGIN_CHALLENGE)
 def handle_login_challenge(pkt: login_challenge.ClientLoginChallenge,
-                           state: Dict) -> List[bytes]:
-    account = db.db.get(f'account::{pkt.account_name.lower()}', None)
+                           state: session.State) -> List[bytes]:
+    account: Account = db.get(Account.Key(pkt.account_name), None)
     if not account:
         return [
             login_challenge.ServerLoginChallenge.build(
                 dict(
-                    error=3,
+                    error=c.LoginErrorCode.UNKNOWN_ACCOUNT,
                     challenge=None,
                 ))
         ]
 
-    b, B = srp.GenerateEphemeral(account['verifier'])
+    b, B = srp.GenerateEphemeral(account.verifier)
 
-    state['account'] = account
-    state['b'] = b
+    state.account = account
+    state.b = b
+    state.B = B
     return [
         login_challenge.ServerLoginChallenge.build(
             dict(
-                error=0,
+                error=c.LoginErrorCode.OK,
                 challenge=dict(
                     B=B,
-                    salt=account['salt'],
+                    salt=account.salt,
                     crc_salt=0,
                 ),
             ))

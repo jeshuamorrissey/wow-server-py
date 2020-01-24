@@ -3,19 +3,19 @@ load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
     name = "handlers",
-    srcs = ["__init__.py"],
+    srcs = glob([
+        "*.py",
+    ]),
     visibility = ["//login_server:__subpackages__"],
     deps = [
-        ":login_challenge",
+        ":constants",
+        "//database",
+        "//login_server:op_code",
+        requirement("construct"),
     ],
 )
 
 py_library(
-    name = "login_challenge",
-    srcs = ["login_challenge.py"],
-    deps = [
-        "//login_server:db",
-        "//login_server:op_code",
-        requirement("construct"),
-    ],
+    name = "constants",
+    srcs = ["constants.py"],
 )
