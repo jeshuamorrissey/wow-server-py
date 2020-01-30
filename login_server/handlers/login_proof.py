@@ -1,15 +1,20 @@
-from typing import Any, Dict, List, Text
+from typing import Any, Dict, List, Text, Tuple
 
-from database import db
+from pony import orm
+
+from database.account import Account
+from database.db import db
 from login_server import op_code, router, session, srp
 from login_server.handlers import constants as c
 from login_server.packets import login_proof
 
 
-@router.Handler(op_code.Client.LOGIN_PROOF)
-def handle_login_proof(pkt: login_proof.ClientLoginProof,
-                       state: session.State) -> List[bytes]:
-    if not all((state.account, state.b, state.B)):
+@router.LoginHandler(op_code.Client.LOGIN_PROOF)
+@orm.db_session
+def handle_login_proof(
+        pkt: login_proof.ClientLoginProof,
+        state: session.State) -> List[Tuple[op_code.Server, bytes]]:
+    if not all((state.account_name, state.b, state.B)):
         return [
             login_proof.ServerLoginProof.build(
                 dict(
@@ -18,7 +23,7 @@ def handle_login_proof(pkt: login_proof.ClientLoginProof,
                 ))
         ]
 
-    account = state.account
+    account = Account[state.account_name]
 
     # Calculate our K and re-calculate M (to confirm client).
     K, M = srp.CalculateSessionKey(
@@ -40,8 +45,10 @@ def handle_login_proof(pkt: login_proof.ClientLoginProof,
         ]
 
     # Authenticated! Save the session key...
-    account.session_key = K
-    db.commit()
+    account.session_key_str = str(K)
+
+    # Add some state to the logger.
+    state.log.extra['account'] = account.name
 
     # ... and now send back proof we are a valid server.
     proof = srp.CalculateServerProof(
@@ -51,9 +58,12 @@ def handle_login_proof(pkt: login_proof.ClientLoginProof,
     )
 
     return [
-        login_proof.ServerLoginProof.build(
-            dict(
-                error=c.LoginErrorCode.OK,
-                proof=dict(proof=proof),
-            ))
+        (
+            op_code.Server.LOGIN_PROOF,
+            login_proof.ServerLoginProof.build(
+                dict(
+                    error=c.LoginErrorCode.OK,
+                    proof=dict(proof=proof),
+                )),
+        ),
     ]

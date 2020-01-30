@@ -12,6 +12,7 @@ py_library(
         "//database",
         "//login_server:op_code",
         requirement("construct"),
+        requirement("pony"),
     ],
 )
 

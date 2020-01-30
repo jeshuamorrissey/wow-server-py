@@ -1,43 +1,29 @@
-import logging
-import socketserver
+from typing import Tuple, Optional
 
-from database.account import Account
-from login_server import op_code, router
+from common import session
+from login_server import op_code
 
 
-class State:
-    def __init__(self):
-        self.account: Account = None
+class State(session.State):
+    def __init__(self, *args, **kwargs):
+        super(State, self).__init__(*args, **kwargs)
+
+        self.account_name: str = None
         self.b: int = None
         self.B: int = None
 
 
-class Session(socketserver.BaseRequestHandler):
-    def setup(self):
-        self.state = State()
+class Session(session.Session):
+    StateType = State
 
-    def handle(self):
-        while True:
-            # TODO(jeshua): make this receive the exact size based on the opcode.
-            data = self.request.recv(1024)
-            if not data:
-                logging.debug('client disconnect')
-                return
+    def recv_header(self) -> Tuple[Optional[int], int]:
+        header = self.request.recv(1)
+        op = op_code.Client(int.from_bytes(header, 'little'))
 
-            op = op_code.Client(data[0])
-            logging.debug(f'<-- {op.name}')
-            pkt_format = router.ClientPacket.Get(op)
-            if not pkt_format:
-                logging.error(f'Unknown packet format for {op.name}')
-                return
+        if op == op_code.Client.LOGIN_CHALLENGE:
+            extended_header = self.request.recv(3)
+            return op, int.from_bytes(extended_header[1:], 'little')
+        elif op == op_code.Client.LOGIN_PROOF:
+            return op, 74
 
-            handler = router.Handler.Get(op)
-            if not handler:
-                logging.warning(f'Unhandled opcode {op.name}')
-                return
-
-            responses = handler(pkt_format.parse(data), self.state)
-            for response in responses:
-                op = op_code.Client(response[0])
-                logging.debug(f'--> {op.name}')
-                self.request.sendall(response)
+        return op, 1024

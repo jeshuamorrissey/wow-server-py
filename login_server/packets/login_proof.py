@@ -3,10 +3,9 @@ from construct import (BytesInteger, Const, If, Int8ul, Int16ul, Int32ub,
 
 from login_server import op_code, router, srp
 
-ClientLoginProof = router.ClientPacket.Register(
+ClientLoginProof = router.LoginClientPacket.Register(
     op_code.Client.LOGIN_PROOF,
     Struct(
-        "opcode" / op_code.OpCode,
         "A" / BytesInteger(32, swapped=True),
         "M" / BytesInteger(20, swapped=True),
         "crc_hash" / BytesInteger(20, swapped=True),

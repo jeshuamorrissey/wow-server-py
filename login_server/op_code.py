@@ -1,9 +1,5 @@
 import enum
 
-from construct import Int8ul
-
-OpCode = Int8ul
-
 
 class Server(enum.IntEnum):
     LOGIN_CHALLENGE = 0x00

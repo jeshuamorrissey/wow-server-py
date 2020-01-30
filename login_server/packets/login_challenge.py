@@ -3,12 +3,9 @@ from construct import (BytesInteger, Const, If, Int8ul, Int16ul, Int32ub,
 
 from login_server import op_code, router, srp
 
-ClientLoginChallenge = router.ClientPacket.Register(
+ClientLoginChallenge = router.LoginClientPacket.Register(
     op_code.Client.LOGIN_CHALLENGE,
     Struct(
-        "opcode" / op_code.OpCode,
-        "error" / Int8ul,
-        "length" / Int16ul,
         "game_name" / PaddedString(4, 'ascii'),
         "version_major" / Int8ul,
         "version_minor" / Int8ul,
