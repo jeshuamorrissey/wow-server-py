@@ -15,13 +15,14 @@ def handle_login_challenge(
         state: session.State) -> List[Tuple[op_code.Server, bytes]]:
     account = Account[pkt.account_name]
     if not account:
-        return [
+        return [(
+            op_code.Server.LOGIN_CHALLENGE,
             login_challenge.ServerLoginChallenge.build(
                 dict(
                     error=c.LoginErrorCode.UNKNOWN_ACCOUNT,
                     challenge=None,
-                ))
-        ]
+                )),
+        )]
 
     b, B = srp.GenerateEphemeral(account.verifier)
 
@@ -37,7 +38,7 @@ def handle_login_challenge(
                     challenge=dict(
                         B=B,
                         salt=account.salt,
-                        crc_salt=0,
+                        crc_salt=srp.Random(16),
                     ),
                 )),
         ),

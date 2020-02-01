@@ -1,3 +1,4 @@
 coloredlogs==10.0
 construct==2.10.53
+cryptography==2.6.1
 pony==0.7.11

@@ -1,7 +1,7 @@
 import logging
 import select
 import socketserver
-from typing import Tuple
+from typing import Any, Tuple
 
 
 class State:
@@ -36,6 +36,18 @@ class Session(socketserver.BaseRequestHandler):
         """
         raise NotImplementedError()
 
+    def write_response_header(self, op_code: Any, data: bytes) -> bytes:
+        """Write the response header for the given data block.
+
+        Args:
+            op_code: The operation to write the header for.
+            data: The data bytes generated for the packet.
+
+        Returns:
+            The header to be prepended to the data bytes.
+        """
+        raise NotImplementedError()
+
     def handle(self):
         """Handle the long-lived connection.
 
@@ -43,17 +55,19 @@ class Session(socketserver.BaseRequestHandler):
         to them based on the handlers in self.server.handlers.
         """
         while True:
-            self.state.log.debug('Receiving header...')
             op_code, data_len = self.recv_header()
+            if op_code is None:
+                self.state.log.debug('client disconnect')
+                return
+
             self.state.log.debug(f'<-- {op_code.name}')
-            self.state.log.debug(f'Receiving {data_len} data bytes...')
             data = self.request.recv(data_len)
-            if not data:
+            if data == b'' or op_code is None:
                 self.state.log.debug('client disconnect')
                 return
 
             if len(data) != data_len:
-                self.state.log.error(
+                self.state.log.warn(
                     f'Short read, wanted {data_len}, got {len(data)}')
                 continue
 
@@ -71,4 +85,5 @@ class Session(socketserver.BaseRequestHandler):
             responses = handler(pkt_format.parse(data), self.state)
             for op_code, response in responses:
                 self.state.log.debug(f'--> {op_code.name}')
-                self.request.sendall(response)
+                header = self.write_response_header(op_code, response)
+                self.request.sendall(header + response)

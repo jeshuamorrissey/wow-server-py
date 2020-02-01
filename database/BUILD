@@ -8,6 +8,13 @@ py_library(
     ]),
     visibility = ["//visibility:public"],
     deps = [
+        ":common",
         requirement("pony"),
     ],
+)
+
+py_library(
+    name = "common",
+    srcs = ["common.py"],
+    deps = [requirement("pony")],
 )

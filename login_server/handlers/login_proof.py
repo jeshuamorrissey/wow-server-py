@@ -15,13 +15,14 @@ def handle_login_proof(
         pkt: login_proof.ClientLoginProof,
         state: session.State) -> List[Tuple[op_code.Server, bytes]]:
     if not all((state.account_name, state.b, state.B)):
-        return [
+        return [(
+            op_code.Server.LOGIN_PROOF,
             login_proof.ServerLoginProof.build(
                 dict(
                     error=c.LoginErrorCode.FAILED,
                     proof=None,
-                ))
-        ]
+                )),
+        )]
 
     account = Account[state.account_name]
 
@@ -36,19 +37,17 @@ def handle_login_proof(
     )
 
     if M != pkt.M:
-        return [
+        return [(
+            op_code.Server.LOGIN_PROOF,
             login_proof.ServerLoginProof.build(
                 dict(
                     error=c.LoginErrorCode.UNKNOWN_ACCOUNT,
                     proof=None,
-                ))
-        ]
+                )),
+        )]
 
     # Authenticated! Save the session key...
     account.session_key_str = str(K)
-
-    # Add some state to the logger.
-    state.log.extra['account'] = account.name
 
     # ... and now send back proof we are a valid server.
     proof = srp.CalculateServerProof(

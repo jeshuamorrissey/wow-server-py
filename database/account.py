@@ -38,7 +38,8 @@ class Account(db.Entity):
             The newly created account.
         """
         salt = srp.Random(32)
-        verifier = srp.GenerateVerifier(username.upper(), password, salt)
+        verifier = srp.GenerateVerifier(username.upper(), password.upper(),
+                                        salt)
         return Account(
             name=username.upper(),
             salt_str=str(salt),

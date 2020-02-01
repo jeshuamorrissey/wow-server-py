@@ -1,9 +1,10 @@
 """Utility methods for using SRP (see https://www.ietf.org/rfc/rfc2945.txt)."""
 import hashlib
-import random
 import itertools
-
+import random
 from typing import Tuple
+
+import cryptography
 
 
 ###
@@ -92,13 +93,6 @@ N = 6210006650915601734206949614090294986324975833600079692856644117029372864811
 ###
 # SRP Functions.
 ###
-def GenerateSalt() -> int:
-    """Generate a 32-byte salt used for SRP authentication."""
-    # Matches values in AuthSocket.cpp. TODO(jeshua): make this Random(32).
-    return HexToInt(
-        '9398C11E0E7128C7A56E3FDE45B418744FFE9C7F41AAED48AC27E62D3700E223')
-
-
 def GenerateVerifier(account_name: str, password: str, salt: int) -> int:
     """Generate the password verifier v."""
     x = _H(salt, _H(account_name.upper(), ':', password.upper()))
@@ -114,8 +108,7 @@ def GenerateEphemeral(v: int) -> Tuple[int, int]:
     Returns:
         A private/public ephemeral.
     """
-    # Matches value in AuthSocket.cpp. TODO(jeshua): make this Random(19).
-    b = HexToInt('A4FA7A0D8B9D55F81FA3AF7F386DE83BBD84FA')
+    b = Random(19)
     B = ((v * 3) + pow(g, b, N)) % N
     return b, B
 
