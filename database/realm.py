@@ -1,6 +1,8 @@
-from database.db import db
-from pony import orm
 import enum
+
+from pony import orm
+
+from database.db import db
 
 
 class Realm(db.Entity):

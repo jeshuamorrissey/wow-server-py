@@ -11,7 +11,8 @@ py_library(
         ":constants",
         "//database",
         "//login_server:op_code",
-        requirement("construct"),
+        "//login_server:router",
+        "//login_server/packets",
         requirement("pony"),
     ],
 )

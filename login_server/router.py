@@ -1,14 +1,14 @@
 from typing import Callable, Dict
 
-from construct import Struct
+import construct
 
 from common import router
 from login_server import op_code
 
 
-class LoginClientPacket(router.Router):
-    ROUTES: Dict[op_code.Client, Struct] = {}
+class ClientPacket(router.Router):
+    ROUTES: Dict[op_code.Client, construct.Struct] = {}
 
 
-class LoginHandler(router.Router):
+class Handler(router.Router):
     ROUTES: Dict[op_code.Client, Callable] = {}

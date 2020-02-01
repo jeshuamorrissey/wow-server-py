@@ -27,7 +27,3 @@ class Router(object):
     def Register(cls, k, v):
         cls.ROUTES[k] = v
         return v
-
-    @classmethod
-    def Get(cls, k) -> Optional[Any]:
-        return cls.ROUTES.get(k, None)

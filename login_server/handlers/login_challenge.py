@@ -1,18 +1,19 @@
-from typing import Any, Dict, List, Text, Tuple
+from typing import List, Tuple
 
 from pony import orm
 
+from common import srp
 from database.account import Account
-from login_server import op_code, router, session, srp
+from login_server import op_code, router, session
 from login_server.handlers import constants as c
 from login_server.packets import login_challenge
 
 
-@router.LoginHandler(op_code.Client.LOGIN_CHALLENGE)
+@router.Handler(op_code.Client.LOGIN_CHALLENGE)
 @orm.db_session
 def handle_login_challenge(
         pkt: login_challenge.ClientLoginChallenge,
-        state: session.State) -> List[Tuple[op_code.Server, bytes]]:
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     account = Account[pkt.account_name]
     if not account:
         return [(
@@ -26,9 +27,9 @@ def handle_login_challenge(
 
     b, B = srp.GenerateEphemeral(account.verifier)
 
-    state.account_name = account.name
-    state.b = b
-    state.B = B
+    session.account_name = account.name
+    session.b = b
+    session.B = B
     return [
         (
             op_code.Server.LOGIN_CHALLENGE,

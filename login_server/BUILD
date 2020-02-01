@@ -38,9 +38,3 @@ py_library(
         requirement("construct"),
     ],
 )
-
-py_library(
-    name = "srp",
-    srcs = ["srp.py"],
-    visibility = ["//login_server:__subpackages__"],
-)

@@ -3,13 +3,30 @@ import socketserver
 from typing import Any, Callable, Dict, Text, Type
 
 import coloredlogs
-from construct import Struct
+import construct
 
 
 class Server(socketserver.TCPServer):
-    def __init__(self, packet_formats: Dict[Any, Struct],
-                 handlers: Dict[Any, Callable], log: logging.LoggerAdapter,
-                 *args, **kwargs):
+    """Implementation of a TCPServer which can handle packets."""
+    def __init__(
+        self,
+        packet_formats: Dict[Any, construct.Struct],
+        handlers: Dict[Any, Callable],
+        log: logging.LoggerAdapter,
+        *args,
+        **kwargs,
+    ):
+        """Create a new server.
+
+        Args:
+            packet_formats: A mapping from op_code --> Struct which can be used to
+                            read packets in that format.
+            handlers: A mapping from op_code --> handler function. The handler function
+                      should take as input the packet + the session object.
+            log: A log to write debugging data to.
+            *args: Additional arguments to pass to the parent.
+            **kwargs: Additional arguments to pass to the parent.
+        """
         super(Server, self).__init__(*args, **kwargs)
 
         self.packet_formats = packet_formats
@@ -17,8 +34,14 @@ class Server(socketserver.TCPServer):
         self.log = log
 
 
-def run(name: Text, host: Text, port: int, session_type: Type,
-        packet_formats: Dict[Any, Struct], handlers: Dict[Any, Callable]):
+def run(
+    name: Text,
+    host: Text,
+    port: int,
+    session_type: Type,
+    packet_formats: Dict[Any, construct.Struct],
+    handlers: Dict[Any, Callable],
+):
     """Run a threaded socket server.
 
     This will take control of the current thread.
@@ -28,7 +51,7 @@ def run(name: Text, host: Text, port: int, session_type: Type,
         host: The hostname to run the server on.
         port: The port to run the server on.
         session_type: The session request handler type to use.
-        packet_formats: A mapping from OpCode --> construct.Struct.
+        packet_formats: A mapping from OpCode --> Struct.
         handlers: A mapping from OpCode --> handler function.
     """
     logger = logging.Logger(name=name)

@@ -6,8 +6,9 @@ py_library(
     srcs = glob(["*.py"]),
     visibility = ["//login_server:__subpackages__"],
     deps = [
+        "//common:srp",
         "//login_server:op_code",
-        "//login_server:srp",
+        "//login_server:router",
         requirement("construct"),
     ],
 )

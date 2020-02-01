@@ -2,8 +2,8 @@ from typing import Text
 
 from pony import orm
 
+from common import srp
 from database.db import db
-from login_server import srp
 
 
 class Account(db.Entity):
@@ -38,8 +38,12 @@ class Account(db.Entity):
             The newly created account.
         """
         salt = srp.Random(32)
-        verifier = srp.GenerateVerifier(username.upper(), password.upper(),
-                                        salt)
+        verifier = srp.GenerateVerifier(
+            username.upper(),
+            password.upper(),
+            salt,
+        )
+
         return Account(
             name=username.upper(),
             salt_str=str(salt),

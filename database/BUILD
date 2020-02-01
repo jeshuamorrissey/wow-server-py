@@ -3,12 +3,15 @@ load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
     name = "database",
-    srcs = glob([
-        "*.py",
-    ]),
+    srcs = [
+        "account.py",
+        "db.py",
+        "realm.py",
+    ],
     visibility = ["//visibility:public"],
     deps = [
         ":common",
+        "//common:srp",
         requirement("pony"),
     ],
 )

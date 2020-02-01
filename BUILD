@@ -6,5 +6,6 @@ py_binary(
     deps = [
         "//common:server",
         "//login_server",
+        "//world_server",
     ],
 )

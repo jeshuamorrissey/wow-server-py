@@ -1,20 +1,20 @@
-from typing import Any, Dict, List, Text, Tuple
+from typing import List, Tuple
 
 from pony import orm
 
+from common import srp
 from database.account import Account
-from database.db import db
-from login_server import op_code, router, session, srp
+from login_server import op_code, router, session
 from login_server.handlers import constants as c
 from login_server.packets import login_proof
 
 
-@router.LoginHandler(op_code.Client.LOGIN_PROOF)
+@router.Handler(op_code.Client.LOGIN_PROOF)
 @orm.db_session
 def handle_login_proof(
         pkt: login_proof.ClientLoginProof,
-        state: session.State) -> List[Tuple[op_code.Server, bytes]]:
-    if not all((state.account_name, state.b, state.B)):
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+    if not all((session.account_name, session.b, session.B)):
         return [(
             op_code.Server.LOGIN_PROOF,
             login_proof.ServerLoginProof.build(
@@ -24,13 +24,13 @@ def handle_login_proof(
                 )),
         )]
 
-    account = Account[state.account_name]
+    account = Account[session.account_name]
 
     # Calculate our K and re-calculate M (to confirm client).
     K, M = srp.CalculateSessionKey(
         A=pkt.A,
-        B=state.B,
-        b=state.b,
+        B=session.B,
+        b=session.b,
         v=account.verifier,
         s=account.salt,
         account_name=account.name,

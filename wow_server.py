@@ -9,6 +9,8 @@ from pony import orm
 
 import login_server.handlers  # register handlers
 import login_server.packets  # register packet formats
+import world_server.handlers  # register handlers
+import world_server.packets  # register packet formats
 from common import server
 from database import common
 from database.account import Account
@@ -16,6 +18,8 @@ from database.db import db
 from database.realm import Realm
 from login_server import router as login_router
 from login_server import session as login_session
+from world_server import router as world_router
+from world_server import session as world_session
 
 
 def setup_db(db_file: Text, world_host: Text, world_port: int):
@@ -40,14 +44,33 @@ def main(args: argparse.Namespace):
     setup_db(args.db_file, args.host, args.world_port)
 
     # Create the packet handling threads.
-    server.run(
-        name='AUTH',
-        host=args.host,
-        port=args.auth_port,
-        session_type=login_session.Session,
-        packet_formats=login_router.LoginClientPacket.ROUTES,
-        handlers=login_router.LoginHandler.ROUTES,
-    )
+    auth_thread = threading.Thread(
+        target=server.run,
+        kwargs=dict(
+            name='AUTH',
+            host=args.host,
+            port=args.auth_port,
+            session_type=login_session.Session,
+            packet_formats=login_router.ClientPacket.ROUTES,
+            handlers=login_router.Handler.ROUTES,
+        ))
+
+    world_thread = threading.Thread(
+        target=server.run,
+        kwargs=dict(
+            name='WORLD',
+            host=args.host,
+            port=args.world_port,
+            session_type=world_session.Session,
+            packet_formats=world_router.ClientPacket.ROUTES,
+            handlers=world_router.Handler.ROUTES,
+        ))
+
+    auth_thread.start()
+    world_thread.start()
+
+    auth_thread.join()
+    world_thread.join()
 
 
 if __name__ == '__main__':

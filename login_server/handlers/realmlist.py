@@ -1,18 +1,17 @@
-from typing import Any, Dict, List, Text, Tuple
+from typing import List, Tuple
 
 from pony import orm
 
 from database.realm import Realm
-from login_server import op_code, router, session, srp
-from login_server.handlers import constants as c
+from login_server import op_code, router, session
 from login_server.packets import realmlist
 
 
-@router.LoginHandler(op_code.Client.REALMLIST)
+@router.Handler(op_code.Client.REALMLIST)
 @orm.db_session
 def handle_realmlist(
         pkt: realmlist.ClientRealmlist,
-        state: session.State) -> List[Tuple[op_code.Server, bytes]]:
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     realms = [
         dict(
             icon=realm.type,

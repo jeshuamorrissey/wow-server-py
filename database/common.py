@@ -1,8 +1,10 @@
-from pony import orm
 import enum
+
+from pony import orm
 
 
 class EnumConverter(orm.dbapiprovider.StrConverter):
+    """Converter which can be used to store Enum values in the database."""
     def validate(self, val):
         if not isinstance(val, enum.Enum):
             raise ValueError('Must be an Enum.  Got {}'.format(type(val)))

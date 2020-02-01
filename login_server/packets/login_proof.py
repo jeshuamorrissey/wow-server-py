@@ -1,9 +1,9 @@
-from construct import (BytesInteger, Const, If, Int8ul, Int16ul, Int32ub,
-                       Int32ul, PaddedString, PascalString, Struct)
+from construct import BytesInteger, Const, If, Int8ul, Struct
 
-from login_server import op_code, router, srp
+from common import srp
+from login_server import op_code, router
 
-ClientLoginProof = router.LoginClientPacket.Register(
+ClientLoginProof = router.ClientPacket.Register(
     op_code.Client.LOGIN_PROOF,
     Struct(
         'A' / BytesInteger(32, swapped=True),

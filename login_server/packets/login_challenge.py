@@ -1,9 +1,10 @@
 from construct import (BytesInteger, Const, If, Int8ul, Int16ul, Int32ub,
                        Int32ul, PaddedString, PascalString, Struct)
 
-from login_server import op_code, router, srp
+from common import srp
+from login_server import op_code, router
 
-ClientLoginChallenge = router.LoginClientPacket.Register(
+ClientLoginChallenge = router.ClientPacket.Register(
     op_code.Client.LOGIN_CHALLENGE,
     Struct(
         'game_name' / PaddedString(4, 'ascii'),

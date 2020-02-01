@@ -1,11 +1,10 @@
-from construct import (BytesInteger, Const, If, Int8ul, Int16ul, Int32ub,
-                       Int32ul, PaddedString, PascalString, Struct, Computed,
-                       Rebuild, Sequence, CString, Float32l, Int8sl, BitStruct,
-                       Flag, Padding, GreedyRange, Int16ub)
+from construct import (BitStruct, Const, CString, Flag, Float32l, GreedyRange,
+                       Int8ul, Int32ul, Padding, Rebuild, Struct)
 
-from login_server import op_code, router, srp
+from common import srp
+from login_server import op_code, router
 
-ClientRealmlist = router.LoginClientPacket.Register(
+ClientRealmlist = router.ClientPacket.Register(
     op_code.Client.REALMLIST,
     Struct('unk1' / Const(int(0).to_bytes(4, 'little'))))
 
