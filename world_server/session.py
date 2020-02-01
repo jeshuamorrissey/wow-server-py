@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Text, Tuple
 
 from common import session, srp
 from world_server import op_code
@@ -9,8 +9,10 @@ class Session(session.Session):
     def setup(self):
         super(Session, self).setup()
 
-        # The currently logged in user's session key.
-        self.session_key = bytearray()
+        # The logged in user's details.
+        self.account_name: Text = None
+        self.session_key: int = None
+        self.session_key_b = bytearray()
 
         # Initial seed to prove login.
         self.auth_challenge_seed = 0
@@ -22,8 +24,8 @@ class Session(session.Session):
     def _decode_header(self, header: bytearray) -> bytearray:
         """Decode the client packet header."""
         for i in range(len(header)):
-            self._recv_i %= len(self.session_key)
-            x = (header[i] - self._recv_j) ^ self.session_key[self._recv_i]
+            self._recv_i %= len(self.session_key_b)
+            x = (header[i] - self._recv_j) ^ self.session_key_b[self._recv_i]
             self._recv_i += 1
             self._recv_j = header[i]
             x %= 256
@@ -34,8 +36,8 @@ class Session(session.Session):
     def _encode_header(self, header: bytearray) -> bytearray:
         """Encode the server packet header."""
         for i in range(len(header)):
-            self._send_i %= len(self.session_key)
-            x = (header[i] ^ self.session_key[self._send_i]) + self._send_j
+            self._send_i %= len(self.session_key_b)
+            x = (header[i] ^ self.session_key_b[self._send_i]) + self._send_j
             self._send_i += 1
             x %= 256
             header[i] = self._send_j = x
@@ -82,7 +84,7 @@ class Session(session.Session):
             The header of the server packet.
         """
         length = int(len(data) + 2).to_bytes(2, 'big')
-        header = length + op.to_bytes(2, 'little')
+        header = bytearray(length + op.to_bytes(2, 'little'))
 
         # If they are authenticated, encode the header.
         if self.session_key:

@@ -54,10 +54,13 @@ class Session(socketserver.BaseRequestHandler):
                 return
 
             self.log.debug(f'<-- {op_code.name}')
-            data = self.request.recv(data_len)
-            if data == b'' or op_code is None:
-                self.log.debug('client disconnect')
-                return
+            if data_len > 0:
+                data = self.request.recv(data_len)
+                if data == b'' or op_code is None:
+                    self.log.debug('client disconnect')
+                    return
+            else:
+                data = b''
 
             if len(data) != data_len:
                 self.log.warn(

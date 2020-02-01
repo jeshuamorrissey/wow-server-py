@@ -145,3 +145,9 @@ def CalculateSessionKey(A: int, B: int, b: int, v: int, s: int,
 def CalculateServerProof(A: int, M: int, K: int) -> int:
     """Calculate the server proof, which must be sent back to the client."""
     return _H(A, M, K)
+
+
+def CalculateAuthSessionProof(account_name: str, t: int, client_seed: int,
+                              seed: int, K: int) -> int:
+    """Calculate the AUTH_SESSION key."""
+    return _H(account_name, t, client_seed, seed, K)
