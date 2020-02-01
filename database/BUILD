@@ -7,7 +7,7 @@ py_library(
         "account.py",
         "db.py",
         "realm.py",
-    ],
+    ] + glob(["game_object/*.py"]),
     visibility = ["//visibility:public"],
     deps = [
         ":common",

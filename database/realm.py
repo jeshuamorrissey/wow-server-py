@@ -16,6 +16,9 @@ class Realm(db.Entity):
     hostport = orm.Required(str)
     type = orm.Required(Type, default=Type.PVE)
 
+    # Characters in this realm.
+    characters = orm.Set('Player')
+
     # Flags
     is_recommended = orm.Required(bool, default=False)
     for_new_players = orm.Required(bool, default=False)

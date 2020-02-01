@@ -12,6 +12,9 @@ class Account(db.Entity):
     verifier_str = orm.Required(str)
     session_key_str = orm.Optional(str)
 
+    # Characters on this account.
+    characters = orm.Set('Player')
+
     @property
     def salt(self) -> int:
         return int(self.salt_str)
