@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from pony import orm
 
-from database.realm import Realm
+from database.world.realm import Realm
 from login_server import op_code, router, session
 from login_server.packets import realmlist
 

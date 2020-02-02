@@ -2,22 +2,23 @@ load("@requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
-    name = "database",
+    name = "db",
     srcs = [
-        "account.py",
         "db.py",
-        "realm.py",
-    ] + glob(["game_object/*.py"]),
+    ],
     visibility = ["//visibility:public"],
     deps = [
-        ":common",
-        "//common:srp",
         requirement("pony"),
     ],
 )
 
 py_library(
     name = "common",
-    srcs = ["common.py"],
-    deps = [requirement("pony")],
+    srcs = [
+        "common.py",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        requirement("pony"),
+    ],
 )

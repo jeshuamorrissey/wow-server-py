@@ -9,7 +9,7 @@ py_library(
     visibility = ["//login_server:__subpackages__"],
     deps = [
         ":constants",
-        "//database",
+        "//database/world",
         "//login_server:op_code",
         "//login_server:router",
         "//login_server/packets",

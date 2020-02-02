@@ -3,7 +3,7 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.account import Account
+from database.world.account import Account
 from world_server import op_code, router, session
 from world_server.packets import auth_response, auth_session
 

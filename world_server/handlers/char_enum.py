@@ -3,7 +3,7 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.account import Account
+from database.world.account import Account
 from world_server import op_code, router, session
 from world_server.packets import char_enum
 
@@ -32,48 +32,15 @@ def handle_char_enum(
                     feature=character.feature,
                 ),
                 level=character.level,
-                location=dict(  # TODO
-                    zone=0,
-                    map=0,
-                    x=0,
-                    y=0,
-                    z=0,
+                location=dict(
+                    zone=character.zone,
+                    map=character.map,
+                    x=character.x,
+                    y=character.y,
+                    z=character.z,
                 ),
                 guild_id=0,  # TODO
-                flags=dict(
-                    f0=False,
-                    f1=False,
-                    f2=False,
-                    f3=False,
-                    f4=False,
-                    f5=False,
-                    f6=False,
-                    f7=False,
-                    f8=False,
-                    f9=False,
-                    f10=False,
-                    f11=False,
-                    f12=False,
-                    f13=False,
-                    f14=False,
-                    f15=False,
-                    f16=False,
-                    f17=False,
-                    f18=False,
-                    f19=False,
-                    f20=False,
-                    f21=False,
-                    f22=False,
-                    f23=False,
-                    f24=False,
-                    f25=False,
-                    f26=False,
-                    f27=False,
-                    f28=False,
-                    f29=False,
-                    f30=False,
-                    f31=False,
-                ),
+                flags=dict(is_ghost=character.is_ghost),
                 first_login=0,  # TODO
                 pet=dict(  # TODO
                     id=0,
