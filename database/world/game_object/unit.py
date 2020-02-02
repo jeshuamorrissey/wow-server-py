@@ -21,3 +21,9 @@ class Unit(GameObject):
     y = orm.Required(float)
     z = orm.Required(float)
     o = orm.Required(float)
+
+    @property
+    def high_guid(self) -> int:
+        if self.master:
+            return 0xF140
+        return 0xF130

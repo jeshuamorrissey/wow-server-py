@@ -10,3 +10,7 @@ class Item(GameObject):
     # Reverse mappings.
     equipped_by = orm.Optional('EquippedItem')
     in_backpack = orm.Optional('BackpackItem')
+
+    @property
+    def high_guid(self) -> int:
+        return 0x4000

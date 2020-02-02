@@ -12,12 +12,27 @@ from world_server.packets import char_create
 
 
 class ResponseCode(enum.IntEnum):
+
     ACCOUNT_LIMIT = 0x35
     DISABLED = 0x32  # "creation of characters is currently disabled"
     ERROR = 0x2F  # "error creating character"
     FAILED = 0x30  # "character creation failed"
     IN_PROGRESS = 0x2D  # "creating character"
+    NAME_CONSECUTIVE_SPACES = 0x50
+    NAME_FAILURE = 0x51
     NAME_IN_USE = 0x31
+    NAME_INVALID_APOSTROPHE = 0x4C
+    NAME_INVALID_CHARACTER = 0x48
+    NAME_INVALID_SPACE = 0x4F
+    NAME_MIXED_LANGUAGES = 0x49
+    NAME_MULTIPLE_APOSTROPHES = 0x4D
+    NAME_NO_NAME = 0x45
+    NAME_PROFANE = 0x4A
+    NAME_RESERVED = 0x4B
+    NAME_SUCCESS = 0x52
+    NAME_THREE_CONSECUTIVE = 0x4E
+    NAME_TOO_LONG = 0x47
+    NAME_TOO_SHORT = 0x46
     ONLY_EXISTING = 0x37  # "only players who already have characters on this realm are currently allowed to create characters"
     PVP_TEAMS_VIOLATION = 0x33  # "you cannot have both a Horde and an Alliance character on the same PvP realm"
     SERVER_LIMIT = 0x34

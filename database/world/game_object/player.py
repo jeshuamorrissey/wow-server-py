@@ -148,3 +148,7 @@ class Player(unit.Unit):
             )
 
         return player
+
+    @property
+    def high_guid(self) -> int:
+        return 0
