@@ -36,7 +36,8 @@ from world_server import session as world_session
 def setup_db(args: argparse.Namespace):
     # TODO(jeshua): make the DB persistant.
     # Clear the DB for testing.
-    if args.reset_database and os.path.exists(args.db_file):
+    reset_database = args.reset_database or not os.path.exists(args.db_file)
+    if reset_database and os.path.exists(args.db_file):
         os.remove(args.db_file)
 
     # Connect to SQLite in memory.
@@ -54,7 +55,7 @@ def setup_db(args: argparse.Namespace):
             db.execute('DELETE FROM EquippedItem')
 
     # Load DBC data.
-    if args.reset_database:
+    if reset_database:
         data.LoadDBC()
 
     # Generate some test data.
@@ -70,6 +71,7 @@ def setup_db(args: argparse.Namespace):
             race=c.Race.HUMAN,
             class_=c.Class.MAGE,
             gender=c.Gender.MALE,
+            guild=guild,
         )
 
         base_unit = UnitTemplate.get(Name='Young Nightsaber')
