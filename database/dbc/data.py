@@ -7,6 +7,7 @@ from pony import orm
 from database.dbc import constants as c
 from database.dbc.chr_start_locations import ChrStartLocation
 from database.dbc.item_template import ItemTemplate
+from database.dbc.unit_template import UnitTemplate
 
 
 @orm.db_session
@@ -21,6 +22,11 @@ def LoadDBC():
     ChrStartLocation(race=c.Race.TAUREN, map=1, zone=215, x=-2917.58, y=-257.98, z=52.9968, o=0.0)
     ChrStartLocation(race=c.Race.GNOME, map=0, zone=1, x=-6240.32, y=331.033, z=382.758, o=0.0)
     ChrStartLocation(race=c.Race.TROLL, map=1, zone=14, x=-618.518, y=-4251.67, z=38.718, o=0.0)
+
+    logging.info('Loading UnitTemplate...')
+    with gzip.GzipFile('database/dbc/unit_template.json.gz') as f:
+        for unit_template in json.load(f):
+            UnitTemplate(**unit_template)
 
     logging.info('Loading ItemTemplate...')
     with gzip.GzipFile('database/dbc/item_template.json.gz') as f:

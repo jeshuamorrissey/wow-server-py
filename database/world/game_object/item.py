@@ -5,7 +5,7 @@ from database.world.game_object.game_object import GameObject
 
 
 class Item(GameObject):
-    base = orm.Required('ItemTemplate')
+    base_item = orm.Required('ItemTemplate')
 
     # Reverse mappings.
     equipped_by = orm.Optional('EquippedItem')

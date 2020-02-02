@@ -44,7 +44,7 @@ ServerCharEnum = Struct(
             ),
             Const(b'\x00'),  # first login?
             'pet' / Struct(
-                'id' / Int32ul,
+                'display_id' / Int32ul,
                 'level' / Int32ul,
                 'family' / Int32ul,
             ),
@@ -52,8 +52,5 @@ ServerCharEnum = Struct(
                 'display_id' / Default(Int32ul, 0),
                 'inventory_type' / Default(Int8ul, 0),
             )[19],
-            'first_bag' / Struct(
-                'display_id' / Int32ul,
-                'inventory_type' / Int8ul,
-            ),
+            Const(b'\x00\x00\x00\x00\x00'),  # first bag, unused
         )))

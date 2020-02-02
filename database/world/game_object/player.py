@@ -20,6 +20,15 @@ class EquippedItem(db.Entity):
     orm.PrimaryKey(owner, slot)
 
 
+class EquippedBag(db.Entity):
+    """Mapping table to store details about which bags are equipped."""
+    owner = orm.Required('Player')
+    slot = orm.Required(int, min=0, max=3)
+    container = orm.Required('Container')
+
+    orm.PrimaryKey(owner, slot)
+
+
 class Player(unit.Unit):
     # General character information.
     account = orm.Required('Account')
@@ -33,8 +42,12 @@ class Player(unit.Unit):
     zone = orm.Required(int)
     map = orm.Required(int)
 
+    # Pet.
+    pet = orm.Optional('Unit')
+
     # Inventory.
     equipment = orm.Set(EquippedItem)
+    bags = orm.Set(EquippedBag)
 
     # Game-object specific information.
     skin_color = orm.Required(int, default=0)

@@ -10,6 +10,12 @@ class Unit(GameObject):
     class_ = orm.Required(c.Class)
     gender = orm.Required(c.Gender)
 
+    # For NPC units, they will link to a template.
+    base_unit = orm.Optional('UnitTemplate')
+
+    # For pets, they will have a master.
+    master = orm.Optional('Player')
+
     # Unit location information.
     x = orm.Required(float)
     y = orm.Required(float)

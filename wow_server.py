@@ -19,9 +19,12 @@ from database.dbc import constants as c
 from database.dbc import data
 from database.dbc.chr_start_locations import ChrStartLocation
 from database.dbc.item_template import ItemTemplate
+from database.dbc.unit_template import UnitTemplate
 from database.world.account import Account
+from database.world.game_object.container import Container
 from database.world.game_object.item import Item
-from database.world.game_object.player import Player, EquippedItem
+from database.world.game_object.player import EquippedBag, EquippedItem, Player
+from database.world.game_object.unit import Unit
 from database.world.guild import Guild
 from database.world.realm import Realm
 from login_server import router as login_router
@@ -60,97 +63,117 @@ def setup_db(args: argparse.Namespace):
         realm = Realm(name='Brisbane',
                       hostport=f'{args.host}:{args.world_port}')
         guild = Guild()
-        Player.New(
+        jeshua = Player.New(
             account=account,
             realm=realm,
             name='Jeshua',
             race=c.Race.HUMAN,
-            class_=c.Class.HUNTER,
+            class_=c.Class.MAGE,
             gender=c.Gender.MALE,
-            guild=guild,
         )
 
-        sasha = Player.New(
-            account=account,
-            realm=realm,
-            name='Sasha',
-            race=c.Race.HUMAN,
-            class_=c.Class.WARRIOR,
+        base_unit = UnitTemplate.get(Name='Young Nightsaber')
+        kiko = Unit(
+            base_unit=base_unit,
+            level=1,
+            race=0,
+            class_=base_unit.UnitClass,
             gender=c.Gender.FEMALE,
+            x=jeshua.x,
+            y=jeshua.y,
+            z=jeshua.z,
+            o=jeshua.o,
         )
+
+        jeshua.pet = kiko
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.MAIN_HAND,
-            item=Item(base=ItemTemplate.get(
+            item=Item(base_item=ItemTemplate.get(
                 name='Thunderfury, Blessed Blade of the Windseeker')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
+            slot=c.EquipmentSlot.RANGED,
+            item=Item(base_item=ItemTemplate.get(name='Soulstring')),
+        )
+
+        EquippedItem(
+            owner=jeshua,
             slot=c.EquipmentSlot.OFF_HAND,
-            item=Item(base=ItemTemplate.get(
+            item=Item(base_item=ItemTemplate.get(
                 name='Ancient Cornerstone Grimoire')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.BACK,
-            item=Item(base=ItemTemplate.get(name='Cloak of the Necropolis')),
+            item=Item(base_item=ItemTemplate.get(
+                name='Cloak of the Necropolis')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.WAIST,
-            item=Item(base=ItemTemplate.get(name='Frostfire Belt')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Belt')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.WRISTS,
-            item=Item(base=ItemTemplate.get(name='Frostfire Bindings')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Bindings')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.HEAD,
-            item=Item(base=ItemTemplate.get(name='Frostfire Circlet')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Circlet')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.HANDS,
-            item=Item(base=ItemTemplate.get(name='Frostfire Gloves')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Gloves')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.LEGS,
-            item=Item(base=ItemTemplate.get(name='Frostfire Leggings')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Leggings')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.CHEST,
-            item=Item(base=ItemTemplate.get(name='Frostfire Robe')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Robe')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.FEET,
-            item=Item(base=ItemTemplate.get(name='Frostfire Sandals')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Sandals')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.SHOULDERS,
-            item=Item(base=ItemTemplate.get(name='Frostfire Shoulderpads')),
+            item=Item(base_item=ItemTemplate.get(
+                name='Frostfire Shoulderpads')),
         )
 
         EquippedItem(
-            owner=sasha,
+            owner=jeshua,
             slot=c.EquipmentSlot.FINGER1,
-            item=Item(base=ItemTemplate.get(name='Frostfire Ring')),
+            item=Item(base_item=ItemTemplate.get(name='Frostfire Ring')),
+        )
+
+        EquippedBag(
+            owner=jeshua,
+            slot=0,
+            container=Container(base_item=ItemTemplate.get(
+                name='Ancient Sinew Wrapped Lamina')),
         )
 
 

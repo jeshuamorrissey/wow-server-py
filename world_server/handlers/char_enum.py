@@ -28,9 +28,18 @@ def handle_char_enum(
             item = equipment_map.get(slot, None)
             if item:
                 equipment.append(
-                    dict(display_id=item.base.displayid, inventory_type=slot))
+                    dict(display_id=item.base_item.displayid,
+                         inventory_type=slot))
             else:
                 equipment.append(dict(display_id=0, inventory_type=0))
+
+        pet = dict(display_id=0, level=0, family=0)
+        if character.pet:
+            pet = dict(
+                display_id=character.pet.base_unit.ModelId1,
+                level=character.pet.level,
+                family=character.pet.base_unit.Family,
+            )
 
         # Make the enum data.
         characters.append(
@@ -61,16 +70,8 @@ def handle_char_enum(
                     hide_helm=character.hide_helm,
                     hide_cloak=character.hide_cloak,
                 ),
-                pet=dict(  # TODO
-                    id=0,
-                    level=0,
-                    family=0,
-                ),
+                pet=pet,
                 items=equipment,
-                first_bag=dict(  # TODO
-                    display_id=0,
-                    inventory_type=0,
-                ),
             ))
 
     return [(
