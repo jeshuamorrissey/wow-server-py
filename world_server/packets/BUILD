@@ -6,6 +6,7 @@ py_library(
     srcs = glob(["*.py"]),
     visibility = ["//world_server:__subpackages__"],
     deps = [
+        "//world_server:config",
         "//world_server:op_code",
         "//world_server:router",
         requirement("construct"),

@@ -40,3 +40,9 @@ py_library(
         requirement("construct"),
     ],
 )
+
+py_library(
+    name = "config",
+    srcs = ["config.py"],
+    visibility = ["//world_server:__subpackages__"],
+)

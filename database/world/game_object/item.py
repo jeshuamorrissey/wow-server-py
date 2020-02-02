@@ -9,3 +9,4 @@ class Item(GameObject):
 
     # Reverse mappings.
     equipped_by = orm.Optional('EquippedItem')
+    in_backpack = orm.Optional('BackpackItem')

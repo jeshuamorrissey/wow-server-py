@@ -4,7 +4,9 @@ from pony import orm
 
 from database.db import db
 from database.dbc import constants as c
+from database.dbc.char_start_outfit import CharStartOutfit
 from database.dbc.chr_start_locations import ChrStartLocation
+from database.dbc.item_template import ItemTemplate
 from database.world.account import Account
 from database.world.game_object import unit
 from database.world.game_object.item import Item
@@ -15,6 +17,18 @@ class EquippedItem(db.Entity):
     """Mapping table to store details about which items are equipped."""
     owner = orm.Required('Player')
     slot = orm.Required(c.EquipmentSlot)
+    item = orm.Required('Item')
+
+    orm.PrimaryKey(owner, slot)
+
+
+class BackpackItem(db.Entity):
+    """Mapping table to store details about which items are in the backpack.
+
+    The backpack is the default bag you always have available.
+    """
+    owner = orm.Required('Player')
+    slot = orm.Required(int, min=0, max=15)
     item = orm.Required('Item')
 
     orm.PrimaryKey(owner, slot)
@@ -47,6 +61,7 @@ class Player(unit.Unit):
 
     # Inventory.
     equipment = orm.Set(EquippedItem)
+    backpack_items = orm.Set(BackpackItem)
     bags = orm.Set(EquippedBag)
 
     # Game-object specific information.
@@ -98,7 +113,10 @@ class Player(unit.Unit):
             The newly created character.
         """
         starting_location = ChrStartLocation.get(race=race)
-        return Player(
+        starting_items = CharStartOutfit.get(race=race,
+                                             class_=class_,
+                                             gender=gender)
+        player = Player(
             account=account,
             realm=realm,
             name=name,
@@ -114,3 +132,19 @@ class Player(unit.Unit):
             map=starting_location.map,
             **kwargs,
         )
+
+        for equipment in starting_items.equipment:
+            EquippedItem(
+                owner=player,
+                slot=c.EquipmentSlot[equipment['equipment_slot']],
+                item=Item(base_item=ItemTemplate[equipment['entry']]),
+            )
+
+        for i, entry in enumerate(starting_items.items):
+            BackpackItem(
+                owner=player,
+                slot=i,
+                item=Item(base_item=ItemTemplate[entry]),
+            )
+
+        return player

@@ -89,95 +89,6 @@ def setup_db(args: argparse.Namespace):
 
         jeshua.pet = kiko
 
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.MAIN_HAND,
-            item=Item(base_item=ItemTemplate.get(
-                name='Thunderfury, Blessed Blade of the Windseeker')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.RANGED,
-            item=Item(base_item=ItemTemplate.get(name='Soulstring')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.OFF_HAND,
-            item=Item(base_item=ItemTemplate.get(
-                name='Ancient Cornerstone Grimoire')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.BACK,
-            item=Item(base_item=ItemTemplate.get(
-                name='Cloak of the Necropolis')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.WAIST,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Belt')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.WRISTS,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Bindings')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.HEAD,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Circlet')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.HANDS,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Gloves')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.LEGS,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Leggings')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.CHEST,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Robe')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.FEET,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Sandals')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.SHOULDERS,
-            item=Item(base_item=ItemTemplate.get(
-                name='Frostfire Shoulderpads')),
-        )
-
-        EquippedItem(
-            owner=jeshua,
-            slot=c.EquipmentSlot.FINGER1,
-            item=Item(base_item=ItemTemplate.get(name='Frostfire Ring')),
-        )
-
-        EquippedBag(
-            owner=jeshua,
-            slot=0,
-            container=Container(base_item=ItemTemplate.get(
-                name='Ancient Sinew Wrapped Lamina')),
-        )
-
 
 def main(args: argparse.Namespace):
     # Load the database.
@@ -228,7 +139,7 @@ if __name__ == '__main__':
         help='The port to list for WORLD connections on.')
     argument_parser.add_argument('--host',
                                  type=str,
-                                 default='localhost',
+                                 default='127.0.0.1',
                                  help='The host to list for connections on.')
     argument_parser.add_argument(
         '--db_file',

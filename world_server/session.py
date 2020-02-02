@@ -1,6 +1,9 @@
 from typing import Optional, Text, Tuple
 
+from pony import orm
+
 from common import session, srp
+from database.world.realm import Realm
 from world_server import op_code
 from world_server.packets import auth_challenge
 
@@ -8,6 +11,12 @@ from world_server.packets import auth_challenge
 class Session(session.Session):
     def setup(self):
         super(Session, self).setup()
+
+        # Server information.
+        with orm.db_session:
+            # TODO: think of a better way of passing this information in
+            hostport = f'{self.server.server_address[0]}:{self.server.server_address[1]}'
+            self.realm_name = Realm.get(hostport=hostport).name
 
         # The logged in user's details.
         self.account_name: Text = None
