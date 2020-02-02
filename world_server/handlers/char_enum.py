@@ -3,6 +3,7 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
+from database.dbc import constants as c
 from database.world.account import Account
 from world_server import op_code, router, session
 from world_server.packets import char_enum
@@ -17,6 +18,21 @@ def handle_char_enum(
 
     characters = []
     for character in account.characters:
+        guild_id = character.guild.id if character.guild else 0
+
+        # Build up the equipment list. This list has to be in order, even if
+        # the items aren't actually in order.
+        equipment_map = character.equipment_map()
+        equipment = []
+        for slot in c.EquipmentSlot:
+            item = equipment_map.get(slot, None)
+            if item:
+                equipment.append(
+                    dict(display_id=item.base.displayid, inventory_type=slot))
+            else:
+                equipment.append(dict(display_id=0, inventory_type=0))
+
+        # Make the enum data.
         characters.append(
             dict(
                 guid=character.id,
@@ -39,15 +55,18 @@ def handle_char_enum(
                     y=character.y,
                     z=character.z,
                 ),
-                guild_id=0,  # TODO
-                flags=dict(is_ghost=character.is_ghost),
-                first_login=0,  # TODO
+                guild_id=guild_id,
+                flags=dict(
+                    is_ghost=character.is_ghost,
+                    hide_helm=character.hide_helm,
+                    hide_cloak=character.hide_cloak,
+                ),
                 pet=dict(  # TODO
                     id=0,
                     level=0,
                     family=0,
                 ),
-                items=[dict(display_id=0, inventory_type=0)] * 19,  # TODO
+                items=equipment,
                 first_bag=dict(  # TODO
                     display_id=0,
                     inventory_type=0,

@@ -1,4 +1,6 @@
-from construct import Struct, Rebuild, Int8ul, Int64ul, Flag, Padding, CString, Int32ul, Float32l, GreedyRange, Array, BitStruct
+from construct import (Array, BitStruct, Const, CString, Default, Flag,
+                       Float32l, GreedyRange, Int8ul, Int32ul, Int64ul,
+                       Padding, Rebuild, Struct)
 
 from world_server import op_code, router
 
@@ -35,17 +37,20 @@ ServerCharEnum = Struct(
             'flags' / BitStruct(
                 Padding(10),
                 'is_ghost' / Flag,
-                Padding(21),
+                Padding(1),
+                'hide_helm' / Flag,
+                'hide_cloak' / Flag,
+                Padding(18),
             ),
-            'first_login' / Int8ul,
+            Const(b'\x00'),  # first login?
             'pet' / Struct(
                 'id' / Int32ul,
                 'level' / Int32ul,
                 'family' / Int32ul,
             ),
             'items' / Struct(
-                'display_id' / Int32ul,
-                'inventory_type' / Int8ul,
+                'display_id' / Default(Int32ul, 0),
+                'inventory_type' / Default(Int8ul, 0),
             )[19],
             'first_bag' / Struct(
                 'display_id' / Int32ul,

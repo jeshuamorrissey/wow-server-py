@@ -6,6 +6,7 @@ py_library(
     srcs = glob([
         "**/*.py",
     ]),
+    data = ["item_template.json.gz"],
     visibility = ["//visibility:public"],
     deps = [
         requirement("pony"),
