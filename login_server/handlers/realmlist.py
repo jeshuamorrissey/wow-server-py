@@ -2,6 +2,8 @@ from typing import List, Tuple
 
 from pony import orm
 
+from database.world.game_object.player import Player
+from database.world.account import Account
 from database.world.realm import Realm
 from login_server import op_code, router, session
 from login_server.packets import realmlist
@@ -12,6 +14,7 @@ from login_server.packets import realmlist
 def handle_realmlist(
         pkt: realmlist.ClientRealmlist,
         session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+    account = Account[session.account_name]
     realms = [
         dict(
             icon=realm.type,
@@ -25,7 +28,9 @@ def handle_realmlist(
             name=realm.name,
             hostport=realm.hostport,
             population=0,  # TODO: calculate relative population
-            n_characters=0,  # TODO: calculate
+            n_characters=orm.count(
+                p for p in Player
+                if p.realm == realm and p.account == account),
         ) for realm in Realm.select()
     ]
 
