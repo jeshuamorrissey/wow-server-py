@@ -49,8 +49,8 @@ ServerCharEnum = Struct(
                 'family' / Int32ul,
             ),
             'items' / Struct(
-                'display_id' / Default(Int32ul, 0),
-                'inventory_type' / Default(Int8ul, 0),
+                'display_id' / Int32ul,
+                'inventory_type' / Int8ul,
             )[19],
             Const(b'\x00\x00\x00\x00\x00'),  # first bag, unused
         )))

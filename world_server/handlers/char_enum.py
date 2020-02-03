@@ -29,7 +29,7 @@ def handle_char_enum(
             if item:
                 equipment.append(
                     dict(display_id=item.base_item.displayid,
-                         inventory_type=slot))
+                         inventory_type=item.base_item.InventoryType))
             else:
                 equipment.append(dict(display_id=0, inventory_type=0))
 

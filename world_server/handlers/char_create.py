@@ -12,7 +12,6 @@ from world_server.packets import char_create
 
 
 class ResponseCode(enum.IntEnum):
-
     ACCOUNT_LIMIT = 0x35
     DISABLED = 0x32  # "creation of characters is currently disabled"
     ERROR = 0x2F  # "error creating character"

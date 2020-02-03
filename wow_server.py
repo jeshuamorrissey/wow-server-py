@@ -69,7 +69,7 @@ def setup_db(args: argparse.Namespace):
             realm=realm,
             name='Jeshua',
             race=c.Race.HUMAN,
-            class_=c.Class.MAGE,
+            class_=c.Class.WARRIOR,
             gender=c.Gender.MALE,
             guild=guild,
         )
