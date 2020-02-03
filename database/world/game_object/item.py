@@ -11,6 +11,17 @@ class Item(GameObject):
     equipped_by = orm.Optional('EquippedItem')
     in_backpack = orm.Optional('BackpackItem')
 
-    @property
-    def high_guid(self) -> int:
-        return 0x4000
+    #
+    # Class Methods (should be overwritten in children).
+    #
+    def type_id(self) -> c.TypeID:
+        return c.TypeID.ITEM
+
+    def type_mask(self) -> c.TypeMask:
+        return super(Item, self).type_mask() | c.TypeMask.ITEM
+
+    def update_flags(self) -> c.UpdateFlags:
+        return c.UpdateFlags.ALL
+
+    def high_guid(self) -> c.HighGUID:
+        return c.HighGUID.ITEM

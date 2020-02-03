@@ -12,6 +12,7 @@ import login_server.handlers  # register handlers
 import login_server.packets  # register packet formats
 import world_server.handlers  # register handlers
 import world_server.packets  # register packet formats
+import world_server.systems  # register systems
 from common import server
 from database import common
 from database.db import db
@@ -45,6 +46,10 @@ def setup_db(args: argparse.Namespace):
     db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
     db.generate_mapping(create_tables=True)
 
+    # Load DBC data.
+    data.LoadDBC()
+
+    # Generate some test data.
     # Clear the world database tables so they can be created again.
     if args.reset_world_database:
         with orm.db_session:
@@ -54,40 +59,34 @@ def setup_db(args: argparse.Namespace):
             db.execute('DELETE FROM GameObject')
             db.execute('DELETE FROM EquippedItem')
 
-    # Load DBC data.
-    if reset_database:
-        data.LoadDBC()
+            account = Account.New(username='jeshua', password='jeshua')
+            realm = Realm(name='Brisbane',
+                          hostport=f'{args.host}:{args.world_port}')
+            guild = Guild()
+            jeshua = Player.New(
+                account=account,
+                realm=realm,
+                name='Jeshua',
+                race=c.Race.HUMAN,
+                class_=c.Class.WARRIOR,
+                gender=c.Gender.MALE,
+                guild=guild,
+            )
 
-    # Generate some test data.
-    with orm.db_session:
-        account = Account.New(username='jeshua', password='jeshua')
-        realm = Realm(name='Brisbane',
-                      hostport=f'{args.host}:{args.world_port}')
-        guild = Guild()
-        jeshua = Player.New(
-            account=account,
-            realm=realm,
-            name='Jeshua',
-            race=c.Race.HUMAN,
-            class_=c.Class.WARRIOR,
-            gender=c.Gender.MALE,
-            guild=guild,
-        )
+            base_unit = UnitTemplate.get(Name='Young Nightsaber')
+            kiko = Unit(
+                base_unit=base_unit,
+                level=1,
+                race=0,
+                class_=base_unit.UnitClass,
+                gender=c.Gender.FEMALE,
+                x=jeshua.x,
+                y=jeshua.y,
+                z=jeshua.z,
+                o=jeshua.o,
+            )
 
-        base_unit = UnitTemplate.get(Name='Young Nightsaber')
-        kiko = Unit(
-            base_unit=base_unit,
-            level=1,
-            race=0,
-            class_=base_unit.UnitClass,
-            gender=c.Gender.FEMALE,
-            x=jeshua.x,
-            y=jeshua.y,
-            z=jeshua.z,
-            o=jeshua.o,
-        )
-
-        jeshua.pet = kiko
+            jeshua.pet = kiko
 
 
 def main(args: argparse.Namespace):

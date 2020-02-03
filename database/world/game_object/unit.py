@@ -22,8 +22,19 @@ class Unit(GameObject):
     z = orm.Required(float)
     o = orm.Required(float)
 
-    @property
-    def high_guid(self) -> int:
+    #
+    # Class Methods (should be overwritten in children).
+    #
+    def type_id(self) -> c.TypeID:
+        return c.TypeID.UNIT
+
+    def type_mask(self) -> c.TypeMask:
+        return super(Unit, self).type_mask() | c.TypeMask.UNIT
+
+    def update_flags(self) -> c.UpdateFlags:
+        return c.UpdateFlags.ALL | c.UpdateFlags.LIVING | c.UpdateFlags.HAS_POSITION
+
+    def high_guid(self) -> c.HighGUID:
         if self.master:
-            return 0xF140
-        return 0xF130
+            return c.HighGUID.PET
+        return c.HighGUID.UNIT

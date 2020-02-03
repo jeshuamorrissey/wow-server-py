@@ -8,8 +8,10 @@ py_library(
         ":op_code",
         ":router",
         ":session",
+        ":system",
         "//world_server/handlers",
         "//world_server/packets",
+        "//world_server/systems",
     ],
 )
 
@@ -39,6 +41,12 @@ py_library(
         "//common:router",
         requirement("construct"),
     ],
+)
+
+py_library(
+    name = "system",
+    srcs = ["system.py"],
+    visibility = ["//world_server:__subpackages__"],
 )
 
 py_library(

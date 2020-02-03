@@ -1,6 +1,7 @@
 from pony import orm
 
 from database.db import db
+from database.dbc import constants as c
 
 
 class GameObject(db.Entity):
@@ -10,8 +11,19 @@ class GameObject(db.Entity):
 
     @property
     def guid(self) -> int:
-        return (self.high_guid << 32) | self.id
+        return (self.high_guid() << 32) | self.id
 
-    @property
-    def high_guid(self) -> int:
-        return 0
+    #
+    # Class Methods (should be overwritten in children).
+    #
+    def type_id(self) -> c.TypeID:
+        return c.TypeID.OBJECT
+
+    def type_mask(self) -> c.TypeMask:
+        return c.TypeMask.OBJECT
+
+    def update_flags(self) -> c.UpdateFlags:
+        return c.UpdateFlags.NONE
+
+    def high_guid(self) -> c.HighGUID:
+        raise NotImplementedError('GameObjects must have a high GUID.')

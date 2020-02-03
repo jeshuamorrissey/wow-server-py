@@ -1,3 +1,4 @@
+import datetime
 from typing import Dict, Text
 
 from pony import orm
@@ -48,6 +49,7 @@ class Player(unit.Unit):
     account = orm.Required('Account')
     realm = orm.Required('Realm')
     name = orm.Required(str, unique=True)
+    last_login = orm.Optional(datetime.datetime)
 
     # Relationships.
     guild = orm.Optional('Guild')
@@ -149,6 +151,14 @@ class Player(unit.Unit):
 
         return player
 
-    @property
-    def high_guid(self) -> int:
-        return 0
+    #
+    # Class Methods (should be overwritten in children).
+    #
+    def type_id(self) -> c.TypeID:
+        return c.TypeID.PLAYER
+
+    def type_mask(self) -> c.TypeMask:
+        return super(Unit, self).type_mask() | c.TypeMask.PLAYER
+
+    def high_guid(self) -> c.HighGUID:
+        return c.HighGUID.PLAYER
