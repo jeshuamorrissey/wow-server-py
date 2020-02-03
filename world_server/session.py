@@ -23,6 +23,9 @@ class Session(session.Session):
         self.session_key: int = None
         self.session_key_b = bytearray()
 
+        # The logged in character's details.
+        self.player_id: int = None
+
         # Initial seed to prove login.
         self.auth_challenge_seed = 0
 
