@@ -1,5 +1,5 @@
 import enum
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, Optional, Tuple
 
 from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes,
                        GreedyRange, If, Int8ul, Int32ul, Int64ul, Rebuild,
@@ -12,8 +12,19 @@ from database.world.game_object.game_object import GameObject
 from database.world.game_object.item import Item
 from database.world.game_object.player import Player
 from database.world.game_object.unit import Unit
-from world_server import session, system
+from world_server import config, op_code, session, system
 from world_server.packets import compressed_update_object, update_object
+
+
+class PlayerUpdateCache:
+    """PlayerUpdateCache is a per-player cache for update values.
+
+    Each cache contains a map for values & movement updates for each object
+    (based on ID).
+    """
+    def __init__(self):
+        self.values_updates: Dict[int, dict] = {}
+        self.movement_updates: Dict[int, dict] = {}
 
 
 @system.Register(system.System.ID.UPDATER)
@@ -22,8 +33,7 @@ class Updater(system.System):
         self.players: Dict[int, session.Session] = {}
 
         # Caches to keep track of what players have seen.
-        self._update_fields_cache: Dict[int, dict] = {}
-        self._movement_update_cache: Dict[int, dict] = {}
+        self._update_cache: Dict[int, PlayerUpdateCache] = {}
 
     def _make_movement_update(self, game_object: GameObject) -> Optional[dict]:
         """Return either a FullMovementUpdate or PositionMovementUpdate.
@@ -38,9 +48,30 @@ class Updater(system.System):
             A dictionary for constructing the movement update. If the object
             has no movement update, then return None.
         """
+        # TODO: do a proper movement update with all data
         if c.UpdateFlags.LIVING in game_object.update_flags():
-            # TODO FullMovementUpdate
-            return None
+            return dict(
+                flags=c.MovementFlags.NONE,
+                time=0,
+                x=game_object.x,
+                y=game_object.y,
+                z=game_object.z,
+                o=game_object.o,
+                transport=None,
+                swimming=None,
+                last_fall_time=None,
+                falling=None,
+                spline_elevation=None,
+                speed=dict(
+                    walk=1.0,
+                    run=1.0,
+                    run_backward=1.0,
+                    swim=1.0,
+                    swim_backward=1.0,
+                    turn=1.0,
+                ),
+                spline_update=None,
+            )
         elif c.UpdateFlags.HAS_POSITION in game_object.update_flags():
             return dict(
                 x=game_object.x,
@@ -51,92 +82,117 @@ class Updater(system.System):
 
         return None
 
-    # def _make_full_update_block(self, player: Player,
-    #                             game_object: GameObject) -> dict:
-    #     """Make a FullUpdateBlock struct dictionary."""
-    #     return dict(
-    #         guid=
-    #     )
+    def _make_update_block(self, player: Player,
+                           game_object: GameObject) -> dict:
+        """Return a FullUpdateBlock, ValuesUpdateBlock or OutOfRangeUpdateBlock.
 
-    # def _make_values_update(
-    #         self,
-    #         player: Player,
-    #         game_object: GameObject,
-    # ) -> dict:
-    #     return {}
+        Args:  
+            player: The player this update is being sent do.
+            game_object: The game object this update is for.
 
-    # def _make_movement_update(
-    #         self,
-    #         player: Player,
-    #         game_object: GameObject,
-    # ) -> dict:
-    #     return {}
+        Returns:
+            A dictionary which can be used to construct an UpdateBlock struct.
+        """
+        player_cache = self._update_cache[player.id]
 
-    # def _make_update_block(
-    #         self,
-    #         player: Player,
-    #         game_object: GameObject,
-    # ) -> Optional[dict]:
-    #     # Generate the updates. This will only return fields which are different
-    #     # from the cache, but will not update the cache.
-    #     movement_update = self._make_movement_update(player, game_object)
-    #     values_update = self._make_values_update(player, game_object)
+        # Generate the updates for the player.
+        movement_update = self._make_movement_update(game_object)
+        values_update = game_object.update_fields()
 
-    #     # Work out the update type.
-    #     update_type = update_object.UpdateType.VALUES
-    #     if not movement_update:
-    #         if not values_update:
-    #             return None  # no update to make
-    #         else:
-    #             update_type = update_object.UpdateType.VALUES
-    #     else:
-    #         if player.id not in self._fields_update_cache:
-    #             update_type = update_object.UpdateType.CREATE_OBJECT
-    #         else:
-    #             update_type = update_object.UpdateType.MOVEMENT
+        # Get the cached updates.
+        last_movement_update = player_cache.movement_updates.get(
+            game_object.id, None)
+        last_values_update = player_cache.values_updates.get(
+            game_object.id, {})
 
-    #     if update_type == update_object.UpdateType.VALUES:
-    #         update_block = dict(
-    #             guid=dict(
-    #                 mask=1,
-    #                 bytes=[1],
-    #             ),
-    #             update=values_update,
-    #         )
-    #     else:
-    #         update_block = dict(
-    #             guid=dict(
-    #                 mask=1,
-    #                 bytes=[1],
-    #             ),
-    #             object_type=...,
-    #             flags=...,
-    #         )
+        # Work out the delta in the values update.
+        values_update_diff = {
+            k: v
+            for k, v in values_update.items()
+            if last_values_update.get(k, None) != v
+        }
 
-    #     # Check the update cache to see whether we are making the object
-    #     # or just updating the values.
-    #     block = dict(
-    #         update_type=update_type,
-    #         update_block=update_block,
-    #     )
+        # Work out the update type.
+        update_type = None
+        if game_object.id not in player_cache.values_updates:
+            # We need to create the object.
+            update_type = c.UpdateType.CREATE_OBJECT
+        else:
+            if movement_update != last_movement_update:
+                # Movement update required.
+                update_type = c.UpdateType.MOVEMENT
+            else:
+                if values_update_diff:
+                    # No movement update, only a values update.
+                    update_type = c.UpdateType.VALUES
+                else:
+                    # Shortcut: there is no update to perform.
+                    return {}
 
-    #     return block
+        # Update the cache.
+        if movement_update:
+            player_cache.movement_updates[game_object.id] = movement_update
+        player_cache.values_updates[game_object.id] = values_update
 
-    # def _make_update_object(
-    #         self,
-    #         player: Player,
-    #         game_objects: List[GameObject],
-    # ) -> bytes:
-    #     update_blocks = []
-    #     for o in game_objects:
-    #         update_block = self._make_update_block(player, o)
-    #         if update_block:
-    #             update_blocks.append(update_block)
+        if update_type == c.UpdateType.VALUES:
+            return dict(
+                update_type=update_type,
+                update_block=dict(
+                    guid=game_object.guid,
+                    update=values_update_diff,
+                ),
+            )
 
-    #     return update_object.ServerUpdateObject.build(
-    #         is_transport=0,  # TODO
-    #         blocks=update_blocks,
-    #     )
+        update_flags = game_object.update_flags()
+        if player.guid == game_object.guid:
+            update_flags |= c.UpdateFlags.SELF
+
+        return dict(
+            update_type=update_type,
+            update_block=dict(
+                guid=game_object.guid,
+                object_type=game_object.type_id(),
+                flags=update_flags,
+                movement_update=self._make_movement_update(game_object),
+                high_guid=None,
+                victim_guid=None,
+                world_time=None,
+                update_fields=game_object.update_fields(),
+            ),
+        )
+
+    def _make_update_object(
+            self,
+            player: Player,
+            game_objects: Iterable[GameObject],
+    ) -> bytes:
+        out_of_range_guids = []
+        update_blocks = []
+        for o in game_objects:
+            if player.distance_to(o) > config.MAX_UPDATE_DISTANCE:
+                out_of_range_guids.append(o.guid)
+            else:
+                update_block = self._make_update_block(player, o)
+                if update_block:
+                    update_blocks.append(update_block)
+
+        # Make an update block for OUT_OF_RANGE updates.
+        if out_of_range_guids:
+            update_blocks.append(
+                dict(
+                    update_type=c.UpdateType.OUT_OF_RANGE_OBJECTS,
+                    update_block=dict(
+                        n_guids=len(out_of_range_guids),
+                        guids=out_of_range_guids,
+                    ),
+                ))
+
+        return update_object.ServerUpdateObject.build(
+            dict(
+                n_blocks=len(update_blocks),
+                is_transport=0,  # TODO
+                blocks=update_blocks,
+            ))
 
     @orm.db_session
     def login(self, player: Player, session: session.Session):
@@ -151,11 +207,34 @@ class Updater(system.System):
         session.log.info(
             f'Updater: registered new player {player.name} (id = {player.id})')
         self.players[player.id] = session
+        self._update_cache[player.id] = PlayerUpdateCache()
 
         # Send self UPDATE_OBJECT packet.
-        # TODO
+        update_object_pkt = self._make_update_object(
+            player,
+            [player],
+            # (o for o in GameObject.select()
+            #  if o.distance_to(player) < config.MAX_UPDATE_DISTANCE),
+        )
 
-        # Send UPDATE_OBJECT packets for all nearby objects.
+        session.send_packet(op_code.Server.UPDATE_OBJECT, update_object_pkt)
+
+    @orm.db_session
+    def logout(self, player: Player):
+        """Mark the given player as logged in.
+
+        This will cause object updates to be sent to them immediately.
+
+        Args:
+            player: The player to log in.
+            session: The session the player can be contacted on.
+        """
+        self.players[player.id].log.info(
+            f'Updater: player logout {player.name} (id = {player.id})')
+        del self.players[player.id]
+        del self._update_cache[player.id]
+
+        # Send UPDATE_OBJECT packets for this player to all other players.
         # TODO
 
     @orm.db_session

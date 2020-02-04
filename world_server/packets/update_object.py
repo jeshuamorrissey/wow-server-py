@@ -1,7 +1,7 @@
 import enum
 from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes,
                        GreedyRange, If, Int8ul, Int32ul, Int64ul, Rebuild,
-                       Struct, Switch, Adapter, Byte)
+                       Struct, Switch, Adapter, Byte, Debugger)
 
 from database.dbc import constants as c
 
@@ -66,7 +66,7 @@ class UpdateFieldsAdapter(Adapter):
         return result
 
     def _encode(self, obj, context, path):
-        num_values = len(obj)
+        num_values = max(obj.keys())
 
         # Calculate the number of mask blocks we need.
         blocks = (num_values + 32 - 1) // 32
@@ -255,8 +255,8 @@ ValuesUpdateBlock = Struct(
 )
 
 OutOfRangeUpdateBlock = Struct(
-    'n_guids' / Rebuild(Int32ul, lambda this: len(this.guids)),
-    'guids' / GreedyRange(PackedGUID),
+    'n_guids' / Int32ul,
+    'guids' / Array(lambda this: this.n_guids, PackedGUID),
 )
 
 UpdateBlock = Struct(
@@ -272,7 +272,7 @@ UpdateBlock = Struct(
 )
 
 ServerUpdateObject = Struct(
-    'n_blocks' / Rebuild(Int32ul, lambda this: len(this.blocks)),
+    'n_blocks' / Int32ul,
     'is_transport' / Int8ul,
-    'blocks' / GreedyRange(UpdateBlock),
+    'blocks' / Array(lambda this: this.n_blocks, UpdateBlock),
 )

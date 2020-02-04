@@ -1,5 +1,7 @@
 from pony import orm
 
+from typing import Tuple, Dict, Any
+
 from database.dbc import constants as c
 from database.world.game_object.game_object import GameObject
 
@@ -10,6 +12,21 @@ class Item(GameObject):
     # Reverse mappings.
     equipped_by = orm.Optional('EquippedItem')
     in_backpack = orm.Optional('BackpackItem')
+
+    def position(self) -> Tuple[float, float, float]:
+        """Get the current position of the object.
+
+        All objects either have a position, or have a parent who has a 
+        position, so a result from this should always be possible.
+
+        Returns:
+            A 3-tuple of floats (x, y, z).
+        """
+        if self.equipped_by:
+            return self.equipped_by.owner.position()
+        elif self.in_backpack:
+            return self.in_backpack.owner.position()
+        raise RuntimeError(f'item {self.id} does not have an owner!')
 
     #
     # Class Methods (should be overwritten in children).
@@ -25,3 +42,33 @@ class Item(GameObject):
 
     def high_guid(self) -> c.HighGUID:
         return c.HighGUID.ITEM
+
+    def update_fields(self) -> Dict[c.UpdateField, Any]:
+        """Return a mapping of UpdateField --> Value."""
+        f = c.ItemFields
+        fields = {
+            f.OWNER: 0,
+            f.OWNER + 1: 0,
+            f.CONTAINED: 0,
+            f.CONTAINED + 1: 0,
+            f.CREATOR: 0,
+            f.CREATOR + 1: 0,
+            f.GIFTCREATOR: 0,
+            f.GIFTCREATOR + 1: 0,
+            f.STACK_COUNT: 0,
+            f.DURATION: 0,
+            f.SPELL_CHARGES: 0,
+            f.SPELL_CHARGES_01: 0,
+            f.SPELL_CHARGES_02: 0,
+            f.SPELL_CHARGES_03: 0,
+            f.SPELL_CHARGES_04: 0,
+            f.FLAGS: 0,
+            # f.ENCHANTMENT: 0,  # TODO
+            f.PROPERTY_SEED: 0,
+            f.RANDOM_PROPERTIES_ID: 0,
+            f.ITEM_TEXT_ID: 0,
+            f.DURABILITY: 0,
+            f.MAXDURABILITY: 0,
+        }
+
+        return {**super(Item, self).update_fields(), **fields}

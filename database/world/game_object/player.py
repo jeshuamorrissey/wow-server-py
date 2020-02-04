@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict, Text
+from typing import Dict, Text, Any
 
 from pony import orm
 
@@ -158,7 +158,102 @@ class Player(unit.Unit):
         return c.TypeID.PLAYER
 
     def type_mask(self) -> c.TypeMask:
-        return super(Unit, self).type_mask() | c.TypeMask.PLAYER
+        return super(Player, self).type_mask() | c.TypeMask.PLAYER
 
     def high_guid(self) -> c.HighGUID:
         return c.HighGUID.PLAYER
+
+    def update_fields(self) -> Dict[c.UpdateField, Any]:
+        """Return a mapping of UpdateField --> Value."""
+        f = c.PlayerFields
+        fields = {
+            f.DUEL_ARBITER: 0,
+            f.FLAGS: 0,
+            f.GUILDID: 0,
+            f.GUILDRANK: 0,
+            f.BYTES: 0,
+            f.BYTES_2: 0,
+            f.BYTES_3: 0,
+            f.DUEL_TEAM: 0,
+            f.GUILD_TIMESTAMP: 0,
+            f.QUEST_LOG_1_1: 0,
+            f.QUEST_LOG_1_2: 0,
+            f.QUEST_LOG_1_3: 0,
+            f.QUEST_LOG_LAST_1: 0,
+            f.QUEST_LOG_LAST_2: 0,
+            f.QUEST_LOG_LAST_3: 0,
+            f.VISIBLE_ITEM_1_CREATOR: 0,
+            f.VISIBLE_ITEM_1_0: 0,
+            f.VISIBLE_ITEM_1_PROPERTIES: 0,
+            f.VISIBLE_ITEM_1_PAD: 0,
+            f.VISIBLE_ITEM_LAST_CREATOR: 0,
+            f.VISIBLE_ITEM_LAST_0: 0,
+            f.VISIBLE_ITEM_LAST_PROPERTIES: 0,
+            f.VISIBLE_ITEM_LAST_PAD: 0,
+            f.INV_SLOT_HEAD: 0,
+            f.PACK_SLOT_1: 0,
+            f.PACK_SLOT_LAST: 0,
+            f.BANK_SLOT_1: 0,
+            f.BANK_SLOT_LAST: 0,
+            f.BANKBAG_SLOT_1: 0,
+            f.BANKBAG_SLOT_LAST: 0,
+            f.VENDORBUYBACK_SLOT_1: 0,
+            f.VENDORBUYBACK_SLOT_LAST: 0,
+            f.KEYRING_SLOT_1: 0,
+            f.KEYRING_SLOT_LAST: 0,
+            f.FARSIGHT: 0,
+            f.COMBO_TARGET: 0,
+            f.XP: 0,
+            f.NEXT_LEVEL_XP: 0,
+            f.SKILL_INFO_1_1: 0,
+            f.CHARACTER_POINTS1: 0,
+            f.CHARACTER_POINTS2: 0,
+            f.TRACK_CREATURES: 0,
+            f.TRACK_RESOURCES: 0,
+            f.BLOCK_PERCENTAGE: 0,
+            f.DODGE_PERCENTAGE: 0,
+            f.PARRY_PERCENTAGE: 0,
+            f.CRIT_PERCENTAGE: 0,
+            f.RANGED_CRIT_PERCENTAGE: 0,
+            f.EXPLORED_ZONES_1: 0,
+            f.REST_STATE_EXPERIENCE: 0,
+            f.COINAGE: 0,
+            f.POSSTAT0: 0,
+            f.POSSTAT1: 0,
+            f.POSSTAT2: 0,
+            f.POSSTAT3: 0,
+            f.POSSTAT4: 0,
+            f.NEGSTAT0: 0,
+            f.NEGSTAT1: 0,
+            f.NEGSTAT2: 0,
+            f.NEGSTAT3: 0,
+            f.NEGSTAT4: 0,
+            f.RESISTANCEBUFFMODSPOSITIVE: 0,
+            f.RESISTANCEBUFFMODSNEGATIVE: 0,
+            f.MOD_DAMAGE_DONE_POS: 0,
+            f.MOD_DAMAGE_DONE_NEG: 0,
+            f.MOD_DAMAGE_DONE_PCT: 0,
+            f.BYTES: 0,
+            f.AMMO_ID: 0,
+            f.SELF_RES_SPELL: 0,
+            f.PVP_MEDALS: 0,
+            f.BUYBACK_PRICE_1: 0,
+            f.BUYBACK_PRICE_LAST: 0,
+            f.BUYBACK_TIMESTAMP_1: 0,
+            f.BUYBACK_TIMESTAMP_LAST: 0,
+            f.SESSION_KILLS: 0,
+            f.YESTERDAY_KILLS: 0,
+            f.LAST_WEEK_KILLS: 0,
+            f.THIS_WEEK_KILLS: 0,
+            f.THIS_WEEK_CONTRIBUTION: 0,
+            f.LIFETIME_HONORABLE_KILLS: 0,
+            f.LIFETIME_DISHONORABLE_KILLS: 0,
+            f.YESTERDAY_CONTRIBUTION: 0,
+            f.LAST_WEEK_CONTRIBUTION: 0,
+            f.LAST_WEEK_RANK: 0,
+            f.BYTES2: 0,
+            f.WATCHED_FACTION_INDEX: 0,
+            f.COMBAT_RATING_1: 0,
+        }
+
+        return {**super(Player, self).update_fields(), **fields}
