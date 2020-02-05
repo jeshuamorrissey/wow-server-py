@@ -1,7 +1,7 @@
 import enum
 from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes,
                        GreedyRange, If, Int8ul, Int32ul, Int64ul, Rebuild,
-                       Struct, Switch, Adapter, Byte, Debugger)
+                       Struct, Switch, Adapter, Byte, Debugger, IfThenElse)
 
 from database.dbc import constants as c
 
@@ -23,7 +23,7 @@ class PackedGUIDAdapter(Adapter):
             if obj.mask & (1 << i):
                 guid |= next(guid_bytes) << (i * 8)
 
-        return guid
+        return (hex(guid & 0xFFFFFFFF), hex(guid >> 32))
 
     def _encode(self, obj, context, path):
         mask = 0
@@ -36,10 +36,12 @@ class PackedGUIDAdapter(Adapter):
         return dict(mask=mask, parts=parts)
 
 
-PackedGUID = PackedGUIDAdapter(Struct(
-    'mask' / Int8ul,
-    'parts' / Array(lambda this: bin(this.mask).count('1'), Byte),
-))
+PackedGUID = PackedGUIDAdapter(
+    Struct(
+        'mask' / Int8ul,
+        'parts' / Array(lambda this: bin(this.mask).count('1'), Byte),
+    ))
+
 
 class UpdateFieldsAdapter(Adapter):
     """Adapter which can process the update fields in UPDATE_OBJECT.
@@ -66,17 +68,17 @@ class UpdateFieldsAdapter(Adapter):
         return result
 
     def _encode(self, obj, context, path):
-        num_values = max(obj.keys())
+        num_fields = obj['num_fields']
 
         # Calculate the number of mask blocks we need.
-        blocks = (num_values + 32 - 1) // 32
+        blocks = (num_fields + 32 - 1) // 32
 
         # Each mask block is 4 bytes long
         num_bytes = blocks * 4
 
         mask = 0
         fields = []
-        for field, value in sorted(obj.items()):
+        for field, value in sorted(obj['fields'].items()):
             if value is None:
                 continue
 
@@ -103,18 +105,20 @@ class UpdateFieldsAdapter(Adapter):
         )
 
 
-UpdateFields = UpdateFieldsAdapter(Struct(
-    'blocks' / Int8ul,
-    'masks' / Array(lambda this: this.blocks * 4, Byte),
-    'fields' / Array(lambda this: sum(bin(m).count('1')
-                                      for m in this.masks), Bytes(4)),
-))
+UpdateFields = UpdateFieldsAdapter(
+    Struct(
+        'blocks' / Int8ul,
+        'masks' / Array(lambda this: this.blocks * 4, Byte),
+        'fields' /
+        Array(lambda this: sum(bin(m).count('1')
+                               for m in this.masks), Bytes(4)),
+    ))
 
-is_set = lambda enum: lambda this: enum in this.flags
-is_not_set = lambda enum: lambda this: enum not in this.flags
+is_set = lambda enum: lambda this: enum & this.flags
+is_not_set = lambda enum: lambda this: not (enum & this.flags)
 
 FullMovementUpdate = Struct(
-    'flags' / Enum(Int32ul, c.MovementFlags),
+    'flags' / Int32ul,
     'time' / Int32ul,
     'x' / Float32l,
     'y' / Float32l,
@@ -162,7 +166,7 @@ FullMovementUpdate = Struct(
     'spline_update' / If(
         is_set(c.MovementFlags.SPLINE_ENABLED),
         Struct(
-            'flags' / Enum(Int32ul, c.SplineFlags),
+            'flags' / Int32ul,
             'facing' / If(
                 is_set(c.SplineFlags.Final_Point),
                 Struct(
@@ -172,23 +176,24 @@ FullMovementUpdate = Struct(
                 ),
             ),
             'target' / If(
-                is_set(c.SplineFlags.Final_Target),
+                lambda this: this.flags & c.SplineFlags.Final_Point and not (this.flags & c.SplineFlags.Final_Target),
                 Int64ul,
             ),
             'angle' / If(
-                is_set(c.SplineFlags.Final_Angle),
+                lambda this: this.flags & c.SplineFlags.Final_Angle and not (this.flags & c.SplineFlags.Final_Point) and not (this.flags & c.SplineFlags.Final_Target),
                 Float32l,
             ),
             'time_passed' / Int32ul,
             'duration' / Int32ul,
             'id' / Int32ul,
-            'n_points' / Rebuild(Int32ul, lambda this: len(this.points)),
-            'points' / GreedyRange(
-                Struct(
-                    'x' / Float32l,
-                    'y' / Float32l,
-                    'z' / Float32l,
-                )),
+            'n_points' / Int32ul,
+            'points' /
+            Array(lambda this: this.n_points,
+                  Struct(
+                      'x' / Float32l,
+                      'y' / Float32l,
+                      'z' / Float32l,
+                  )),
             'final_point' / Struct(
                 'x' / Float32l,
                 'y' / Float32l,
@@ -205,6 +210,7 @@ PositionMovementUpdate = Struct(
     'o' / Float32l,
 )
 
+
 def PackGUID(guid: int) -> dict:
     """Make a PackedGUID dictionary."""
     mask = 0
@@ -219,16 +225,18 @@ def PackGUID(guid: int) -> dict:
         bytes=guid_bytes,
     )
 
+
 FullUpdateBlock = Struct(
     'guid' / PackedGUID,
-    'object_type' / Enum(Int8ul, c.TypeID),
-    'flags' / Enum(Int8ul, c.UpdateFlags),
-    'movement_update' / Switch(
-        lambda this: this.flags,
-        cases={
-            c.UpdateFlags.LIVING: FullMovementUpdate,
-            c.UpdateFlags.HAS_POSITION: PositionMovementUpdate,
-        },
+    'object_type' / Int8ul,
+    'flags' / Int8ul,
+    'movement_update' / IfThenElse(
+        is_set(c.UpdateFlags.LIVING),
+        FullMovementUpdate,
+        If(
+            is_set(c.UpdateFlags.HAS_POSITION),
+            PositionMovementUpdate,
+        ),
     ),
     'high_guid' / If(
         is_set(c.UpdateFlags.HIGHGUID),
@@ -236,7 +244,7 @@ FullUpdateBlock = Struct(
     ),
     'is_update_all' / If(
         is_set(c.UpdateFlags.ALL),
-        Const(b'\x01\x00\x00\x00'),
+        Const(int(1).to_bytes(4, 'little')),
     ),
     'victim_guid' / If(
         is_set(c.UpdateFlags.FULLGUID),
@@ -260,7 +268,7 @@ OutOfRangeUpdateBlock = Struct(
 )
 
 UpdateBlock = Struct(
-    'update_type' / Enum(Int8ul, c.UpdateType),
+    'update_type' / Int8ul,
     'update_block' / Switch(
         lambda this: this.update_type,
         cases={

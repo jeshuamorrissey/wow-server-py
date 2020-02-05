@@ -43,6 +43,9 @@ class Item(GameObject):
     def high_guid(self) -> c.HighGUID:
         return c.HighGUID.ITEM
 
+    def num_fields(self) -> int:
+        return 0x06 + 0x2A
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.ItemFields

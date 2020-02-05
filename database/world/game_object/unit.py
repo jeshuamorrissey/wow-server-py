@@ -52,6 +52,9 @@ class Unit(GameObject):
             return c.HighGUID.PET
         return c.HighGUID.UNIT
 
+    def num_fields(self) -> int:
+        return 0x06 + 0xB6
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.UnitFields
@@ -77,8 +80,9 @@ class Unit(GameObject):
             f.MAXPOWER4: 0,
             f.MAXPOWER5: 0,
             f.LEVEL: 0,
-            f.FACTIONTEMPLATE: 0,
-            f.BYTES_0: 0,
+            f.FACTIONTEMPLATE: 4,
+            f.BYTES_0:
+            self.race | self.class_ << 8 | self.gender << 16,  # MUST BE SET
             f.VIRTUAL_ITEM_SLOT_DISPLAY: 0,
             f.VIRTUAL_ITEM_SLOT_DISPLAY_01: 0,
             f.VIRTUAL_ITEM_SLOT_DISPLAY_02: 0,

@@ -56,13 +56,16 @@ class GameObject(db.Entity):
     def high_guid(self) -> c.HighGUID:
         raise NotImplementedError('GameObjects must have a high GUID.')
 
+    def num_fields(self) -> int:
+        return 0x06
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         of = c.ObjectFields
         return {
             of.GUID_LOW: self.id,
             of.GUID_HIGH: self.high_guid(),
-            of.TYPE: self.type_id(),
+            of.TYPE: self.type_mask(),
             of.ENTRY: self.entry,
             of.SCALE_X: self.scale,
         }

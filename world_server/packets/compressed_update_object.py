@@ -1,5 +1,8 @@
-from construct import Compressed
+from construct import Compressed, Struct, Int32ul, Rebuild
 
 from world_server.packets.update_object import ServerUpdateObject
 
-ServerCompressedUpdateObject = Compressed(ServerUpdateObject, 'zlib', level=6)
+ServerCompressedUpdateObject = Struct(
+    'uncompressed_size' / Int32ul,
+    'data' / Compressed(ServerUpdateObject, 'zlib', level=6),
+)

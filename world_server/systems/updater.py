@@ -59,7 +59,7 @@ class Updater(system.System):
                 o=game_object.o,
                 transport=None,
                 swimming=None,
-                last_fall_time=None,
+                last_fall_time=0,
                 falling=None,
                 spline_elevation=None,
                 speed=dict(
@@ -139,7 +139,10 @@ class Updater(system.System):
                 update_type=update_type,
                 update_block=dict(
                     guid=game_object.guid,
-                    update=values_update_diff,
+                    update=dict(
+                        num_fields=game_object.num_fields(),
+                        fields=values_update_diff,
+                    ),
                 ),
             )
 
@@ -157,15 +160,18 @@ class Updater(system.System):
                 high_guid=None,
                 victim_guid=None,
                 world_time=None,
-                update_fields=game_object.update_fields(),
+                update_fields=dict(
+                    num_fields=game_object.num_fields(),
+                    fields=game_object.update_fields(),
+                ),
             ),
         )
 
     def _make_update_object(
-            self,
-            player: Player,
-            game_objects: Iterable[GameObject],
-    ) -> bytes:
+        self,
+        player: Player,
+        game_objects: Iterable[GameObject],
+    ) -> Tuple[op_code.Server, bytes]:
         out_of_range_guids = []
         update_blocks = []
         for o in game_objects:
@@ -187,12 +193,21 @@ class Updater(system.System):
                     ),
                 ))
 
-        return update_object.ServerUpdateObject.build(
-            dict(
-                n_blocks=len(update_blocks),
-                is_transport=0,  # TODO
-                blocks=update_blocks,
-            ))
+        update_data = dict(
+            n_blocks=len(update_blocks),
+            is_transport=0,  # TODO
+            blocks=update_blocks,
+        )
+
+        op = op_code.Server.UPDATE_OBJECT
+        update_object_pkt = update_object.ServerUpdateObject.build(update_data)
+        if len(update_object_pkt) > config.MAX_UPDATE_OBJECT_PACKET_SIZE:
+            op = op_code.Server.COMPRESSED_UPDATE_OBJECT
+            update_object_pkt = compressed_update_object.ServerCompressedUpdateObject.build(
+                dict(uncompressed_size=len(update_object_pkt),
+                     data=update_data))
+
+        return (op, update_object_pkt)
 
     @orm.db_session
     def login(self, player: Player, session: session.Session):
@@ -209,15 +224,13 @@ class Updater(system.System):
         self.players[player.id] = session
         self._update_cache[player.id] = PlayerUpdateCache()
 
-        # Send self UPDATE_OBJECT packet.
-        update_object_pkt = self._make_update_object(
+        op, update_object_pkt = self._make_update_object(
             player,
-            [player],
-            # (o for o in GameObject.select()
-            #  if o.distance_to(player) < config.MAX_UPDATE_DISTANCE),
+            (o for o in GameObject.select()
+             if o.distance_to(player) < config.MAX_UPDATE_DISTANCE),
         )
 
-        session.send_packet(op_code.Server.UPDATE_OBJECT, update_object_pkt)
+        session.send_packet(op, update_object_pkt)
 
     @orm.db_session
     def logout(self, player: Player):
