@@ -1,12 +1,13 @@
-from typing import Tuple, Dict, Any
+from typing import Any, Dict, Tuple, Optional
 
 from pony import orm
 
+from database.dbc import chr_races
 from database.dbc import constants as c
-from database.world.game_object.game_object import GameObject
+from database.world.game_object import game_object
 
 
-class Unit(GameObject):
+class Unit(game_object.GameObject):
     level = orm.Required(int, min=1)
     race = orm.Required(c.Race)
     class_ = orm.Required(c.Class)
@@ -15,8 +16,24 @@ class Unit(GameObject):
     # For NPC units, they will link to a template.
     base_unit = orm.Optional('UnitTemplate')
 
-    # For pets, they will have a master.
-    master = orm.Optional('Player')
+    # Unit statistics.
+    base_health = orm.Required(int)
+    base_power = orm.Required(int)
+
+    health_percent = orm.Optional(float, min=0, max=1, default=1)
+    power_percent = orm.Optional(float, min=0, max=1, default=1)
+
+    # Relationships to other units.
+    target = orm.Optional('Unit', reverse='targeted_by')
+    targeted_by = orm.Set('Unit', reverse='target')
+    control = orm.Optional('Unit', reverse='controller')
+    controller = orm.Optional('Unit', reverse='control')
+    summon = orm.Optional('Unit', reverse='summoner')
+    summoner = orm.Optional('Unit', reverse='summon')
+    created = orm.Set('Unit', reverse='created_by')
+    created_by = orm.Optional('Unit', reverse='created')
+    channeling = orm.Optional('Unit', reverse='channeled_by')
+    channeled_by = orm.Set('Unit', reverse='channeling')
 
     # Unit location information.
     x = orm.Required(float)
@@ -48,41 +65,63 @@ class Unit(GameObject):
         return c.UpdateFlags.ALL | c.UpdateFlags.LIVING | c.UpdateFlags.HAS_POSITION
 
     def high_guid(self) -> c.HighGUID:
-        if self.master:
-            return c.HighGUID.PET
         return c.HighGUID.UNIT
 
     def num_fields(self) -> int:
         return 0x06 + 0xB6
 
+    def bytes_0(self) -> int:
+        return self.race | self.class_ << 8 | self.gender << 16
+
+    def display_id(self) -> int:
+        if self.base_unit:
+            return self.base_unit.ModelId1
+
+        # For players, read from the DBC.
+        race_info = chr_races.ChrRaces[self.race]
+        if self.gender == c.Gender.MALE:
+            return race_info.male_display_id
+        return race_info.female_display_id
+
+    def health(self) -> int:
+        return self.max_health() * self.health_percent
+
+    def max_health(self) -> int:
+        return self.base_health
+
+    def power(self) -> int:
+        return self.max_power() * self.power_percent
+
+    def max_power(self) -> int:
+        return self.base_power
+
+    def power_type(self) -> c.PowerType:
+        # TODO: use ChrClasses for this information
+        if self.class_ == c.Class.WARRIOR:
+            return c.PowerType.RAGE
+        elif self.class_ == c.Class.ROGUE:
+            return c.PowerType.ENERGY
+        return c.PowerType.MANA
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.UnitFields
         fields = {
-            f.CHARM: 0,
-            f.SUMMON: 0,
-            f.CHARMEDBY: 0,
-            f.SUMMONEDBY: 0,
-            f.CREATEDBY: 0,
-            f.TARGET: None,
-            f.PERSUADED: 0,
-            f.CHANNEL_OBJECT: 0,
-            f.HEALTH: 0,
-            f.POWER1: 0,
-            f.POWER2: 0,
-            f.POWER3: 0,
-            f.POWER4: 0,
-            f.POWER5: 0,
-            f.MAXHEALTH: 0,
-            f.MAXPOWER1: 0,
-            f.MAXPOWER2: 0,
-            f.MAXPOWER3: 0,
-            f.MAXPOWER4: 0,
-            f.MAXPOWER5: 0,
-            f.LEVEL: 0,
+            f.CHARM: self.control.guid if self.control else None,
+            f.SUMMON: self.summon.guid if self.summon else None,
+            f.CHARMEDBY: self.controller.guid if self.controller else None,
+            f.SUMMONEDBY: self.summoner.guid if self.summoner else None,
+            f.CREATEDBY: self.created_by.guid if self.created_by else None,
+            f.TARGET: self.target.guid if self.target else None,
+            f.PERSUADED: self.created_by.guid if self.created_by else None,
+            f.CHANNEL: self.channeling.guid if self.channeling else None,
+            f.HEALTH: self.health(),
+            f.POWER_START + self.power_type(): self.power(),
+            f.MAXHEALTH: self.max_health(),
+            f.MAX_POWER_START + self.power_type(): self.max_power(),
+            f.LEVEL: self.level,
             f.FACTIONTEMPLATE: 4,
-            f.BYTES_0:
-            self.race | self.class_ << 8 | self.gender << 16,  # MUST BE SET
+            f.BYTES_0: self.bytes_0(),
             f.VIRTUAL_ITEM_SLOT_DISPLAY: 0,
             f.VIRTUAL_ITEM_SLOT_DISPLAY_01: 0,
             f.VIRTUAL_ITEM_SLOT_DISPLAY_02: 0,
@@ -106,23 +145,19 @@ class Unit(GameObject):
             f.AURAAPPLICATIONS: 0,
             f.AURAAPPLICATIONS_LAST: 0,
             f.AURASTATE: 0,
-            f.BASEATTACKTIME: 0,
-            f.OFFHANDATTACKTIME: 0,
-            f.RANGEDATTACKTIME: 0,
-            f.BOUNDINGRADIUS: 0,
-            f.COMBATREACH: 0,
-            f.DISPLAYID: 0,
-            f.NATIVEDISPLAYID: 0,
+            f.BASEATTACKTIME: 1000,
+            f.OFFHANDATTACKTIME: 1000,
+            f.RANGEDATTACKTIME: 1000,
+            f.BOUNDINGRADIUS: 1.0,
+            f.COMBATREACH: 1.0,
+            f.DISPLAYID: self.display_id(),
+            f.NATIVEDISPLAYID: self.display_id(),
             f.MOUNTDISPLAYID: 0,
-            f.MINDAMAGE: 0,
-            f.MAXDAMAGE: 0,
-            f.MINOFFHANDDAMAGE: 0,
-            f.MAXOFFHANDDAMAGE: 0,
+            f.MINDAMAGE: 10.0,
+            f.MAXDAMAGE: 20.0,
+            f.MINOFFHANDDAMAGE: 10.0,
+            f.MAXOFFHANDDAMAGE: 20.0,
             f.BYTES_1: 0,
-            f.PETNUMBER: 0,
-            f.PET_NAME_TIMESTAMP: 0,
-            f.PETEXPERIENCE: 0,
-            f.PETNEXTLEVELEXP: 0,
             f.DYNAMIC_FLAGS: 0,
             f.CHANNEL_SPELL: 0,
             f.MOD_CAST_SPEED: 0,
@@ -130,29 +165,29 @@ class Unit(GameObject):
             f.NPC_FLAGS: 0,
             f.NPC_EMOTESTATE: 0,
             f.TRAINING_POINTS: 0,
-            f.STAT0: 0,
-            f.STAT1: 0,
-            f.STAT2: 0,
-            f.STAT3: 0,
-            f.STAT4: 0,
-            f.RESISTANCES: 0,
-            f.RESISTANCES_01: 0,
-            f.RESISTANCES_02: 0,
-            f.RESISTANCES_03: 0,
-            f.RESISTANCES_04: 0,
-            f.RESISTANCES_05: 0,
-            f.RESISTANCES_06: 0,
-            f.BASE_MANA: 0,
-            f.BASE_HEALTH: 0,
+            f.STAT0: 1,
+            f.STAT1: 2,
+            f.STAT2: 3,
+            f.STAT3: 4,
+            f.STAT4: 5,
+            f.RESISTANCES: 1,
+            f.RESISTANCES_01: 2,
+            f.RESISTANCES_02: 3,
+            f.RESISTANCES_03: 4,
+            f.RESISTANCES_04: 5,
+            f.RESISTANCES_05: 6,
+            f.RESISTANCES_06: 7,
+            f.BASE_MANA: self.base_power,
+            f.BASE_HEALTH: self.base_health,
             f.BYTES_2: 0,
-            f.ATTACK_POWER: 0,
-            f.ATTACK_POWER_MODS: 0,
-            f.ATTACK_POWER_MULTIPLIER: 0,
-            f.RANGED_ATTACK_POWER: 0,
-            f.RANGED_ATTACK_POWER_MODS: 0,
-            f.RANGED_ATTACK_POWER_MULTIPLIER: 0,
-            f.MINRANGEDDAMAGE: 0,
-            f.MAXRANGEDDAMAGE: 0,
+            f.ATTACK_POWER: 10,
+            f.ATTACK_POWER_MODS: 1,
+            f.ATTACK_POWER_MULTIPLIER: 2.0,
+            f.RANGED_ATTACK_POWER: 10,
+            f.RANGED_ATTACK_POWER_MODS: 1,
+            f.RANGED_ATTACK_POWER_MULTIPLIER: 2.0,
+            f.MINRANGEDDAMAGE: 10.0,
+            f.MAXRANGEDDAMAGE: 10.0,
             f.POWER_COST_MODIFIER: 0,
             f.POWER_COST_MODIFIER_01: 0,
             f.POWER_COST_MODIFIER_02: 0,

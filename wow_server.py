@@ -24,8 +24,11 @@ from database.dbc.item_template import ItemTemplate
 from database.dbc.unit_template import UnitTemplate
 from database.world.account import Account
 from database.world.game_object.container import Container
+from database.world.game_object.game_object import GameObject
 from database.world.game_object.item import Item
-from database.world.game_object.player import EquippedBag, EquippedItem, Player
+from database.world.game_object.pet import Pet
+from database.world.game_object.player import (BackpackItem, EquippedBag,
+                                               EquippedItem, Player)
 from database.world.game_object.unit import Unit
 from database.world.guild import Guild
 from database.world.realm import Realm
@@ -45,7 +48,17 @@ def setup_db(args: argparse.Namespace):
     # Connect to SQLite in memory.
     db.bind(provider='sqlite', filename=args.db_file, create_db=True)
     db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
-    db.generate_mapping(create_tables=True)
+    db.generate_mapping(check_tables=False)
+
+    Account.drop_table(with_all_data=True)
+    BackpackItem.drop_table(with_all_data=True)
+    EquippedBag.drop_table(with_all_data=True)
+    EquippedItem.drop_table(with_all_data=True)
+    GameObject.drop_table(with_all_data=True)
+    Guild.drop_table(with_all_data=True)
+    Realm.drop_table(with_all_data=True)
+
+    db.create_tables()
 
     # Load DBC data.
     data.LoadDBC()
@@ -54,12 +67,6 @@ def setup_db(args: argparse.Namespace):
     # Clear the world database tables so they can be created again.
     if args.reset_world_database:
         with orm.db_session:
-            db.execute('DELETE FROM Account')
-            db.execute('DELETE FROM Realm')
-            db.execute('DELETE FROM Guild')
-            db.execute('DELETE FROM GameObject')
-            db.execute('DELETE FROM EquippedItem')
-
             account = Account.New(username='jeshua', password='jeshua')
             realm = Realm(name='Brisbane',
                           hostport=f'{args.host}:{args.world_port}')
@@ -69,14 +76,16 @@ def setup_db(args: argparse.Namespace):
                 realm=realm,
                 name='Jeshua',
                 race=c.Race.HUMAN,
-                class_=c.Class.WARRIOR,
+                class_=c.Class.MAGE,
                 gender=c.Gender.MALE,
                 guild=guild,
                 last_login=datetime.datetime.now(),
+                base_health=100,  # TODO: use ChrBaseStats
+                base_power=100,
             )
 
             base_unit = UnitTemplate.get(Name='Young Nightsaber')
-            kiko = Unit(
+            Pet(
                 base_unit=base_unit,
                 level=1,
                 race=0,
@@ -86,9 +95,11 @@ def setup_db(args: argparse.Namespace):
                 y=jeshua.y + 2,
                 z=jeshua.z,
                 o=jeshua.o,
+                summoner=jeshua,
+                created_by=jeshua,
+                base_health=100,
+                base_power=100,
             )
-
-            jeshua.pet = kiko
 
 
 def main(args: argparse.Namespace):

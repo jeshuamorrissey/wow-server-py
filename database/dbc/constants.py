@@ -53,6 +53,14 @@ class EquipmentSlot(enum.IntEnum):
     TABARD = 18
 
 
+class PowerType(enum.IntEnum):
+    MANA = 0
+    RAGE = 1
+    FOCUS = 2
+    ENERGY = 3
+    HAPPINESS = 4
+
+
 class UpdateType(enum.IntEnum):
     VALUES = 0
     MOVEMENT = 1
@@ -226,19 +234,11 @@ class UnitFields(UpdateField):
     CREATEDBY = ObjectFields.END + 0x08
     TARGET = ObjectFields.END + 0x0A
     PERSUADED = ObjectFields.END + 0x0C
-    CHANNEL_OBJECT = ObjectFields.END + 0x0E
+    CHANNEL = ObjectFields.END + 0x0E
     HEALTH = ObjectFields.END + 0x10
-    POWER1 = ObjectFields.END + 0x11
-    POWER2 = ObjectFields.END + 0x12
-    POWER3 = ObjectFields.END + 0x13
-    POWER4 = ObjectFields.END + 0x14
-    POWER5 = ObjectFields.END + 0x15
+    POWER_START = ObjectFields.END + 0x11  # power = POWER_START + c.PowerType
     MAXHEALTH = ObjectFields.END + 0x16
-    MAXPOWER1 = ObjectFields.END + 0x17
-    MAXPOWER2 = ObjectFields.END + 0x18
-    MAXPOWER3 = ObjectFields.END + 0x19
-    MAXPOWER4 = ObjectFields.END + 0x1A
-    MAXPOWER5 = ObjectFields.END + 0x1B
+    MAX_POWER_START = ObjectFields.END + 0x17  # max_power = MAX_POWER_START + c.PowerType
     LEVEL = ObjectFields.END + 0x1C
     FACTIONTEMPLATE = ObjectFields.END + 0x1D
     BYTES_0 = ObjectFields.END + 0x1E

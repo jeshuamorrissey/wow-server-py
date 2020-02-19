@@ -34,11 +34,11 @@ def handle_char_enum(
                 equipment.append(dict(display_id=0, inventory_type=0))
 
         pet = dict(display_id=0, level=0, family=0)
-        if character.pet:
+        if character.summon:
             pet = dict(
-                display_id=character.pet.base_unit.ModelId1,
-                level=character.pet.level,
-                family=character.pet.base_unit.Family,
+                display_id=character.summon.base_unit.ModelId1,
+                level=character.summon.level,
+                family=character.summon.base_unit.Family,
             )
 
         # Make the enum data.

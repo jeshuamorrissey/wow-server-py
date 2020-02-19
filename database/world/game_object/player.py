@@ -58,9 +58,6 @@ class Player(unit.Unit):
     zone = orm.Required(int)
     map = orm.Required(int)
 
-    # Pet.
-    pet = orm.Optional('Unit')
-
     # Inventory.
     equipment = orm.Set(EquippedItem)
     backpack_items = orm.Set(BackpackItem)
