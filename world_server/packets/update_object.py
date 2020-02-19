@@ -1,11 +1,12 @@
 import enum
-from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes,
-                       GreedyRange, If, Int8ul, Int32ul, Int64ul, Rebuild,
-                       Struct, Switch, Adapter, Byte, Debugger, IfThenElse)
+import struct
+
+from construct import (Adapter, Array, Byte, Bytes, Const, Debugger, Enum,
+                       Float32l, GreedyBytes, GreedyRange, If, IfThenElse,
+                       Int8ul, Int32ul, Int64ul, Rebuild, Struct, Switch)
 
 from database.dbc import constants as c
-
-import struct
+from database.world.game_object import game_object
 
 
 class PackedGUIDAdapter(Adapter):
@@ -83,7 +84,11 @@ class UpdateFieldsAdapter(Adapter):
                 continue
 
             mask |= (1 << field)
-            if isinstance(value, int):
+            if isinstance(value, game_object.GUID):
+                mask |= (1 << (field + 1))
+                fields.append(value.low.to_bytes(4, 'little'))
+                fields.append(value.high.to_bytes(4, 'little'))
+            elif isinstance(value, int):
                 if value < 0:
                     fields.append(value.to_bytes(4, 'little', signed=True))
                 else:
@@ -176,11 +181,14 @@ FullMovementUpdate = Struct(
                 ),
             ),
             'target' / If(
-                lambda this: this.flags & c.SplineFlags.Final_Point and not (this.flags & c.SplineFlags.Final_Target),
+                lambda this: this.flags & c.SplineFlags.Final_Point and not (
+                    this.flags & c.SplineFlags.Final_Target),
                 Int64ul,
             ),
             'angle' / If(
-                lambda this: this.flags & c.SplineFlags.Final_Angle and not (this.flags & c.SplineFlags.Final_Point) and not (this.flags & c.SplineFlags.Final_Target),
+                lambda this: this.flags & c.SplineFlags.Final_Angle and not (
+                    this.flags & c.SplineFlags.Final_Point) and not (
+                        this.flags & c.SplineFlags.Final_Target),
                 Float32l,
             ),
             'time_passed' / Int32ul,

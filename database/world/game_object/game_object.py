@@ -8,14 +8,30 @@ from database.db import db
 from database.dbc import constants as c
 
 
+class GUID(int):
+    """Wrapper class around int which can be used to encode GUID fields.
+    
+    This will be converted into 2 fields:
+      - The first 4 bytes will be the LOW part.
+      - The second 4 bytes will be the HIGH part.
+    """
+    @property
+    def low(self) -> int:
+        return self & 0xFFFFFFFF
+
+    @property
+    def high(self) -> int:
+        return self >> 32
+
+
 class GameObject(db.Entity):
     id = orm.PrimaryKey(int, auto=True, min=1)
     entry = orm.Optional(int)
     scale = orm.Required(float, default=1.0)
 
     @property
-    def guid(self) -> int:
-        return (self.high_guid() << 32) | self.id
+    def guid(self) -> GUID:
+        return GUID((self.high_guid() << 32) | self.id)
 
     def position(self) -> Tuple[float, float, float]:
         """Get the current position of the object.
@@ -63,8 +79,7 @@ class GameObject(db.Entity):
         """Return a mapping of UpdateField --> Value."""
         of = c.ObjectFields
         return {
-            of.GUID_LOW: self.id,
-            of.GUID_HIGH: self.high_guid(),
+            of.GUID: self.guid,
             of.TYPE: self.type_mask(),
             of.ENTRY: self.entry,
             of.SCALE_X: self.scale,

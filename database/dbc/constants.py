@@ -180,8 +180,7 @@ class UpdateField(enum.IntEnum):
 
 
 class ObjectFields(UpdateField):
-    GUID_LOW = 0x00
-    GUID_HIGH = 0x01
+    GUID = 0x00
     TYPE = 0x02
     ENTRY = 0x03
     SCALE_X = 0x04

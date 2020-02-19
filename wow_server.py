@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import enum
 import logging
 import os
@@ -71,6 +72,7 @@ def setup_db(args: argparse.Namespace):
                 class_=c.Class.WARRIOR,
                 gender=c.Gender.MALE,
                 guild=guild,
+                last_login=datetime.datetime.now(),
             )
 
             base_unit = UnitTemplate.get(Name='Young Nightsaber')
@@ -80,8 +82,8 @@ def setup_db(args: argparse.Namespace):
                 race=0,
                 class_=base_unit.UnitClass,
                 gender=c.Gender.FEMALE,
-                x=jeshua.x,
-                y=jeshua.y,
+                x=jeshua.x + 2,
+                y=jeshua.y + 2,
                 z=jeshua.z,
                 o=jeshua.o,
             )

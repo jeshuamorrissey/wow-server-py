@@ -64,7 +64,7 @@ class Unit(GameObject):
             f.CHARMEDBY: 0,
             f.SUMMONEDBY: 0,
             f.CREATEDBY: 0,
-            f.TARGET: 0,
+            f.TARGET: None,
             f.PERSUADED: 0,
             f.CHANNEL_OBJECT: 0,
             f.HEALTH: 0,

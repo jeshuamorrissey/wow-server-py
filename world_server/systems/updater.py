@@ -247,14 +247,17 @@ class Updater(system.System):
         del self.players[player.id]
         del self._update_cache[player.id]
 
-        # Send UPDATE_OBJECT packets for this player to all other players.
+        # Send DESTROY_OBJECT packets for this player to all other players.
         # TODO
 
     @orm.db_session
     def update_object(self, game_object: GameObject):
-        """Send updates to the given object to all parties.
+        """Send updates for the given object to all parties.
 
         Args:
             game_object: The object which is being updated.
         """
-        pass
+        for player_id, session in self.players.items():
+            op, update_object_pkt = self._make_update_object(
+                GameObject[player_id], [game_object])
+            session.send_packet(op, update_object_pkt)
