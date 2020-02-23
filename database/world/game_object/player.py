@@ -115,6 +115,11 @@ class Player(unit.Unit):
         starting_items = CharStartOutfit.get(race=race,
                                              class_=class_,
                                              gender=gender)
+
+        team = c.Team.ALLIANCE
+        if race in (c.Race.ORC, c.Race.UNDEAD, c.Race.TAUREN, c.Race.TROLL):
+            team = c.Team.HORDE
+
         player = Player(
             account=account,
             realm=realm,
@@ -123,6 +128,7 @@ class Player(unit.Unit):
             race=race,
             class_=class_,
             gender=gender,
+            team=team,
             x=starting_location.x,
             y=starting_location.y,
             z=starting_location.z,
@@ -166,7 +172,53 @@ class Player(unit.Unit):
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.PlayerFields
-        fields = {
+        fields: Dict[c.UpdateField, Any] = {}
+
+        equipment = self.equipment_map()
+
+        # Populate fields for virtual items (i.e. how sheathed items should
+        # be displayed).
+        if self.sheathed_state == c.SheathedState.MELEE:
+            fields.update(
+                self.virtual_item_fields(
+                    c.EquipmentSlot.MAIN_HAND,
+                    equipment.get(c.EquipmentSlot.MAIN_HAND),
+                ))
+            fields.update(
+                self.virtual_item_fields(
+                    c.EquipmentSlot.OFF_HAND,
+                    equipment.get(c.EquipmentSlot.OFF_HAND),
+                ))
+
+        elif self.sheathed_state == c.SheathedState.RANGED:
+            fields.update(
+                self.virtual_item_fields(
+                    c.EquipmentSlot.RANGED,
+                    equipment.get(c.EquipmentSlot.RANGED),
+                ))
+
+        # Populate equipment fields.
+        for equipment_slot in c.EquipmentSlot:
+            item = equipment.get(equipment_slot)
+            if item:
+                # Set the item GUID. This allows the client to query more
+                # information about equipped items.
+                fields[f.INVENTORY_START + (equipment_slot * 2)] = item.guid
+
+                # Set information about visible items.
+                field_offset = equipment_slot * 12  # 12 fields per item
+                fields[f.VISIBLE_ITEM_1_CREATOR +
+                       field_offset] = self.guid  # TODO: item creator
+                fields[f.VISIBLE_ITEM_1_0 + field_offset] = item.entry
+                for ench_slot in c.EnchantmentSlot:
+                    fields[f.VISIBLE_ITEM_1_0 + field_offset + 1 +
+                           ench_slot] = 0  # TODO: item enchantments
+                fields[f.VISIBLE_ITEM_1_PROPERTIES +
+                       field_offset] = item.base_item.RandomProperty
+                fields[f.VISIBLE_ITEM_1_PROPERTIES + field_offset +
+                       1] = 0  # TODO: random property seed?
+
+        fields.update({
             f.DUEL_ARBITER:
             0,
             f.FLAGS:
@@ -197,24 +249,6 @@ class Player(unit.Unit):
             f.QUEST_LOG_LAST_2:
             0,
             f.QUEST_LOG_LAST_3:
-            0,
-            f.VISIBLE_ITEM_1_CREATOR:
-            0,
-            f.VISIBLE_ITEM_1_0:
-            0,
-            f.VISIBLE_ITEM_1_PROPERTIES:
-            0,
-            f.VISIBLE_ITEM_1_PAD:
-            0,
-            f.VISIBLE_ITEM_LAST_CREATOR:
-            0,
-            f.VISIBLE_ITEM_LAST_0:
-            0,
-            f.VISIBLE_ITEM_LAST_PROPERTIES:
-            0,
-            f.VISIBLE_ITEM_LAST_PAD:
-            0,
-            f.INV_SLOT_HEAD:
             0,
             f.PACK_SLOT_1:
             0,
@@ -342,6 +376,6 @@ class Player(unit.Unit):
             0,
             f.COMBAT_RATING_1:
             0,
-        }
+        })
 
         return {**super(Player, self).update_fields(), **fields}

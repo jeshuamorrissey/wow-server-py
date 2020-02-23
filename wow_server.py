@@ -81,7 +81,7 @@ def setup_db(args: argparse.Namespace):
                 guild=guild,
                 last_login=datetime.datetime.now(),
                 base_health=100,  # TODO: use ChrBaseStats
-                base_power=100,
+                base_power=100,  # TODO: use ChrBaseStats
             )
 
             base_unit = UnitTemplate.get(Name='Young Nightsaber')
@@ -91,6 +91,7 @@ def setup_db(args: argparse.Namespace):
                 race=0,
                 class_=base_unit.UnitClass,
                 gender=c.Gender.FEMALE,
+                team=jeshua.team,
                 x=jeshua.x + 2,
                 y=jeshua.y + 2,
                 z=jeshua.z,

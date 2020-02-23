@@ -5,6 +5,8 @@ from pony import orm
 from database.dbc import chr_races
 from database.dbc import constants as c
 from database.world.game_object import game_object
+from database.dbc import unit_template
+from database.world.game_object import item
 
 
 class Unit(game_object.GameObject):
@@ -13,8 +15,14 @@ class Unit(game_object.GameObject):
     class_ = orm.Required(c.Class)
     gender = orm.Required(c.Gender)
 
+    sheathed_state = orm.Required(c.SheathedState,
+                                  default=c.SheathedState.UNARMED)
+
+    # The current team.
+    team = orm.Required(c.Team)
+
     # For NPC units, they will link to a template.
-    base_unit = orm.Optional('UnitTemplate')
+    base_unit = orm.Optional(unit_template.UnitTemplate)
 
     # Unit statistics.
     base_health = orm.Required(int)
@@ -83,6 +91,14 @@ class Unit(game_object.GameObject):
             return race_info.male_display_id
         return race_info.female_display_id
 
+    def faction_template(self) -> int:
+        if self.base_unit:
+            if self.team == c.Team.ALLIANCE:
+                return self.base_unit.FactionAlliance
+            return self.base_unit.FactionHorde
+
+        return chr_races.ChrRaces[self.race].faction_template_id
+
     def health(self) -> int:
         return self.max_health() * self.health_percent
 
@@ -103,9 +119,53 @@ class Unit(game_object.GameObject):
             return c.PowerType.ENERGY
         return c.PowerType.MANA
 
+    def virtual_item_fields(
+            self, slot: c.EquipmentSlot,
+            item: Optional[item.Item]) -> Dict[c.UpdateField, Any]:
+        if not item:
+            return {}
+
+        if slot == c.EquipmentSlot.MAIN_HAND:
+            DISPLAY = c.UnitFields.MAIN_HAND_DISPLAY
+            INFO_0 = c.UnitFields.MAIN_HAND_INFO_0
+            INFO_1 = c.UnitFields.MAIN_HAND_INFO_1
+        elif slot == c.EquipmentSlot.OFF_HAND:
+            DISPLAY = c.UnitFields.OFF_HAND_DISPLAY
+            INFO_0 = c.UnitFields.OFF_HAND_INFO_0
+            INFO_1 = c.UnitFields.OFF_HAND_INFO_1
+        elif slot == c.EquipmentSlot.RANGED:
+            DISPLAY = c.UnitFields.RANGED_DISPLAY
+            INFO_0 = c.UnitFields.RANGED_INFO_0
+            INFO_1 = c.UnitFields.RANGED_INFO_1
+        else:
+            return {}
+
+        i = item.base_item
+        return {
+            DISPLAY: i.displayid,
+            INFO_0: bytes([i.class_, i.subclass, i.Material, i.InventoryType]),
+            INFO_1: i.sheath,
+        }
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.UnitFields
+        fields: Dict[c.UpdateField, Any] = {}
+
+        if self.base_unit:
+            # TODO: get data about virtual items for units
+            fields.update({
+                f.MAIN_HAND_DISPLAY: 0,
+                f.OFF_HAND_DISPLAY: 0,
+                f.RANGED_DISPLAY: 0,
+                f.MAIN_HAND_INFO_0: 0,
+                f.MAIN_HAND_INFO_1: 0,
+                f.OFF_HAND_INFO_0: 0,
+                f.OFF_HAND_INFO_1: 0,
+                f.RANGED_INFO_0: 0,
+                f.RANGED_INFO_1: 0,
+            })
+
         fields = {
             f.CHARM: self.control.guid if self.control else None,
             f.SUMMON: self.summon.guid if self.summon else None,
@@ -120,17 +180,8 @@ class Unit(game_object.GameObject):
             f.MAXHEALTH: self.max_health(),
             f.MAX_POWER_START + self.power_type(): self.max_power(),
             f.LEVEL: self.level,
-            f.FACTIONTEMPLATE: 4,
+            f.FACTIONTEMPLATE: self.faction_template(),
             f.BYTES_0: self.bytes_0(),
-            f.VIRTUAL_ITEM_SLOT_DISPLAY: 0,
-            f.VIRTUAL_ITEM_SLOT_DISPLAY_01: 0,
-            f.VIRTUAL_ITEM_SLOT_DISPLAY_02: 0,
-            f.VIRTUAL_ITEM_INFO: 0,
-            f.VIRTUAL_ITEM_INFO_01: 0,
-            f.VIRTUAL_ITEM_INFO_02: 0,
-            f.VIRTUAL_ITEM_INFO_03: 0,
-            f.VIRTUAL_ITEM_INFO_04: 0,
-            f.VIRTUAL_ITEM_INFO_05: 0,
             f.FLAGS: 0,
             f.AURA: 0,
             f.AURA_LAST: 0,

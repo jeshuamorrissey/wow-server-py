@@ -7,6 +7,9 @@ class Pet(unit.Unit):
     def high_guid(self) -> c.HighGUID:
         return c.HighGUID.PET
 
+    def faction_template(self) -> int:
+        return self.summoner.faction_template()
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         f = c.UnitFields
         fields = {

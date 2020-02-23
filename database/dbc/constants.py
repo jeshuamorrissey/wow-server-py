@@ -19,6 +19,22 @@ class Race(enum.IntEnum):
     GOBLIN = 9
 
 
+class Team(enum.IntEnum):
+    HORDE = 67
+    ALLIANCE = 469
+
+
+class SheathedState(enum.IntEnum):
+    UNARMED = 0
+    MELEE = 1
+    RANGED = 2
+
+
+class EnchantmentSlot(enum.IntEnum):
+    PERMANENT = 0
+    TEMPORARY = 1
+
+
 class Class(enum.IntEnum):
     WARRIOR = 1
     PALADIN = 2
@@ -242,15 +258,27 @@ class UnitFields(UpdateField):
     LEVEL = ObjectFields.END + 0x1C
     FACTIONTEMPLATE = ObjectFields.END + 0x1D
     BYTES_0 = ObjectFields.END + 0x1E
-    VIRTUAL_ITEM_SLOT_DISPLAY = ObjectFields.END + 0x1F
-    VIRTUAL_ITEM_SLOT_DISPLAY_01 = ObjectFields.END + 0x20
-    VIRTUAL_ITEM_SLOT_DISPLAY_02 = ObjectFields.END + 0x21
-    VIRTUAL_ITEM_INFO = ObjectFields.END + 0x22
-    VIRTUAL_ITEM_INFO_01 = ObjectFields.END + 0x23
-    VIRTUAL_ITEM_INFO_02 = ObjectFields.END + 0x24
-    VIRTUAL_ITEM_INFO_03 = ObjectFields.END + 0x25
-    VIRTUAL_ITEM_INFO_04 = ObjectFields.END + 0x26
-    VIRTUAL_ITEM_INFO_05 = ObjectFields.END + 0x27
+
+    # Information about which items are currently being displayed.
+    # This is for sheathing/unsheating weapons. These fields encode:
+    #
+    #     - DISPLAY = The display ID of the item.
+    #     - INFO_0[0] = Item Class
+    #     - INFO_0[1] = Item Subclass
+    #     - INFO_0[2] = Item Material
+    #     - INFO_0[3] = Item Inventory Type
+    #     - INFO_1[0] = Sheath
+    #
+    MAIN_HAND_DISPLAY = ObjectFields.END + 0x1F
+    OFF_HAND_DISPLAY = ObjectFields.END + 0x20
+    RANGED_DISPLAY = ObjectFields.END + 0x21
+    MAIN_HAND_INFO_0 = ObjectFields.END + 0x22
+    MAIN_HAND_INFO_1 = ObjectFields.END + 0x23
+    OFF_HAND_INFO_0 = ObjectFields.END + 0x24
+    OFF_HAND_INFO_1 = ObjectFields.END + 0x25
+    RANGED_INFO_0 = ObjectFields.END + 0x26
+    RANGED_INFO_1 = ObjectFields.END + 0x27
+
     FLAGS = ObjectFields.END + 0x28
     AURA = ObjectFields.END + 0x29
     AURA_LAST = ObjectFields.END + 0x58
@@ -346,6 +374,8 @@ class PlayerFields(UpdateField):
     QUEST_LOG_LAST_1 = UnitFields.END + 0x43
     QUEST_LOG_LAST_2 = UnitFields.END + 0x44
     QUEST_LOG_LAST_3 = UnitFields.END + 0x45
+
+    VISIBLE_ITEM_START = UnitFields.END + 0x46
     VISIBLE_ITEM_1_CREATOR = UnitFields.END + 0x46
     VISIBLE_ITEM_1_0 = UnitFields.END + 0x48
     VISIBLE_ITEM_1_PROPERTIES = UnitFields.END + 0x50
@@ -354,7 +384,10 @@ class PlayerFields(UpdateField):
     VISIBLE_ITEM_LAST_0 = UnitFields.END + 0x120
     VISIBLE_ITEM_LAST_PROPERTIES = UnitFields.END + 0x128
     VISIBLE_ITEM_LAST_PAD = UnitFields.END + 0x129
+
     INV_SLOT_HEAD = UnitFields.END + 0x12a
+    INVENTORY_START = UnitFields.END + 0x12a
+
     PACK_SLOT_1 = UnitFields.END + 0x158
     PACK_SLOT_LAST = UnitFields.END + 0x176
     BANK_SLOT_1 = UnitFields.END + 0x178
