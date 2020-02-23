@@ -7,6 +7,8 @@ from database.world.game_object.item import Item
 
 
 class Container(Item):
+    items = orm.Set('Item')
+
     # Reverse mappings.
     on_slot = orm.Optional('EquippedBag')
 

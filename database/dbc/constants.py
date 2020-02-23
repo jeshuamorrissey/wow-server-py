@@ -375,6 +375,8 @@ class PlayerFields(UpdateField):
     QUEST_LOG_LAST_2 = UnitFields.END + 0x44
     QUEST_LOG_LAST_3 = UnitFields.END + 0x45
 
+    # Define which items are visible on the character. This is basically
+    # information about which of the three weapon types are visible.
     VISIBLE_ITEM_START = UnitFields.END + 0x46
     VISIBLE_ITEM_1_CREATOR = UnitFields.END + 0x46
     VISIBLE_ITEM_1_0 = UnitFields.END + 0x48
@@ -385,7 +387,6 @@ class PlayerFields(UpdateField):
     VISIBLE_ITEM_LAST_PROPERTIES = UnitFields.END + 0x128
     VISIBLE_ITEM_LAST_PAD = UnitFields.END + 0x129
 
-    INV_SLOT_HEAD = UnitFields.END + 0x12a
     INVENTORY_START = UnitFields.END + 0x12a
 
     PACK_SLOT_1 = UnitFields.END + 0x158

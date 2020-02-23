@@ -10,6 +10,7 @@ class Item(GameObject):
     base_item = orm.Required('ItemTemplate')
 
     # Reverse mappings.
+    container = orm.Optional('Container')
     equipped_by = orm.Optional('EquippedItem')
     in_backpack = orm.Optional('BackpackItem')
 
@@ -49,11 +50,25 @@ class Item(GameObject):
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.ItemFields
+        fields: Dict[c.UpdateField, Any] = {}
+
+        if self.equipped_by:
+            fields.update({
+                f.OWNER: self.equipped_by.owner.guid,
+                f.CONTAINED: self.equipped_by.owner.guid,
+            })
+        elif self.in_backpack:
+            fields.update({
+                f.OWNER: self.in_backpack.owner.guid,
+                f.CONTAINED: self.in_backpack.owner.guid,
+            })
+        elif self.container:
+            fields.update({
+                f.OWNER: self.container.on_slot.owner.guid,
+                f.CONTAINED: self.container.guid,
+            })
+
         fields = {
-            f.OWNER: 0,
-            f.OWNER + 1: 0,
-            f.CONTAINED: 0,
-            f.CONTAINED + 1: 0,
             f.CREATOR: 0,
             f.CREATOR + 1: 0,
             f.GIFTCREATOR: 0,
