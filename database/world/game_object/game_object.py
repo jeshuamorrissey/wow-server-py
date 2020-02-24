@@ -25,7 +25,9 @@ class GUID(int):
 
 
 class GameObject(db.Entity):
-    id = orm.PrimaryKey(int, auto=True, min=1)
+    # This has to be a minimum of 10 because some smaller numbers seem to
+    # be reserved (or there is a bug in the client which causes crashes).
+    id = orm.PrimaryKey(int, auto=True, min=10)
     entry = orm.Optional(int)
     scale = orm.Required(float, default=1.0)
 

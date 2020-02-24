@@ -72,6 +72,7 @@ def setup_db(args: argparse.Namespace):
                           hostport=f'{args.host}:{args.world_port}')
             guild = Guild()
             jeshua = Player.New(
+                id=10,
                 account=account,
                 realm=realm,
                 name='Jeshua',

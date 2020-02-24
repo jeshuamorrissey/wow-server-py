@@ -68,7 +68,9 @@ class Item(GameObject):
                 f.CONTAINED: self.container.guid,
             })
 
-        fields = {
+        print(fields)
+
+        fields.update({
             f.CREATOR: 0,
             f.CREATOR + 1: 0,
             f.GIFTCREATOR: 0,
@@ -87,6 +89,6 @@ class Item(GameObject):
             f.ITEM_TEXT_ID: 0,
             f.DURABILITY: 0,
             f.MAXDURABILITY: 0,
-        }
+        })
 
         return {**super(Item, self).update_fields(), **fields}

@@ -206,6 +206,7 @@ class Player(unit.Unit):
                 fields[f.INVENTORY_START + (equipment_slot * 2)] = item.guid
 
                 # Set information about visible items.
+                # TODO: why is this causing a crash?
                 field_offset = equipment_slot * 12  # 12 fields per item
                 fields[f.VISIBLE_ITEM_1_CREATOR +
                        field_offset] = self.guid  # TODO: item creator
