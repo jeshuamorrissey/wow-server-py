@@ -75,6 +75,9 @@ class Player(unit.Unit):
     hide_helm = orm.Required(bool, default=False)
     hide_cloak = orm.Required(bool, default=False)
 
+    # Reverse mappings.
+    created_items = orm.Set(Item)
+
     def equipment_map(self) -> Dict[c.EquipmentSlot, Item]:
         """Return a mapping of equipment slot --> equipped item.
         
@@ -85,6 +88,38 @@ class Player(unit.Unit):
             A mapping from equipment slot --> item equipped in that slot.
         """
         return {eq.slot: eq.item for eq in self.equipment}
+
+    def visible_item_fields(self, slot: c.EquipmentSlot,
+                            item: Item) -> Dict[c.UpdateField, Any]:
+        fields_start = c.PlayerFields.VISIBLE_ITEM_START + (slot * 12)
+        if item:
+            enchantments = item.enchantment_map()
+            fields = {}
+            for ench_slot in c.EnchantmentSlot:
+                ench = enchantments.get(ench_slot)
+                if ench:
+                    fields[fields_start + 3 + ench_slot] = ench.id
+                else:
+                    fields[fields_start + 3 + ench_slot] = 0
+
+            creator_guid = item.creator.guid if item.creator else 0
+            fields.update({
+                fields_start + 0: creator_guid,
+                fields_start + 2: item.entry,
+                fields_start + 10: 0,  # TODO: item enchantments
+                fields_start + 11: 0,  # TODO: always 0 in server?
+            })
+
+            return fields
+
+        return {f: 0 for f in range(fields_start, fields_start + 11 + 1)}
+
+    def inventory_fields(self, slot: c.EquipmentSlot,
+                         item: Item) -> Dict[c.UpdateField, Any]:
+        field = c.PlayerFields.INVENTORY_START + (slot * 2)
+        if item:
+            return {field: item.guid}
+        return {field: 0}
 
     @classmethod
     def New(
@@ -200,24 +235,8 @@ class Player(unit.Unit):
         # Populate equipment fields.
         for equipment_slot in c.EquipmentSlot:
             item = equipment.get(equipment_slot)
-            if item:
-                # Set the item GUID. This allows the client to query more
-                # information about equipped items.
-                fields[f.INVENTORY_START + (equipment_slot * 2)] = item.guid
-
-                # Set information about visible items.
-                # TODO: why is this causing a crash?
-                field_offset = equipment_slot * 12  # 12 fields per item
-                fields[f.VISIBLE_ITEM_1_CREATOR +
-                       field_offset] = self.guid  # TODO: item creator
-                fields[f.VISIBLE_ITEM_1_0 + field_offset] = item.entry
-                for ench_slot in c.EnchantmentSlot:
-                    fields[f.VISIBLE_ITEM_1_0 + field_offset + 1 +
-                           ench_slot] = 0  # TODO: item enchantments
-                fields[f.VISIBLE_ITEM_1_PROPERTIES +
-                       field_offset] = item.base_item.RandomProperty
-                fields[f.VISIBLE_ITEM_1_PROPERTIES + field_offset +
-                       1] = 0  # TODO: random property seed?
+            # fields.update(self.visible_item_fields(equipment_slot, item))
+            fields.update(self.inventory_fields(equipment_slot, item))
 
         fields.update({
             f.DUEL_ARBITER:

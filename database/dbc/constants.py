@@ -33,6 +33,10 @@ class SheathedState(enum.IntEnum):
 class EnchantmentSlot(enum.IntEnum):
     PERMANENT = 0
     TEMPORARY = 1
+    PROPERTY_0 = 3
+    PROPERTY_1 = 4
+    PROPERTY_2 = 5
+    PROPERTY_3 = 6
 
 
 class Class(enum.IntEnum):
@@ -375,18 +379,17 @@ class PlayerFields(UpdateField):
     QUEST_LOG_LAST_2 = UnitFields.END + 0x44
     QUEST_LOG_LAST_3 = UnitFields.END + 0x45
 
-    # Define which items are visible on the character. This is basically
-    # information about which of the three weapon types are visible.
+    # Define information about which items are visible on the character.
+    # This includes one item per slot, with the following 12 sub-fields:
+    #     - CREATOR[2]: The GUID of the Player which created this item (or 0)
+    #     - ENTRY[1]: The item's entry
+    #     - ENCHANTMENT[7]: The enchantment IDs (see c.EnchantmentSlot)
+    #     - RANDOM_PROPERTY[1]: The item's random property ID
+    #     - SUFFIX_FACTOR[1]: The item's suffix factor
     VISIBLE_ITEM_START = UnitFields.END + 0x46
-    VISIBLE_ITEM_1_CREATOR = UnitFields.END + 0x46
-    VISIBLE_ITEM_1_0 = UnitFields.END + 0x48
-    VISIBLE_ITEM_1_PROPERTIES = UnitFields.END + 0x50
-    VISIBLE_ITEM_1_PAD = UnitFields.END + 0x51
-    VISIBLE_ITEM_LAST_CREATOR = UnitFields.END + 0x11e
-    VISIBLE_ITEM_LAST_0 = UnitFields.END + 0x120
-    VISIBLE_ITEM_LAST_PROPERTIES = UnitFields.END + 0x128
-    VISIBLE_ITEM_LAST_PAD = UnitFields.END + 0x129
 
+    # Define which items are in the player's inventory. This includes all
+    # equipped items, with a GUID for each equipment slot.
     INVENTORY_START = UnitFields.END + 0x12a
 
     PACK_SLOT_1 = UnitFields.END + 0x158

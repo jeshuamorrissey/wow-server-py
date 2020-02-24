@@ -2,12 +2,25 @@ from pony import orm
 
 from typing import Tuple, Dict, Any
 
+from database.db import db
 from database.dbc import constants as c
 from database.world.game_object.game_object import GameObject
+from database.world.enchantment import Enchantment
+
+
+class ItemEnchantment(db.Entity):
+    item = orm.Required('Item')
+    enchantment = orm.Required('Enchantment')
+    slot = orm.Required(c.EnchantmentSlot)
+
+    orm.PrimaryKey(item, slot)
 
 
 class Item(GameObject):
     base_item = orm.Required('ItemTemplate')
+
+    creator = orm.Optional('Player')
+    enchantments = orm.Set('ItemEnchantment')
 
     # Reverse mappings.
     container = orm.Optional('Container')
@@ -28,6 +41,9 @@ class Item(GameObject):
         elif self.in_backpack:
             return self.in_backpack.owner.position()
         raise RuntimeError(f'item {self.id} does not have an owner!')
+
+    def enchantment_map(self) -> Dict[c.EnchantmentSlot, Enchantment]:
+        return {ench.slot: ench.enchantment for ench in self.enchantments}
 
     #
     # Class Methods (should be overwritten in children).
