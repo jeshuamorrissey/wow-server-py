@@ -2,8 +2,15 @@ from database.world.game_object import unit
 from typing import Dict, Any
 from database.dbc import constants as c
 
+from pony import orm
+
 
 class Pet(unit.Unit):
+    talent_points = orm.Required(int, default=0)
+
+    def bytes_1(self) -> int:
+        return super(Pet, self).bytes_1() | self.talent_points << 8
+
     def high_guid(self) -> c.HighGUID:
         return c.HighGUID.PET
 

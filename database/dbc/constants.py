@@ -30,6 +30,18 @@ class SheathedState(enum.IntEnum):
     RANGED = 2
 
 
+class StandState(enum.IntEnum):
+    STAND = 0
+    SIT = 1
+    SIT_CHAIR = 2
+    SLEEP = 3
+    SIT_LOW_CHAIR = 4
+    SIT_MEDIUM_CHAIR = 5
+    SIT_HIGH_CHAIR = 6
+    DEAD = 7
+    KNEEL = 8
+
+
 class EnchantmentSlot(enum.IntEnum):
     PERMANENT = 0
     TEMPORARY = 1
@@ -542,3 +554,20 @@ class UnitFlags(enum.IntFlag):
     CONFUSED = 0x00400000
     FLEEING = 0x00800000
     PLAYER_CONTROLLED = 0x01000000
+
+
+class UnitBytes1Flags(enum.IntFlag):
+    ALWAYS_STAND = 0x01
+    CREEP = 0x02
+    UNTRACKABLE = 0x04
+    ALL = 0xFF
+
+
+class UnitDynamicFlags(enum.IntFlag):
+    NONE = 0x0000
+    LOOTABLE = 0x0001
+    TRACK_UNIT = 0x0002
+    TAPPED = 0x0004
+    ROOTED = 0x0008
+    SPECIALINFO = 0x0010
+    DEAD = 0x0020

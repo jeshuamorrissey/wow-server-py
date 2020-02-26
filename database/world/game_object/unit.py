@@ -16,6 +16,7 @@ class Unit(game_object.GameObject):
     gender = orm.Required(c.Gender)
 
     sheathed_state = orm.Required(c.SheathedState, default=c.SheathedState.UNARMED)
+    stand_state = orm.Required(c.StandState, default=c.StandState.STAND)
 
     # The current team.
     team = orm.Required(c.Team)
@@ -57,6 +58,16 @@ class Unit(game_object.GameObject):
     is_fleeing = orm.Required(bool, default=False)
     is_player_controlled = orm.Required(bool, default=False)
 
+    is_always_stand = orm.Required(bool, default=False)
+    is_creep = orm.Required(bool, default=False)
+    is_untrackable = orm.Required(bool, default=False)
+
+    is_lootable = orm.Required(bool, default=False)
+    is_track_unit = orm.Required(bool, default=False)
+    is_tapped = orm.Required(bool, default=False)
+    is_rooted = orm.Required(bool, default=False)
+    is_specialinfo = orm.Required(bool, default=False)
+
     # Relationships to other units.
     target = orm.Optional('Unit', reverse='targeted_by')
     targeted_by = orm.Set('Unit', reverse='target')
@@ -68,6 +79,8 @@ class Unit(game_object.GameObject):
     created_by = orm.Optional('Unit', reverse='created')
     channeling = orm.Optional('Unit', reverse='channeled_by')
     channeled_by = orm.Set('Unit', reverse='channeling')
+    mount = orm.Optional('Unit', reverse='mounted_by')
+    mounted_by = orm.Optional('Unit', reverse='mount')
 
     # Unit location information.
     x = orm.Required(float)
@@ -109,6 +122,17 @@ class Unit(game_object.GameObject):
 
     def bytes_0(self) -> int:
         return self.race | self.class_ << 8 | self.gender << 16
+
+    def bytes_1(self) -> int:
+        f = 0
+        if self.is_always_stand:
+            f |= c.UnitBytes1Flags.ALWAYS_STAND
+        if self.is_creep:
+            f |= c.UnitBytes1Flags.CREEP
+        if self.is_untrackable:
+            f |= c.UnitBytes1Flags.UNTRACKABLE
+
+        return self.stand_state | f << 16
 
     def bytes_2(self) -> int:
         return self.sheathed_state
@@ -165,6 +189,24 @@ class Unit(game_object.GameObject):
             f |= c.UnitFlags.FLEEING
         if self.is_player_controlled:
             f |= c.UnitFlags.PLAYER_CONTROLLED
+
+        return f
+
+    def dynamic_flags(self) -> c.UnitDynamicFlags:
+        f = c.UnitDynamicFlags.NONE
+
+        if self.is_lootable:
+            f |= c.UnitDynamicFlags.LOOTABLE
+        if self.is_track_unit:
+            f |= c.UnitDynamicFlags.TRACK_UNIT
+        if self.is_tapped:
+            f |= c.UnitDynamicFlags.TAPPED
+        if self.is_rooted:
+            f |= c.UnitDynamicFlags.ROOTED
+        if self.is_specialinfo:
+            f |= c.UnitDynamicFlags.SPECIALINFO
+        if self.health_percent == 0:
+            f |= c.UnitDynamicFlags.DEAD
 
         return f
 
@@ -289,14 +331,14 @@ class Unit(game_object.GameObject):
             f.AURAAPPLICATIONS: 0,
             f.AURAAPPLICATIONS_LAST: 0,
             f.AURASTATE: 0,
-            f.BOUNDINGRADIUS: 20.0,
-            f.COMBATREACH: 20.0,
+            f.BOUNDINGRADIUS: 1.0,  # TODO: ObjectScale * ModelInfo.bounding_radius
+            f.COMBATREACH: 1.0,  # TODO: ObjectScale * ModelInfo.combat_reach
             f.DISPLAYID: self.display_id(),
             f.NATIVEDISPLAYID: self.display_id(),
-            f.MOUNTDISPLAYID: 0,
-            f.BYTES_1: 0,
-            f.DYNAMIC_FLAGS: 0,
-            f.CHANNEL_SPELL: 0,
+            f.MOUNTDISPLAYID: self.mount.display_id() if self.mount else 0,
+            f.BYTES_1: self.bytes_1(),
+            f.DYNAMIC_FLAGS: self.dynamic_flags(),
+            f.CHANNEL_SPELL: 1,  # TODO: spell ID of the spell being channelled
             f.MOD_CAST_SPEED: 0,
             f.CREATED_BY_SPELL: 0,
             f.NPC_FLAGS: 0,

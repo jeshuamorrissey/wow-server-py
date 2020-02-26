@@ -78,7 +78,7 @@ class ItemTemplate(db.Entity):
         for i in range(1, 5 + 1):
             if getattr(self, f'dmg_type{i}') == dmg_type:
                 return (getattr(self, f'dmg_min{i}'), getattr(self, f'dmg_max{i}'))
-        return (0, 0)
+        return (0.0, 0.0)
 
     armor = orm.Optional(int)
     holy_res = orm.Optional(int)

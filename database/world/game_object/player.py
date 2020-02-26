@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict, Text, Any
+from typing import Dict, Text, Any, Tuple
 
 from pony import orm
 
@@ -200,10 +200,23 @@ class Player(unit.Unit):
     def num_fields(self) -> int:
         return 0x06 + 0xB6 + 0x446
 
-    def calculate_damage(self, slot: c.EquipmentSlot) -> float:
-        base = 1
+    def calculate_attack_time(self, slot: c.EquipmentSlot) -> int:
+        equipment = self.equipment_map()
+
+        base = 1000 if slot == c.EquipmentSlot.MAIN_HAND else 0
         if slot in equipment:
-            base = equipment[slot].base_item.dmg()
+            base = equipment[slot].base_item.delay
+
+        return base
+
+    def calculate_damage(self, slot: c.EquipmentSlot) -> Tuple[float, float]:
+        equipment = self.equipment_map()
+
+        base = 1.0, 1.0
+        if slot in equipment:
+            base = equipment[slot].base_item.dmg(0)  # TODO: #define this?
+
+        return base
 
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
@@ -238,26 +251,17 @@ class Player(unit.Unit):
             fields.update(self.inventory_fields(equipment_slot, item))
 
         fields.update({
-            uf.BASEATTACKTIME: 2000,
-            uf.OFFHANDATTACKTIME: 0,
-            uf.RANGEDATTACKTIME: 0,
-            uf.MINDAMAGE: 1,
-            uf.MAXDAMAGE: 1,
-            uf.MINOFFHANDDAMAGE: 0,
-            uf.MAXOFFHANDDAMAGE: 0,
+            uf.BASEATTACKTIME: self.calculate_attack_time(c.EquipmentSlot.MAIN_HAND),
+            uf.OFFHANDATTACKTIME: self.calculate_attack_time(c.EquipmentSlot.OFF_HAND),
+            uf.RANGEDATTACKTIME: self.calculate_attack_time(c.EquipmentSlot.RANGED),
+            uf.MINDAMAGE: self.calculate_damage(c.EquipmentSlot.MAIN_HAND)[0],
+            uf.MAXDAMAGE: self.calculate_damage(c.EquipmentSlot.MAIN_HAND)[1],
+            uf.MINOFFHANDDAMAGE: self.calculate_damage(c.EquipmentSlot.OFF_HAND)[0],
+            uf.MAXOFFHANDDAMAGE: self.calculate_damage(c.EquipmentSlot.OFF_HAND)[1],
+            uf.COMBATREACH: 1.5,
         })
 
-        if c.EquipmentSlot.MAIN_HAND in equipment:
-            fields[uf.BASEATTACKTIME] = equipment[c.EquipmentSlot.MAIN_HAND].delay
-
         fields.update({
-            uf.BASEATTACKTIME: equipment.get(c.EquipmentSlot.MAIN_HAND),
-            uf.OFFHANDATTACKTIME: self.base_unit.MeleeBaseAttackTime,
-            uf.RANGEDATTACKTIME: self.base_unit.RangedBaseAttackTime,
-            uf.MINDAMAGE: self.base_unit.MinMeleeDmg,
-            uf.MAXDAMAGE: self.base_unit.MaxMeleeDmg,
-            uf.MINOFFHANDDAMAGE: self.base_unit.MinRangedDmg,
-            uf.MAXOFFHANDDAMAGE: self.base_unit,
             f.DUEL_ARBITER: 0,
             f.FLAGS: 0,
             f.GUILDID: 0,
