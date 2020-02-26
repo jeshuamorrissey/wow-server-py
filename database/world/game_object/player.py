@@ -105,7 +105,7 @@ class Player(unit.Unit):
             creator_guid = item.creator.guid if item.creator else 0
             fields.update({
                 fields_start + 0: creator_guid,
-                fields_start + 2: item.entry,
+                fields_start + 2: item.entry(),
                 fields_start + 10: 0,  # TODO: item enchantments
                 fields_start + 11: 0,  # TODO: always 0 in server?
             })
@@ -177,14 +177,14 @@ class Player(unit.Unit):
             EquippedItem(
                 owner=player,
                 slot=c.EquipmentSlot[equipment['equipment_slot']],
-                item=Item(base_item=ItemTemplate[equipment['entry']]),
+                item=Item.New(ItemTemplate[equipment['entry']]),
             )
 
         for i, entry in enumerate(starting_items.items):
             BackpackItem(
                 owner=player,
                 slot=i,
-                item=Item(base_item=ItemTemplate[entry]),
+                item=Item.New(ItemTemplate[entry]),
             )
 
         return player
@@ -235,7 +235,7 @@ class Player(unit.Unit):
         # Populate equipment fields.
         for equipment_slot in c.EquipmentSlot:
             item = equipment.get(equipment_slot)
-            # fields.update(self.visible_item_fields(equipment_slot, item))
+            fields.update(self.visible_item_fields(equipment_slot, item))
             fields.update(self.inventory_fields(equipment_slot, item))
 
         fields.update({

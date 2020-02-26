@@ -13,7 +13,7 @@ class Pet(unit.Unit):
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         f = c.UnitFields
         fields = {
-            f.PETNUMBER: self.entry,
+            f.PETNUMBER: self.entry(),
             f.PET_NAME_TIMESTAMP: 0,
             f.PETEXPERIENCE: 0,
             f.PETNEXTLEVELEXP: 1000,

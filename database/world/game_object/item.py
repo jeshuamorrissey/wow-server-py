@@ -1,9 +1,10 @@
 from pony import orm
 
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 
 from database.db import db
 from database.dbc import constants as c
+from database.dbc.item_template import ItemTemplate
 from database.world.game_object.game_object import GameObject
 from database.world.enchantment import Enchantment
 
@@ -19,8 +20,16 @@ class ItemEnchantment(db.Entity):
 class Item(GameObject):
     base_item = orm.Required('ItemTemplate')
 
+    stack_count = orm.Optional(int)
+    durability = orm.Required(int, default=0)
     creator = orm.Optional('Player')
     enchantments = orm.Set('ItemEnchantment')
+
+    # Flags
+    is_bound = orm.Required(bool, default=False)
+    is_unlocked = orm.Required(bool, default=False)
+    is_wrapped = orm.Required(bool, default=False)
+    is_readable = orm.Required(bool, default=False)
 
     # Reverse mappings.
     container = orm.Optional('Container')
@@ -48,6 +57,18 @@ class Item(GameObject):
     #
     # Class Methods (should be overwritten in children).
     #
+    @classmethod
+    def New(cls, base_item: ItemTemplate, **kwargs) -> 'Item':
+        return Item(
+            base_item=base_item,
+            durability=base_item.MaxDurability,
+            stack_count=base_item.stackable,
+            **kwargs,
+        )
+
+    def entry(self) -> Optional[int]:
+        return self.base_item.entry
+
     def type_id(self) -> c.TypeID:
         return c.TypeID.ITEM
 
@@ -84,27 +105,35 @@ class Item(GameObject):
                 f.CONTAINED: self.container.guid,
             })
 
-        print(fields)
+        # Encode the flags.
+        flags = 0
+        if self.is_bound:
+            flags |= c.ItemFlags.BOUND
+        if self.is_unlocked:
+            flags |= c.ItemFlags.UNLOCKED
+        if self.is_wrapped:
+            flags |= c.ItemFlags.WRAPPED
+        if self.is_readable:
+            flags |= c.ItemFlags.READABLE
 
         fields.update({
-            f.CREATOR: 0,
-            f.CREATOR + 1: 0,
+            f.CREATOR: self.creator.guid if self.creator else 0,
             f.GIFTCREATOR: 0,
             f.GIFTCREATOR + 1: 0,
-            f.STACK_COUNT: 0,
+            f.STACK_COUNT: self.stack_count,
             f.DURATION: 0,
             f.SPELL_CHARGES: 0,
             f.SPELL_CHARGES_01: 0,
             f.SPELL_CHARGES_02: 0,
             f.SPELL_CHARGES_03: 0,
             f.SPELL_CHARGES_04: 0,
-            f.FLAGS: 0,
-            # f.ENCHANTMENT: 0,  # TODO
+            f.FLAGS: flags,
+            f.ENCHANTMENT: 0,
             f.PROPERTY_SEED: 0,
             f.RANDOM_PROPERTIES_ID: 0,
             f.ITEM_TEXT_ID: 0,
-            f.DURABILITY: 0,
-            f.MAXDURABILITY: 0,
+            f.DURABILITY: self.durability,
+            f.MAXDURABILITY: self.base_item.MaxDurability,
         })
 
         return {**super(Item, self).update_fields(), **fields}

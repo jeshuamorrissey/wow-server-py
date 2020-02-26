@@ -63,6 +63,9 @@ class Unit(game_object.GameObject):
     #
     # Class Methods (should be overwritten in children).
     #
+    def entry(self) -> Optional[int]:
+        return self.base_unit.entry if self.base_unit else None
+
     def type_id(self) -> c.TypeID:
         return c.TypeID.UNIT
 
@@ -80,6 +83,9 @@ class Unit(game_object.GameObject):
 
     def bytes_0(self) -> int:
         return self.race | self.class_ << 8 | self.gender << 16
+
+    def bytes_2(self) -> int:
+        return self.sheathed_state
 
     def display_id(self) -> int:
         if self.base_unit:
@@ -141,9 +147,11 @@ class Unit(game_object.GameObject):
             return {}
 
         i = item.base_item
+        info_0 = (i.class_ | i.subclass << 8 | i.Material << 16
+                  | i.InventoryType << 24)
         return {
             DISPLAY: i.displayid,
-            INFO_0: bytes([i.class_, i.subclass, i.Material, i.InventoryType]),
+            INFO_0: info_0,
             INFO_1: i.sheath,
         }
 
@@ -166,94 +174,181 @@ class Unit(game_object.GameObject):
                 f.RANGED_INFO_1: 0,
             })
 
-        fields = {
-            f.CHARM: self.control.guid if self.control else None,
-            f.SUMMON: self.summon.guid if self.summon else None,
-            f.CHARMEDBY: self.controller.guid if self.controller else None,
-            f.SUMMONEDBY: self.summoner.guid if self.summoner else None,
-            f.CREATEDBY: self.created_by.guid if self.created_by else None,
-            f.TARGET: self.target.guid if self.target else None,
-            f.PERSUADED: self.created_by.guid if self.created_by else None,
-            f.CHANNEL: self.channeling.guid if self.channeling else None,
-            f.HEALTH: self.health(),
-            f.POWER_START + self.power_type(): self.power(),
-            f.MAXHEALTH: self.max_health(),
-            f.MAX_POWER_START + self.power_type(): self.max_power(),
-            f.LEVEL: self.level,
-            f.FACTIONTEMPLATE: self.faction_template(),
-            f.BYTES_0: self.bytes_0(),
-            f.FLAGS: 0,
-            f.AURA: 0,
-            f.AURA_LAST: 0,
-            f.AURAFLAGS: 0,
-            f.AURAFLAGS_01: 0,
-            f.AURAFLAGS_02: 0,
-            f.AURAFLAGS_03: 0,
-            f.AURAFLAGS_04: 0,
-            f.AURAFLAGS_05: 0,
-            f.AURALEVELS: 0,
-            f.AURALEVELS_LAST: 0,
-            f.AURAAPPLICATIONS: 0,
-            f.AURAAPPLICATIONS_LAST: 0,
-            f.AURASTATE: 0,
-            f.BASEATTACKTIME: 1000,
-            f.OFFHANDATTACKTIME: 1000,
-            f.RANGEDATTACKTIME: 1000,
-            f.BOUNDINGRADIUS: 1.0,
-            f.COMBATREACH: 1.0,
-            f.DISPLAYID: self.display_id(),
-            f.NATIVEDISPLAYID: self.display_id(),
-            f.MOUNTDISPLAYID: 0,
-            f.MINDAMAGE: 10.0,
-            f.MAXDAMAGE: 20.0,
-            f.MINOFFHANDDAMAGE: 10.0,
-            f.MAXOFFHANDDAMAGE: 20.0,
-            f.BYTES_1: 0,
-            f.DYNAMIC_FLAGS: 0,
-            f.CHANNEL_SPELL: 0,
-            f.MOD_CAST_SPEED: 0,
-            f.CREATED_BY_SPELL: 0,
-            f.NPC_FLAGS: 0,
-            f.NPC_EMOTESTATE: 0,
-            f.TRAINING_POINTS: 0,
-            f.STAT0: 1,
-            f.STAT1: 2,
-            f.STAT2: 3,
-            f.STAT3: 4,
-            f.STAT4: 5,
-            f.RESISTANCES: 1,
-            f.RESISTANCES_01: 2,
-            f.RESISTANCES_02: 3,
-            f.RESISTANCES_03: 4,
-            f.RESISTANCES_04: 5,
-            f.RESISTANCES_05: 6,
-            f.RESISTANCES_06: 7,
-            f.BASE_MANA: self.base_power,
-            f.BASE_HEALTH: self.base_health,
-            f.BYTES_2: 0,
-            f.ATTACK_POWER: 10,
-            f.ATTACK_POWER_MODS: 1,
-            f.ATTACK_POWER_MULTIPLIER: 2.0,
-            f.RANGED_ATTACK_POWER: 10,
-            f.RANGED_ATTACK_POWER_MODS: 1,
-            f.RANGED_ATTACK_POWER_MULTIPLIER: 2.0,
-            f.MINRANGEDDAMAGE: 10.0,
-            f.MAXRANGEDDAMAGE: 10.0,
-            f.POWER_COST_MODIFIER: 0,
-            f.POWER_COST_MODIFIER_01: 0,
-            f.POWER_COST_MODIFIER_02: 0,
-            f.POWER_COST_MODIFIER_03: 0,
-            f.POWER_COST_MODIFIER_04: 0,
-            f.POWER_COST_MODIFIER_05: 0,
-            f.POWER_COST_MODIFIER_06: 0,
-            f.POWER_COST_MULTIPLIER: 0,
-            f.POWER_COST_MULTIPLIER_01: 0,
-            f.POWER_COST_MULTIPLIER_02: 0,
-            f.POWER_COST_MULTIPLIER_03: 0,
-            f.POWER_COST_MULTIPLIER_04: 0,
-            f.POWER_COST_MULTIPLIER_05: 0,
-            f.POWER_COST_MULTIPLIER_06: 0,
-            f.PADDING: 0,
-        }
+        fields.update({
+            f.CHARM:
+            self.control.guid if self.control else None,
+            f.SUMMON:
+            self.summon.guid if self.summon else None,
+            f.CHARMEDBY:
+            self.controller.guid if self.controller else None,
+            f.SUMMONEDBY:
+            self.summoner.guid if self.summoner else None,
+            f.CREATEDBY:
+            self.created_by.guid if self.created_by else None,
+            f.TARGET:
+            self.target.guid if self.target else None,
+            f.PERSUADED:
+            self.created_by.guid if self.created_by else None,
+            f.CHANNEL:
+            self.channeling.guid if self.channeling else None,
+            f.HEALTH:
+            self.health(),
+            f.POWER_START + self.power_type():
+            self.power(),
+            f.MAXHEALTH:
+            self.max_health(),
+            f.MAX_POWER_START + self.power_type():
+            self.max_power(),
+            f.LEVEL:
+            self.level,
+            f.FACTIONTEMPLATE:
+            self.faction_template(),
+            f.BYTES_0:
+            self.bytes_0(),
+            f.FLAGS:
+            0,
+            f.AURA:
+            0,
+            f.AURA_LAST:
+            0,
+            f.AURAFLAGS:
+            0,
+            f.AURAFLAGS_01:
+            0,
+            f.AURAFLAGS_02:
+            0,
+            f.AURAFLAGS_03:
+            0,
+            f.AURAFLAGS_04:
+            0,
+            f.AURAFLAGS_05:
+            0,
+            f.AURALEVELS:
+            0,
+            f.AURALEVELS_LAST:
+            0,
+            f.AURAAPPLICATIONS:
+            0,
+            f.AURAAPPLICATIONS_LAST:
+            0,
+            f.AURASTATE:
+            0,
+            f.BASEATTACKTIME:
+            1000,
+            f.OFFHANDATTACKTIME:
+            1000,
+            f.RANGEDATTACKTIME:
+            1000,
+            f.BOUNDINGRADIUS:
+            1.0,
+            f.COMBATREACH:
+            1.0,
+            f.DISPLAYID:
+            self.display_id(),
+            f.NATIVEDISPLAYID:
+            self.display_id(),
+            f.MOUNTDISPLAYID:
+            0,
+            f.MINDAMAGE:
+            10.0,
+            f.MAXDAMAGE:
+            20.0,
+            f.MINOFFHANDDAMAGE:
+            10.0,
+            f.MAXOFFHANDDAMAGE:
+            20.0,
+            f.BYTES_1:
+            0,
+            f.DYNAMIC_FLAGS:
+            0,
+            f.CHANNEL_SPELL:
+            0,
+            f.MOD_CAST_SPEED:
+            0,
+            f.CREATED_BY_SPELL:
+            0,
+            f.NPC_FLAGS:
+            0,
+            f.NPC_EMOTESTATE:
+            0,
+            f.TRAINING_POINTS:
+            0,
+            f.STAT0:
+            1,
+            f.STAT1:
+            2,
+            f.STAT2:
+            3,
+            f.STAT3:
+            4,
+            f.STAT4:
+            5,
+            f.RESISTANCES:
+            1,
+            f.RESISTANCES_01:
+            2,
+            f.RESISTANCES_02:
+            3,
+            f.RESISTANCES_03:
+            4,
+            f.RESISTANCES_04:
+            5,
+            f.RESISTANCES_05:
+            6,
+            f.RESISTANCES_06:
+            7,
+            f.BASE_MANA:
+            self.base_power,
+            f.BASE_HEALTH:
+            self.base_health,
+            f.BYTES_2:
+            self.bytes_2(),
+            f.ATTACK_POWER:
+            10,
+            f.ATTACK_POWER_MODS:
+            1,
+            f.ATTACK_POWER_MULTIPLIER:
+            2.0,
+            f.RANGED_ATTACK_POWER:
+            10,
+            f.RANGED_ATTACK_POWER_MODS:
+            1,
+            f.RANGED_ATTACK_POWER_MULTIPLIER:
+            2.0,
+            f.MINRANGEDDAMAGE:
+            10.0,
+            f.MAXRANGEDDAMAGE:
+            10.0,
+            f.POWER_COST_MODIFIER:
+            0,
+            f.POWER_COST_MODIFIER_01:
+            0,
+            f.POWER_COST_MODIFIER_02:
+            0,
+            f.POWER_COST_MODIFIER_03:
+            0,
+            f.POWER_COST_MODIFIER_04:
+            0,
+            f.POWER_COST_MODIFIER_05:
+            0,
+            f.POWER_COST_MODIFIER_06:
+            0,
+            f.POWER_COST_MULTIPLIER:
+            0,
+            f.POWER_COST_MULTIPLIER_01:
+            0,
+            f.POWER_COST_MULTIPLIER_02:
+            0,
+            f.POWER_COST_MULTIPLIER_03:
+            0,
+            f.POWER_COST_MULTIPLIER_04:
+            0,
+            f.POWER_COST_MULTIPLIER_05:
+            0,
+            f.POWER_COST_MULTIPLIER_06:
+            0,
+            f.PADDING:
+            0,
+        })
 
         return {**super(Unit, self).update_fields(), **fields}

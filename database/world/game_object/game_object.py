@@ -28,8 +28,10 @@ class GameObject(db.Entity):
     # This has to be a minimum of 10 because some smaller numbers seem to
     # be reserved (or there is a bug in the client which causes crashes).
     id = orm.PrimaryKey(int, auto=True, min=10)
-    entry = orm.Optional(int)
     scale = orm.Required(float, default=1.0)
+
+    def entry(self) -> Optional[int]:
+        return None
 
     @property
     def guid(self) -> GUID:
@@ -83,6 +85,6 @@ class GameObject(db.Entity):
         return {
             of.GUID: self.guid,
             of.TYPE: self.type_mask(),
-            of.ENTRY: self.entry,
+            of.ENTRY: self.entry(),
             of.SCALE_X: self.scale,
         }

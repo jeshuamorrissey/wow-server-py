@@ -506,3 +506,10 @@ class CorpseFields(enum.IntEnum):
     DYNAMIC_FLAGS = ObjectFields.END + 0x1E
     PAD = ObjectFields.END + 0x1F
     END = ObjectFields.END + 0x20
+
+
+class ItemFlags(enum.IntFlag):
+    BOUND = 0x00000001
+    UNLOCKED = 0x00000004
+    WRAPPED = 0x00000008
+    READABLE = 0x00000200
