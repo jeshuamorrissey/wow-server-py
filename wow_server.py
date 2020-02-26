@@ -103,6 +103,22 @@ def setup_db(args: argparse.Namespace):
                 base_power=100,
             )
 
+            base_unit = UnitTemplate.get(Name='Lady Sylvanas Windrunner')
+            Unit(
+                base_unit=base_unit,
+                level=55,
+                race=0,
+                class_=base_unit.UnitClass,
+                gender=c.Gender.MALE,
+                x=jeshua.x + 2,
+                y=jeshua.y - 2,
+                z=jeshua.z,
+                o=jeshua.o,
+                base_health=100,
+                base_power=100,
+                team=c.Team.HORDE,
+            )
+
 
 def main(args: argparse.Namespace):
     # Load the database.

@@ -89,8 +89,7 @@ class Player(unit.Unit):
         """
         return {eq.slot: eq.item for eq in self.equipment}
 
-    def visible_item_fields(self, slot: c.EquipmentSlot,
-                            item: Item) -> Dict[c.UpdateField, Any]:
+    def visible_item_fields(self, slot: c.EquipmentSlot, item: Item) -> Dict[c.UpdateField, Any]:
         fields_start = c.PlayerFields.VISIBLE_ITEM_START + (slot * 12)
         if item:
             enchantments = item.enchantment_map()
@@ -114,8 +113,7 @@ class Player(unit.Unit):
 
         return {f: 0 for f in range(fields_start, fields_start + 11 + 1)}
 
-    def inventory_fields(self, slot: c.EquipmentSlot,
-                         item: Item) -> Dict[c.UpdateField, Any]:
+    def inventory_fields(self, slot: c.EquipmentSlot, item: Item) -> Dict[c.UpdateField, Any]:
         field = c.PlayerFields.INVENTORY_START + (slot * 2)
         if item:
             return {field: item.guid}
@@ -147,9 +145,7 @@ class Player(unit.Unit):
             The newly created character.
         """
         starting_location = ChrStartLocation.get(race=race)
-        starting_items = CharStartOutfit.get(race=race,
-                                             class_=class_,
-                                             gender=gender)
+        starting_items = CharStartOutfit.get(race=race, class_=class_, gender=gender)
 
         team = c.Team.ALLIANCE
         if race in (c.Race.ORC, c.Race.UNDEAD, c.Race.TAUREN, c.Race.TROLL):
@@ -204,9 +200,15 @@ class Player(unit.Unit):
     def num_fields(self) -> int:
         return 0x06 + 0xB6 + 0x446
 
+    def calculate_damage(self, slot: c.EquipmentSlot) -> float:
+        base = 1
+        if slot in equipment:
+            base = equipment[slot].base_item.dmg()
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.PlayerFields
+        uf = c.UnitFields
         fields: Dict[c.UpdateField, Any] = {}
 
         equipment = self.equipment_map()
@@ -214,23 +216,20 @@ class Player(unit.Unit):
         # Populate fields for virtual items (i.e. how sheathed items should
         # be displayed).
         if self.sheathed_state == c.SheathedState.MELEE:
-            fields.update(
-                self.virtual_item_fields(
-                    c.EquipmentSlot.MAIN_HAND,
-                    equipment.get(c.EquipmentSlot.MAIN_HAND),
-                ))
-            fields.update(
-                self.virtual_item_fields(
-                    c.EquipmentSlot.OFF_HAND,
-                    equipment.get(c.EquipmentSlot.OFF_HAND),
-                ))
+            fields.update(self.virtual_item_fields(
+                c.EquipmentSlot.MAIN_HAND,
+                equipment.get(c.EquipmentSlot.MAIN_HAND),
+            ))
+            fields.update(self.virtual_item_fields(
+                c.EquipmentSlot.OFF_HAND,
+                equipment.get(c.EquipmentSlot.OFF_HAND),
+            ))
 
         elif self.sheathed_state == c.SheathedState.RANGED:
-            fields.update(
-                self.virtual_item_fields(
-                    c.EquipmentSlot.RANGED,
-                    equipment.get(c.EquipmentSlot.RANGED),
-                ))
+            fields.update(self.virtual_item_fields(
+                c.EquipmentSlot.RANGED,
+                equipment.get(c.EquipmentSlot.RANGED),
+            ))
 
         # Populate equipment fields.
         for equipment_slot in c.EquipmentSlot:
@@ -239,163 +238,104 @@ class Player(unit.Unit):
             fields.update(self.inventory_fields(equipment_slot, item))
 
         fields.update({
-            f.DUEL_ARBITER:
-            0,
-            f.FLAGS:
-            0,
-            f.GUILDID:
-            0,
-            f.GUILDRANK:
-            0,
-            f.BYTES:
-            self.skin_color | self.face << 8 | self.hair_style << 16
-            | self.hair_color << 24,
-            f.BYTES_2:
-            self.feature,
-            f.BYTES_3:
-            self.gender,
-            f.DUEL_TEAM:
-            0,
-            f.GUILD_TIMESTAMP:
-            0,
-            f.QUEST_LOG_1_1:
-            0,
-            f.QUEST_LOG_1_2:
-            0,
-            f.QUEST_LOG_1_3:
-            0,
-            f.QUEST_LOG_LAST_1:
-            0,
-            f.QUEST_LOG_LAST_2:
-            0,
-            f.QUEST_LOG_LAST_3:
-            0,
-            f.PACK_SLOT_1:
-            0,
-            f.PACK_SLOT_LAST:
-            0,
-            f.BANK_SLOT_1:
-            0,
-            f.BANK_SLOT_LAST:
-            0,
-            f.BANKBAG_SLOT_1:
-            0,
-            f.BANKBAG_SLOT_LAST:
-            0,
-            f.VENDORBUYBACK_SLOT_1:
-            0,
-            f.VENDORBUYBACK_SLOT_LAST:
-            0,
-            f.KEYRING_SLOT_1:
-            0,
-            f.KEYRING_SLOT_LAST:
-            0,
-            f.FARSIGHT:
-            0,
-            f.COMBO_TARGET:
-            0,
-            f.XP:
-            0,
-            f.NEXT_LEVEL_XP:
-            0,
-            f.SKILL_INFO_1_1:
-            0,
-            f.CHARACTER_POINTS1:
-            0,
-            f.CHARACTER_POINTS2:
-            0,
-            f.TRACK_CREATURES:
-            0,
-            f.TRACK_RESOURCES:
-            0,
-            f.BLOCK_PERCENTAGE:
-            0,
-            f.DODGE_PERCENTAGE:
-            0,
-            f.PARRY_PERCENTAGE:
-            0,
-            f.CRIT_PERCENTAGE:
-            0,
-            f.RANGED_CRIT_PERCENTAGE:
-            0,
-            f.EXPLORED_ZONES_1:
-            0,
-            f.REST_STATE_EXPERIENCE:
-            0,
-            f.COINAGE:
-            0,
-            f.POSSTAT0:
-            0,
-            f.POSSTAT1:
-            0,
-            f.POSSTAT2:
-            0,
-            f.POSSTAT3:
-            0,
-            f.POSSTAT4:
-            0,
-            f.NEGSTAT0:
-            0,
-            f.NEGSTAT1:
-            0,
-            f.NEGSTAT2:
-            0,
-            f.NEGSTAT3:
-            0,
-            f.NEGSTAT4:
-            0,
-            f.RESISTANCEBUFFMODSPOSITIVE:
-            0,
-            f.RESISTANCEBUFFMODSNEGATIVE:
-            0,
-            f.MOD_DAMAGE_DONE_POS:
-            0,
-            f.MOD_DAMAGE_DONE_NEG:
-            0,
-            f.MOD_DAMAGE_DONE_PCT:
-            0,
-            f.BYTES:
-            0,
-            f.AMMO_ID:
-            0,
-            f.SELF_RES_SPELL:
-            0,
-            f.PVP_MEDALS:
-            0,
-            f.BUYBACK_PRICE_1:
-            0,
-            f.BUYBACK_PRICE_LAST:
-            0,
-            f.BUYBACK_TIMESTAMP_1:
-            0,
-            f.BUYBACK_TIMESTAMP_LAST:
-            0,
-            f.SESSION_KILLS:
-            0,
-            f.YESTERDAY_KILLS:
-            0,
-            f.LAST_WEEK_KILLS:
-            0,
-            f.THIS_WEEK_KILLS:
-            0,
-            f.THIS_WEEK_CONTRIBUTION:
-            0,
-            f.LIFETIME_HONORABLE_KILLS:
-            0,
-            f.LIFETIME_DISHONORABLE_KILLS:
-            0,
-            f.YESTERDAY_CONTRIBUTION:
-            0,
-            f.LAST_WEEK_CONTRIBUTION:
-            0,
-            f.LAST_WEEK_RANK:
-            0,
-            f.BYTES2:
-            0,
-            f.WATCHED_FACTION_INDEX:
-            0,
-            f.COMBAT_RATING_1:
-            0,
+            uf.BASEATTACKTIME: 2000,
+            uf.OFFHANDATTACKTIME: 0,
+            uf.RANGEDATTACKTIME: 0,
+            uf.MINDAMAGE: 1,
+            uf.MAXDAMAGE: 1,
+            uf.MINOFFHANDDAMAGE: 0,
+            uf.MAXOFFHANDDAMAGE: 0,
+        })
+
+        if c.EquipmentSlot.MAIN_HAND in equipment:
+            fields[uf.BASEATTACKTIME] = equipment[c.EquipmentSlot.MAIN_HAND].delay
+
+        fields.update({
+            uf.BASEATTACKTIME: equipment.get(c.EquipmentSlot.MAIN_HAND),
+            uf.OFFHANDATTACKTIME: self.base_unit.MeleeBaseAttackTime,
+            uf.RANGEDATTACKTIME: self.base_unit.RangedBaseAttackTime,
+            uf.MINDAMAGE: self.base_unit.MinMeleeDmg,
+            uf.MAXDAMAGE: self.base_unit.MaxMeleeDmg,
+            uf.MINOFFHANDDAMAGE: self.base_unit.MinRangedDmg,
+            uf.MAXOFFHANDDAMAGE: self.base_unit,
+            f.DUEL_ARBITER: 0,
+            f.FLAGS: 0,
+            f.GUILDID: 0,
+            f.GUILDRANK: 0,
+            f.BYTES: self.skin_color | self.face << 8 | self.hair_style << 16 | self.hair_color << 24,
+            f.BYTES_2: self.feature,
+            f.BYTES_3: self.gender,
+            f.DUEL_TEAM: 0,
+            f.GUILD_TIMESTAMP: 0,
+            f.QUEST_LOG_1_1: 0,
+            f.QUEST_LOG_1_2: 0,
+            f.QUEST_LOG_1_3: 0,
+            f.QUEST_LOG_LAST_1: 0,
+            f.QUEST_LOG_LAST_2: 0,
+            f.QUEST_LOG_LAST_3: 0,
+            f.PACK_SLOT_1: 0,
+            f.PACK_SLOT_LAST: 0,
+            f.BANK_SLOT_1: 0,
+            f.BANK_SLOT_LAST: 0,
+            f.BANKBAG_SLOT_1: 0,
+            f.BANKBAG_SLOT_LAST: 0,
+            f.VENDORBUYBACK_SLOT_1: 0,
+            f.VENDORBUYBACK_SLOT_LAST: 0,
+            f.KEYRING_SLOT_1: 0,
+            f.KEYRING_SLOT_LAST: 0,
+            f.FARSIGHT: 0,
+            f.COMBO_TARGET: 0,
+            f.XP: 0,
+            f.NEXT_LEVEL_XP: 0,
+            f.SKILL_INFO_1_1: 0,
+            f.CHARACTER_POINTS1: 0,
+            f.CHARACTER_POINTS2: 0,
+            f.TRACK_CREATURES: 0,
+            f.TRACK_RESOURCES: 0,
+            f.BLOCK_PERCENTAGE: 0,
+            f.DODGE_PERCENTAGE: 0,
+            f.PARRY_PERCENTAGE: 0,
+            f.CRIT_PERCENTAGE: 0,
+            f.RANGED_CRIT_PERCENTAGE: 0,
+            f.EXPLORED_ZONES_1: 0,
+            f.REST_STATE_EXPERIENCE: 0,
+            f.COINAGE: 0,
+            f.POSSTAT0: 0,
+            f.POSSTAT1: 0,
+            f.POSSTAT2: 0,
+            f.POSSTAT3: 0,
+            f.POSSTAT4: 0,
+            f.NEGSTAT0: 0,
+            f.NEGSTAT1: 0,
+            f.NEGSTAT2: 0,
+            f.NEGSTAT3: 0,
+            f.NEGSTAT4: 0,
+            f.RESISTANCEBUFFMODSPOSITIVE: 0,
+            f.RESISTANCEBUFFMODSNEGATIVE: 0,
+            f.MOD_DAMAGE_DONE_POS: 0,
+            f.MOD_DAMAGE_DONE_NEG: 0,
+            f.MOD_DAMAGE_DONE_PCT: 0,
+            f.BYTES: 0,
+            f.AMMO_ID: 0,
+            f.SELF_RES_SPELL: 0,
+            f.PVP_MEDALS: 0,
+            f.BUYBACK_PRICE_1: 0,
+            f.BUYBACK_PRICE_LAST: 0,
+            f.BUYBACK_TIMESTAMP_1: 0,
+            f.BUYBACK_TIMESTAMP_LAST: 0,
+            f.SESSION_KILLS: 0,
+            f.YESTERDAY_KILLS: 0,
+            f.LAST_WEEK_KILLS: 0,
+            f.THIS_WEEK_KILLS: 0,
+            f.THIS_WEEK_CONTRIBUTION: 0,
+            f.LIFETIME_HONORABLE_KILLS: 0,
+            f.LIFETIME_DISHONORABLE_KILLS: 0,
+            f.YESTERDAY_CONTRIBUTION: 0,
+            f.LAST_WEEK_CONTRIBUTION: 0,
+            f.LAST_WEEK_RANK: 0,
+            f.BYTES2: 0,
+            f.WATCHED_FACTION_INDEX: 0,
+            f.COMBAT_RATING_1: 0,
         })
 
         return {**super(Player, self).update_fields(), **fields}

@@ -2,6 +2,8 @@ import enum
 
 from pony import orm
 
+from typing import Tuple
+
 from database.db import db
 
 
@@ -71,6 +73,13 @@ class ItemTemplate(db.Entity):
     dmg_min5 = orm.Optional(float)
     dmg_max5 = orm.Optional(float)
     dmg_type5 = orm.Optional(int)
+
+    def dmg(self, dmg_type: int) -> Tuple[float, float]:
+        for i in range(1, 5 + 1):
+            if getattr(self, f'dmg_type{i}') == dmg_type:
+                return (getattr(self, f'dmg_min{i}'), getattr(self, f'dmg_max{i}'))
+        return (0, 0)
+
     armor = orm.Optional(int)
     holy_res = orm.Optional(int)
     fire_res = orm.Optional(int)
