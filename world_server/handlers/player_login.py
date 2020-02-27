@@ -10,8 +10,7 @@ from database.world.account import Account
 from database.world.game_object.player import Player
 from database.world.realm import Realm
 from world_server import op_code, router, session, system
-from world_server.packets import (account_data_times, init_world_states,
-                                  login_verify_world, player_login,
+from world_server.packets import (account_data_times, init_world_states, login_verify_world, player_login,
                                   trigger_cinematic, tutorial_flags)
 
 
@@ -24,9 +23,8 @@ class ResponseCode(enum.IntEnum):
 
 @router.Handler(op_code.Client.PLAYER_LOGIN)
 @orm.db_session
-def handle_player_login(
-        pkt: player_login.ClientPlayerLogin,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_player_login(pkt: player_login.ClientPlayerLogin,
+                        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     player = Player[pkt.guid_low]
     session.player_id = player.id
 
@@ -36,7 +34,7 @@ def handle_player_login(
     player.last_login = datetime.datetime.utcnow()
 
     # Add the player to the map.
-    system.Register.Get(system.System.ID.UPDATER).login(player, session)
+    update_op, update_pkt = system.Register.Get(system.System.ID.UPDATER).login(player, session)
 
     # Make a list of return packets.
     packets = [
@@ -53,8 +51,7 @@ def handle_player_login(
         ),
         (
             op_code.Server.ACCOUNT_DATA_TIMES,
-            account_data_times.ServerAccountDataTimes.build(
-                dict(data_times=[0] * 32)),
+            account_data_times.ServerAccountDataTimes.build(dict(data_times=[0] * 32)),
         ),
         (
             op_code.Server.TUTORIAL_FLAGS,
@@ -62,12 +59,15 @@ def handle_player_login(
         ),
         (
             op_code.Server.INIT_WORLD_STATES,
-            init_world_states.ServerInitWorldStates.build(
-                dict(
-                    map=player.map,
-                    zone=player.zone,
-                    blocks=[],
-                )),
+            init_world_states.ServerInitWorldStates.build(dict(
+                map=player.map,
+                zone=player.zone,
+                blocks=[],
+            )),
+        ),
+        (
+            update_op,
+            update_pkt,
         ),
     ]
 
@@ -76,8 +76,7 @@ def handle_player_login(
         cinematic = ChrRaces[player.race].cinematic_sequence_id
         packets.append((
             op_code.Server.TRIGGER_CINEMATIC,
-            trigger_cinematic.ServerTriggerCinematic.build(
-                dict(sequence_id=cinematic)),
+            trigger_cinematic.ServerTriggerCinematic.build(dict(sequence_id=cinematic)),
         ))
 
     # TODO: send bindpoint update

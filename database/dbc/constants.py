@@ -63,6 +63,24 @@ class Class(enum.IntEnum):
     DRUID = 11
 
 
+class Stat(enum.IntEnum):
+    STRENGTH = 0
+    AGILITY = 1
+    STAMINA = 2
+    INTELLECT = 3
+    SPIRIT = 4
+
+
+class SpellSchool(enum.IntEnum):
+    NORMAL = 0
+    HOLY = 1
+    FIRE = 2
+    NATURE = 3
+    FROST = 4
+    SHADOW = 5
+    ARCANE = 6
+
+
 class EquipmentSlot(enum.IntEnum):
     HEAD = 0
     NECK = 1
@@ -333,18 +351,18 @@ class UnitFields(UpdateField):
     NPC_FLAGS = ObjectFields.END + 0x8d
     NPC_EMOTESTATE = ObjectFields.END + 0x8e
     TRAINING_POINTS = ObjectFields.END + 0x8f
-    STAT0 = ObjectFields.END + 0x90
-    STAT1 = ObjectFields.END + 0x91
-    STAT2 = ObjectFields.END + 0x92
-    STAT3 = ObjectFields.END + 0x93
-    STAT4 = ObjectFields.END + 0x94
-    RESISTANCES = ObjectFields.END + 0x95
-    RESISTANCES_01 = ObjectFields.END + 0x96
-    RESISTANCES_02 = ObjectFields.END + 0x97
-    RESISTANCES_03 = ObjectFields.END + 0x98
-    RESISTANCES_04 = ObjectFields.END + 0x99
-    RESISTANCES_05 = ObjectFields.END + 0x9a
-    RESISTANCES_06 = ObjectFields.END + 0x9b
+    STRENGTH = ObjectFields.END + 0x90
+    AGILITY = ObjectFields.END + 0x91
+    STAMINA = ObjectFields.END + 0x92
+    INTELLECT = ObjectFields.END + 0x93
+    SPIRIT = ObjectFields.END + 0x94
+    ARMOR = ObjectFields.END + 0x95
+    HOLY_RESISTANCE = ObjectFields.END + 0x96
+    FIRE_RESISTANCE = ObjectFields.END + 0x97
+    NATURE_RESISTANCE = ObjectFields.END + 0x98
+    FROST_RESISTANCE = ObjectFields.END + 0x99
+    SHADOW_RESISTANCE = ObjectFields.END + 0x9a
+    ARCANE_RESISTANCE = ObjectFields.END + 0x9b
     BASE_MANA = ObjectFields.END + 0x9c
     BASE_HEALTH = ObjectFields.END + 0x9d
     BYTES_2 = ObjectFields.END + 0x9e

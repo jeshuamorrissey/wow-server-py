@@ -81,6 +81,11 @@ def setup_db(args: argparse.Namespace):
                 last_login=datetime.datetime.now(),
                 base_health=100,  # TODO: use ChrBaseStats
                 base_power=100,  # TODO: use ChrBaseStats
+                strength=5,
+                agility=5,
+                stamina=5,
+                intellect=5,
+                spirit=5,
             )
 
             base_unit = UnitTemplate.get(Name='Young Nightsaber')

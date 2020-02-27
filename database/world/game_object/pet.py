@@ -24,6 +24,7 @@ class Pet(unit.Unit):
             f.PET_NAME_TIMESTAMP: 0,
             f.PETEXPERIENCE: 0,
             f.PETNEXTLEVELEXP: 1000,
+            f.TRAINING_POINTS: 10,
         }
 
         return {**super(Pet, self).update_fields(), **fields}

@@ -17,6 +17,14 @@ class Unit(game_object.GameObject):
 
     sheathed_state = orm.Required(c.SheathedState, default=c.SheathedState.UNARMED)
     stand_state = orm.Required(c.StandState, default=c.StandState.STAND)
+    emote_state = orm.Optional(int)
+
+    # Stats.
+    strength = orm.Required(int, default=0)  # TODO: make this not have a default
+    agility = orm.Required(int, default=0)  # TODO: make this not have a default
+    stamina = orm.Required(int, default=0)  # TODO: make this not have a default
+    intellect = orm.Required(int, default=0)  # TODO: make this not have a default
+    spirit = orm.Required(int, default=0)  # TODO: make this not have a default
 
     # The current team.
     team = orm.Required(c.Team)
@@ -210,6 +218,9 @@ class Unit(game_object.GameObject):
 
         return f
 
+    def calculate_cast_speed_mod(self) -> float:
+        return 1.0
+
     def display_id(self) -> int:
         if self.base_unit:
             return self.base_unit.ModelId1
@@ -299,6 +310,14 @@ class Unit(game_object.GameObject):
                 f.MAXDAMAGE: self.base_unit.MaxMeleeDmg,
                 f.MINOFFHANDDAMAGE: self.base_unit.MinRangedDmg,
                 f.MAXOFFHANDDAMAGE: self.base_unit.MaxRangedDmg,
+                f.NPC_FLAGS: self.base_unit.NpcFlags,
+                f.ARMOR: self.base_unit.Armor,
+                f.HOLY_RESISTANCE: self.base_unit.ResistanceHoly,
+                f.FIRE_RESISTANCE: self.base_unit.ResistanceFire,
+                f.NATURE_RESISTANCE: self.base_unit.ResistanceNature,
+                f.FROST_RESISTANCE: self.base_unit.ResistanceFrost,
+                f.SHADOW_RESISTANCE: self.base_unit.ResistanceShadow,
+                f.ARCANE_RESISTANCE: self.base_unit.ResistanceArcane,
             })
 
         fields.update({
@@ -338,24 +357,15 @@ class Unit(game_object.GameObject):
             f.MOUNTDISPLAYID: self.mount.display_id() if self.mount else 0,
             f.BYTES_1: self.bytes_1(),
             f.DYNAMIC_FLAGS: self.dynamic_flags(),
-            f.CHANNEL_SPELL: 1,  # TODO: spell ID of the spell being channelled
-            f.MOD_CAST_SPEED: 0,
-            f.CREATED_BY_SPELL: 0,
-            f.NPC_FLAGS: 0,
-            f.NPC_EMOTESTATE: 0,
-            f.TRAINING_POINTS: 0,
-            f.STAT0: 1,
-            f.STAT1: 2,
-            f.STAT2: 3,
-            f.STAT3: 4,
-            f.STAT4: 5,
-            f.RESISTANCES: 1,
-            f.RESISTANCES_01: 2,
-            f.RESISTANCES_02: 3,
-            f.RESISTANCES_03: 4,
-            f.RESISTANCES_04: 5,
-            f.RESISTANCES_05: 6,
-            f.RESISTANCES_06: 7,
+            f.CHANNEL_SPELL: 0,  # TODO: spell ID of the spell being channelled
+            f.MOD_CAST_SPEED: self.calculate_cast_speed_mod(),
+            f.CREATED_BY_SPELL: 0,  # TODO: spell ID of the spell which created this unit
+            f.NPC_EMOTESTATE: self.emote_state,
+            f.STRENGTH: self.strength,
+            f.AGILITY: self.agility,
+            f.STAMINA: self.stamina,
+            f.INTELLECT: self.intellect,
+            f.SPIRIT: self.spirit,
             f.BASE_MANA: self.base_power,
             f.BASE_HEALTH: self.base_health,
             f.BYTES_2: self.bytes_2(),

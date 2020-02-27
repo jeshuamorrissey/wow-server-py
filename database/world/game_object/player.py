@@ -218,6 +218,30 @@ class Player(unit.Unit):
 
         return base
 
+    def calculate_cast_speed_mod(self) -> float:
+        return 1.0
+
+    def calculate_armor(self) -> int:
+        return 0
+
+    def calculate_holy_resistance(self) -> int:
+        return 0
+
+    def calculate_fire_resistance(self) -> int:
+        return 0
+
+    def calculate_nature_resistance(self) -> int:
+        return 0
+
+    def calculate_frost_resistance(self) -> int:
+        return 0
+
+    def calculate_shadow_resistance(self) -> int:
+        return 0
+
+    def calculate_arcane_resistance(self) -> int:
+        return 0
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.PlayerFields
@@ -259,6 +283,13 @@ class Player(unit.Unit):
             uf.MINOFFHANDDAMAGE: self.calculate_damage(c.EquipmentSlot.OFF_HAND)[0],
             uf.MAXOFFHANDDAMAGE: self.calculate_damage(c.EquipmentSlot.OFF_HAND)[1],
             uf.COMBATREACH: 1.5,
+            uf.ARMOR: self.calculate_armor(),
+            uf.HOLY_RESISTANCE: self.calculate_holy_resistance(),
+            uf.FIRE_RESISTANCE: self.calculate_fire_resistance(),
+            uf.NATURE_RESISTANCE: self.calculate_nature_resistance(),
+            uf.FROST_RESISTANCE: self.calculate_frost_resistance(),
+            uf.SHADOW_RESISTANCE: self.calculate_shadow_resistance(),
+            uf.ARCANE_RESISTANCE: self.calculate_arcane_resistance(),
         })
 
         fields.update({
