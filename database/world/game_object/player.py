@@ -242,6 +242,12 @@ class Player(unit.Unit):
     def calculate_arcane_resistance(self) -> int:
         return 0
 
+    def calculate_melee_attack_power(self) -> int:
+        return self.strength * 5
+
+    def calculate_ranged_attack_power(self) -> int:
+        return self.agility * 5
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.PlayerFields
@@ -253,20 +259,27 @@ class Player(unit.Unit):
         # Populate fields for virtual items (i.e. how sheathed items should
         # be displayed).
         if self.sheathed_state == c.SheathedState.MELEE:
-            fields.update(self.virtual_item_fields(
-                c.EquipmentSlot.MAIN_HAND,
-                equipment.get(c.EquipmentSlot.MAIN_HAND),
-            ))
-            fields.update(self.virtual_item_fields(
-                c.EquipmentSlot.OFF_HAND,
-                equipment.get(c.EquipmentSlot.OFF_HAND),
-            ))
+            if c.EquipmentSlot.MAIN_HAND in equipment:
+                fields.update(
+                    self.virtual_item_fields(
+                        c.EquipmentSlot.MAIN_HAND,
+                        equipment[c.EquipmentSlot.MAIN_HAND].base_item,
+                    ))
+
+            if c.EquipmentSlot.OFF_HAND in equipment:
+                fields.update(
+                    self.virtual_item_fields(
+                        c.EquipmentSlot.OFF_HAND,
+                        equipment[c.EquipmentSlot.OFF_HAND].base_item,
+                    ))
 
         elif self.sheathed_state == c.SheathedState.RANGED:
-            fields.update(self.virtual_item_fields(
-                c.EquipmentSlot.RANGED,
-                equipment.get(c.EquipmentSlot.RANGED),
-            ))
+            if c.EquipmentSlot.RANGED in equipment:
+                fields.update(
+                    self.virtual_item_fields(
+                        c.EquipmentSlot.RANGED,
+                        equipment[c.EquipmentSlot.RANGED].base_item,
+                    ))
 
         # Populate equipment fields.
         for equipment_slot in c.EquipmentSlot:
@@ -282,6 +295,10 @@ class Player(unit.Unit):
             uf.MAXDAMAGE: self.calculate_damage(c.EquipmentSlot.MAIN_HAND)[1],
             uf.MINOFFHANDDAMAGE: self.calculate_damage(c.EquipmentSlot.OFF_HAND)[0],
             uf.MAXOFFHANDDAMAGE: self.calculate_damage(c.EquipmentSlot.OFF_HAND)[1],
+            uf.MINRANGEDDAMAGE: self.calculate_damage(c.EquipmentSlot.RANGED)[0],
+            uf.MAXRANGEDDAMAGE: self.calculate_damage(c.EquipmentSlot.RANGED)[1],
+            uf.ATTACK_POWER: self.calculate_melee_attack_power(),
+            uf.RANGED_ATTACK_POWER: self.calculate_ranged_attack_power(),
             uf.COMBATREACH: 1.5,
             uf.ARMOR: self.calculate_armor(),
             uf.HOLY_RESISTANCE: self.calculate_holy_resistance(),

@@ -12,6 +12,9 @@ class ItemTemplate(db.Entity):
 
     # Reverse attribute: all instances of this template.
     instances = orm.Set('Item')
+    npc_main_hands = orm.Set('Unit', reverse='npc_main_hand')
+    npc_off_hands = orm.Set('Unit', reverse='npc_off_hand')
+    npc_rangeds = orm.Set('Unit', reverse='npc_ranged')
 
     # TODO: sort these fields, copied from item_template.sql
     class_ = orm.Optional(int)

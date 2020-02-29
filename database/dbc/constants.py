@@ -63,6 +63,16 @@ class Class(enum.IntEnum):
     DRUID = 11
 
 
+class AuraState(enum.IntEnum):
+    DEFENSE = 1
+    HEALTHLESS_20_PERCENT = 2
+    BERSERKING = 3
+    FROZEN = 4
+    JUDGEMENT = 5
+    HUNTER_PARRY = 7
+    ROGUE_ATTACK_FROM_STEALTH = 7
+
+
 class Stat(enum.IntEnum):
     STRENGTH = 0
     AGILITY = 1
@@ -375,19 +385,7 @@ class UnitFields(UpdateField):
     MINRANGEDDAMAGE = ObjectFields.END + 0xa5
     MAXRANGEDDAMAGE = ObjectFields.END + 0xa6
     POWER_COST_MODIFIER = ObjectFields.END + 0xa7
-    POWER_COST_MODIFIER_01 = ObjectFields.END + 0xa8
-    POWER_COST_MODIFIER_02 = ObjectFields.END + 0xa9
-    POWER_COST_MODIFIER_03 = ObjectFields.END + 0xaa
-    POWER_COST_MODIFIER_04 = ObjectFields.END + 0xab
-    POWER_COST_MODIFIER_05 = ObjectFields.END + 0xac
-    POWER_COST_MODIFIER_06 = ObjectFields.END + 0xad
     POWER_COST_MULTIPLIER = ObjectFields.END + 0xae
-    POWER_COST_MULTIPLIER_01 = ObjectFields.END + 0xaf
-    POWER_COST_MULTIPLIER_02 = ObjectFields.END + 0xb0
-    POWER_COST_MULTIPLIER_03 = ObjectFields.END + 0xb1
-    POWER_COST_MULTIPLIER_04 = ObjectFields.END + 0xb2
-    POWER_COST_MULTIPLIER_05 = ObjectFields.END + 0xb3
-    POWER_COST_MULTIPLIER_06 = ObjectFields.END + 0xb4
     PADDING = ObjectFields.END + 0xb5
     END = ObjectFields.END + 0xb6
 

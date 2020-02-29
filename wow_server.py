@@ -22,6 +22,7 @@ from database.dbc import data
 from database.dbc.chr_start_locations import ChrStartLocation
 from database.dbc.item_template import ItemTemplate
 from database.dbc.unit_template import UnitTemplate
+from database.dbc.aura_template import AuraTemplate
 from database.world.account import Account
 from database.world.game_object.container import Container
 from database.world.game_object.game_object import GameObject
@@ -30,6 +31,7 @@ from database.world.game_object.pet import Pet
 from database.world.game_object.player import (BackpackItem, EquippedBag, EquippedItem, Player)
 from database.world.game_object.unit import Unit
 from database.world.guild import Guild
+from database.world.aura import Aura
 from database.world.realm import Realm
 from login_server import router as login_router
 from login_server import session as login_session
@@ -56,6 +58,7 @@ def setup_db(args: argparse.Namespace):
     GameObject.drop_table(with_all_data=True)
     Guild.drop_table(with_all_data=True)
     Realm.drop_table(with_all_data=True)
+    Aura.drop_table(with_all_data=True)
 
     db.create_tables()
 
@@ -85,7 +88,12 @@ def setup_db(args: argparse.Namespace):
                 agility=5,
                 stamina=5,
                 intellect=5,
-                spirit=5,
+                spirit=5)
+
+            Aura(
+                id=10,
+                base_aura=AuraTemplate.get(name='Mighty Strength'),
+                applied_to=jeshua,
             )
 
             base_unit = UnitTemplate.get(Name='Young Nightsaber')
@@ -120,6 +128,8 @@ def setup_db(args: argparse.Namespace):
                 base_health=100,
                 base_power=100,
                 team=c.Team.HORDE,
+                npc_ranged=ItemTemplate.get(name='Soulstring'),
+                sheathed_state=c.SheathedState.RANGED,
             )
 
 

@@ -5,7 +5,7 @@ from pony import orm
 from database.dbc import chr_races
 from database.dbc import constants as c
 from database.world.game_object import game_object
-from database.dbc import unit_template
+from database.dbc import unit_template, item_template
 from database.world.game_object import item
 
 
@@ -31,6 +31,14 @@ class Unit(game_object.GameObject):
 
     # For NPC units, they will link to a template.
     base_unit = orm.Optional(unit_template.UnitTemplate)
+
+    # For NPC units, they will have some equipment.
+    # These aren't real items, just visible templates.
+    npc_main_hand = orm.Optional(item_template.ItemTemplate, reverse='npc_main_hands')
+    npc_off_hand = orm.Optional(item_template.ItemTemplate, reverse='npc_off_hands')
+    npc_ranged = orm.Optional(item_template.ItemTemplate, reverse='npc_rangeds')
+
+    auras = orm.Set('Aura')
 
     # Unit stats.
     base_health = orm.Required(int)
@@ -259,7 +267,8 @@ class Unit(game_object.GameObject):
             return c.PowerType.ENERGY
         return c.PowerType.MANA
 
-    def virtual_item_fields(self, slot: c.EquipmentSlot, item: Optional[item.Item]) -> Dict[c.UpdateField, Any]:
+    def virtual_item_fields(self, slot: c.EquipmentSlot,
+                            item: Optional[item_template.ItemTemplate]) -> Dict[c.UpdateField, Any]:
         if not item:
             return {}
 
@@ -278,12 +287,34 @@ class Unit(game_object.GameObject):
         else:
             return {}
 
-        i = item.base_item
-        info_0 = (i.class_ | i.subclass << 8 | i.Material << 16 | i.InventoryType << 24)
         return {
-            DISPLAY: i.displayid,
-            INFO_0: info_0,
-            INFO_1: i.sheath,
+            DISPLAY: item.displayid,
+            INFO_0: (item.class_ | item.subclass << 8 | item.Material << 16 | item.InventoryType << 24),
+            INFO_1: item.sheath,
+        }
+
+    def melee_attack_power_modifier(self) -> int:
+        return 0
+
+    def melee_attack_power_multiplier(self) -> float:
+        return 1.0
+
+    def ranged_attack_power_modifier(self) -> int:
+        return 0
+
+    def ranged_attack_power_multiplier(self) -> float:
+        return 1.0
+
+    def power_cost_modifier_field(self) -> Dict[c.UpdateField, Any]:
+        modifier = 0
+        return {
+            c.UnitFields.POWER_COST_MODIFIER + self.power_type(): modifier,
+        }
+
+    def power_cost_multiplier_field(self) -> Dict[c.UpdateField, Any]:
+        multiplier = 1.0
+        return {
+            c.UnitFields.POWER_COST_MULTIPLIER + self.power_type(): multiplier,
         }
 
     def update_fields(self) -> Dict[c.UpdateField, Any]:
@@ -293,23 +324,20 @@ class Unit(game_object.GameObject):
 
         if self.base_unit:
             # TODO: get data about virtual items for units
+            fields.update(self.virtual_item_fields(c.EquipmentSlot.MAIN_HAND, self.npc_main_hand))
+            fields.update(self.virtual_item_fields(c.EquipmentSlot.OFF_HAND, self.npc_off_hand))
+            fields.update(self.virtual_item_fields(c.EquipmentSlot.RANGED, self.npc_ranged))
+
             fields.update({
-                f.MAIN_HAND_DISPLAY: 0,
-                f.OFF_HAND_DISPLAY: 0,
-                f.RANGED_DISPLAY: 0,
-                f.MAIN_HAND_INFO_0: 0,
-                f.MAIN_HAND_INFO_1: 0,
-                f.OFF_HAND_INFO_0: 0,
-                f.OFF_HAND_INFO_1: 0,
-                f.RANGED_INFO_0: 0,
-                f.RANGED_INFO_1: 0,
                 f.BASEATTACKTIME: self.base_unit.MeleeBaseAttackTime,
                 f.OFFHANDATTACKTIME: self.base_unit.MeleeBaseAttackTime,
                 f.RANGEDATTACKTIME: self.base_unit.RangedBaseAttackTime,
                 f.MINDAMAGE: self.base_unit.MinMeleeDmg,
                 f.MAXDAMAGE: self.base_unit.MaxMeleeDmg,
-                f.MINOFFHANDDAMAGE: self.base_unit.MinRangedDmg,
-                f.MAXOFFHANDDAMAGE: self.base_unit.MaxRangedDmg,
+                f.MINOFFHANDDAMAGE: self.base_unit.MinMeleeDmg,
+                f.MAXOFFHANDDAMAGE: self.base_unit.MaxMeleeDmg,
+                f.MINRANGEDDAMAGE: self.base_unit.MinRangedDmg,
+                f.MAXRANGEDDAMAGE: self.base_unit.MaxRangedDmg,
                 f.NPC_FLAGS: self.base_unit.NpcFlags,
                 f.ARMOR: self.base_unit.Armor,
                 f.HOLY_RESISTANCE: self.base_unit.ResistanceHoly,
@@ -318,6 +346,40 @@ class Unit(game_object.GameObject):
                 f.FROST_RESISTANCE: self.base_unit.ResistanceFrost,
                 f.SHADOW_RESISTANCE: self.base_unit.ResistanceShadow,
                 f.ARCANE_RESISTANCE: self.base_unit.ResistanceArcane,
+                f.ATTACK_POWER: self.base_unit.MeleeAttackPower,
+                f.RANGED_ATTACK_POWER: self.base_unit.RangedAttackPower,
+                f.COMBATREACH: 1.0,  # TODO: ObjectScale * ModelInfo.combat_reach
+            })
+
+        # f.AURA: 0,  # Aura IDs
+        # f.AURA_LAST: 0,
+        # f.AURAFLAGS: 0,  # Some weird flag?? Why??
+        # f.AURAFLAGS_01: 0,
+        # f.AURAFLAGS_02: 0,
+        # f.AURAFLAGS_03: 0,
+        # f.AURAFLAGS_04: 0,
+        # f.AURAFLAGS_05: 0,
+        # f.AURALEVELS: 0,  # The level of the person who cast the aura
+        # f.AURALEVELS_LAST: 0,
+        # f.AURAAPPLICATIONS: 0,  # Number of stacks
+        # f.AURAAPPLICATIONS_LAST: 0,
+        # f.AURASTATE: 0,  # c.AuraState
+        for slot, aura in enumerate(self.auras):
+            id_field = f.AURA + slot
+            flag_field = f.AURAFLAGS + (slot >> 3)
+            flag_byte = (slot & 7) << 2
+
+            level_field = f.AURALEVELS + (slot // 4)
+            level_byte = (slot % 4) * 8
+
+            aura_applications_field = f.AURAAPPLICATIONS + (slot // 4)
+            aura_applications_byte = (slot % 4) * 8
+
+            fields.update({
+                id_field: aura.id,
+                flag_field: 0x09 << flag_byte,
+                level_field: (1 << level_byte),
+                aura_applications_field: (1 << aura_applications_byte),
             })
 
         fields.update({
@@ -337,21 +399,7 @@ class Unit(game_object.GameObject):
             f.FACTIONTEMPLATE: self.faction_template(),
             f.BYTES_0: self.bytes_0(),
             f.FLAGS: self.flags(),
-            f.AURA: 0,
-            f.AURA_LAST: 0,
-            f.AURAFLAGS: 0,
-            f.AURAFLAGS_01: 0,
-            f.AURAFLAGS_02: 0,
-            f.AURAFLAGS_03: 0,
-            f.AURAFLAGS_04: 0,
-            f.AURAFLAGS_05: 0,
-            f.AURALEVELS: 0,
-            f.AURALEVELS_LAST: 0,
-            f.AURAAPPLICATIONS: 0,
-            f.AURAAPPLICATIONS_LAST: 0,
-            f.AURASTATE: 0,
             f.BOUNDINGRADIUS: 1.0,  # TODO: ObjectScale * ModelInfo.bounding_radius
-            f.COMBATREACH: 1.0,  # TODO: ObjectScale * ModelInfo.combat_reach
             f.DISPLAYID: self.display_id(),
             f.NATIVEDISPLAYID: self.display_id(),
             f.MOUNTDISPLAYID: self.mount.display_id() if self.mount else 0,
@@ -369,29 +417,13 @@ class Unit(game_object.GameObject):
             f.BASE_MANA: self.base_power,
             f.BASE_HEALTH: self.base_health,
             f.BYTES_2: self.bytes_2(),
-            f.ATTACK_POWER: 10,
-            f.ATTACK_POWER_MODS: 1,
-            f.ATTACK_POWER_MULTIPLIER: 2.0,
-            f.RANGED_ATTACK_POWER: 10,
-            f.RANGED_ATTACK_POWER_MODS: 1,
-            f.RANGED_ATTACK_POWER_MULTIPLIER: 2.0,
-            f.MINRANGEDDAMAGE: 10.0,
-            f.MAXRANGEDDAMAGE: 10.0,
-            f.POWER_COST_MODIFIER: 0,
-            f.POWER_COST_MODIFIER_01: 0,
-            f.POWER_COST_MODIFIER_02: 0,
-            f.POWER_COST_MODIFIER_03: 0,
-            f.POWER_COST_MODIFIER_04: 0,
-            f.POWER_COST_MODIFIER_05: 0,
-            f.POWER_COST_MODIFIER_06: 0,
-            f.POWER_COST_MULTIPLIER: 0,
-            f.POWER_COST_MULTIPLIER_01: 0,
-            f.POWER_COST_MULTIPLIER_02: 0,
-            f.POWER_COST_MULTIPLIER_03: 0,
-            f.POWER_COST_MULTIPLIER_04: 0,
-            f.POWER_COST_MULTIPLIER_05: 0,
-            f.POWER_COST_MULTIPLIER_06: 0,
-            f.PADDING: 0,
+            f.ATTACK_POWER_MODS: self.melee_attack_power_modifier(),
+            f.ATTACK_POWER_MULTIPLIER: self.melee_attack_power_multiplier(),
+            f.RANGED_ATTACK_POWER_MODS: self.ranged_attack_power_modifier(),
+            f.RANGED_ATTACK_POWER_MULTIPLIER: self.ranged_attack_power_multiplier(),
         })
+
+        fields.update(self.power_cost_modifier_field())
+        fields.update(self.power_cost_multiplier_field())
 
         return {**super(Unit, self).update_fields(), **fields}
