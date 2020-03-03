@@ -351,36 +351,46 @@ class Unit(game_object.GameObject):
                 f.COMBATREACH: 1.0,  # TODO: ObjectScale * ModelInfo.combat_reach
             })
 
-        # f.AURA: 0,  # Aura IDs
-        # f.AURA_LAST: 0,
-        # f.AURAFLAGS: 0,  # Some weird flag?? Why??
-        # f.AURAFLAGS_01: 0,
-        # f.AURAFLAGS_02: 0,
-        # f.AURAFLAGS_03: 0,
-        # f.AURAFLAGS_04: 0,
-        # f.AURAFLAGS_05: 0,
-        # f.AURALEVELS: 0,  # The level of the person who cast the aura
-        # f.AURALEVELS_LAST: 0,
-        # f.AURAAPPLICATIONS: 0,  # Number of stacks
-        # f.AURAAPPLICATIONS_LAST: 0,
-        # f.AURASTATE: 0,  # c.AuraState
-        for slot, aura in enumerate(self.auras):
-            id_field = f.AURA + slot
-            flag_field = f.AURAFLAGS + (slot >> 3)
-            flag_byte = (slot & 7) << 2
+        aura_flags = [0] * 48  # 6 fields => 24 bytes => 48 nibbles, one per aura
+        aura_levels = [0] * 48  # 12 fields => 48 bytes, one per aura
+        aura_applications = [0] * 48  # 12 fields => 48 bytes, one per aura
+        for aura in self.auras:
+            aura_flags[aura.slot] = 0x09
+            aura_levels[aura.slot] = 1  # TODO: aura caster levels?
+            aura_applications[aura.slot] = 255 - 1  # TODO: aura stack count?
 
-            level_field = f.AURALEVELS + (slot // 4)
-            level_byte = (slot % 4) * 8
+            fields[f.AURA + aura.slot] = aura.base_spell.id
 
-            aura_applications_field = f.AURAAPPLICATIONS + (slot // 4)
-            aura_applications_byte = (slot % 4) * 8
+        # aura_flags is a list of nibbles, convert it to a list of fields.
+        # First, merge each nibble together to get a list of 24 bytes.
+        aura_flags_fields = [0] * 6
+        for i, aura_flag in enumerate(aura_flags):
+            field = i // 8
+            byte = i % 8
+            aura_flags_fields[field] |= (aura_flag << (byte * 4))
 
-            fields.update({
-                id_field: aura.id,
-                flag_field: 0x09 << flag_byte,
-                level_field: (1 << level_byte),
-                aura_applications_field: (1 << aura_applications_byte),
-            })
+        fields.update({f.AURAFLAGS + i: val for i, val in enumerate(aura_flags_fields)})
+
+        # aura_levels is a list of bytes, each of which is part of a field.
+        aura_levels_fields = [0] * 12
+        for i, aura_level in enumerate(aura_levels):
+            field = i // 4
+            byte = i % 4
+            aura_levels_fields[field] |= (aura_level << (byte * 8))
+
+        fields.update({f.AURALEVELS + i: val for i, val in enumerate(aura_levels_fields)})
+
+        # aura_applications is a list of bytes, each of which is part of a field.
+        aura_applications_fields = [0] * 12
+        for i, aura_application in enumerate(aura_applications):
+            field = i // 4
+            byte = i % 4
+            aura_applications_fields[field] |= (aura_application << (byte * 8))
+
+        fields.update({f.AURALEVELS + i: val for i, val in enumerate(aura_applications_fields)})
+
+        # AURASTATE is a set of flags (just a single byte).
+        fields[f.AURASTATE] = 1 << 5  # TODO: make this proper flags
 
         fields.update({
             f.CHARM: self.control.guid if self.control else None,

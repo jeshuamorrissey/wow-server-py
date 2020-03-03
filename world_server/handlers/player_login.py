@@ -11,7 +11,7 @@ from database.world.game_object.player import Player
 from database.world.realm import Realm
 from world_server import op_code, router, session, system
 from world_server.packets import (account_data_times, init_world_states, login_verify_world, player_login,
-                                  trigger_cinematic, tutorial_flags)
+                                  trigger_cinematic, tutorial_flags, update_aura_duration)
 
 
 class ResponseCode(enum.IntEnum):
@@ -36,7 +36,11 @@ def handle_player_login(pkt: player_login.ClientPlayerLogin,
     # Add the player to the map.
     update_op, update_pkt = system.Register.Get(system.System.ID.UPDATER).login(player, session)
 
+    # Send information about the player's auras.
+    aura_packets = system.Register.Get(system.System.ID.AURA_MANAGER).login(player, session)
+
     # Make a list of return packets.
+    import time
     packets = [
         (
             op_code.Server.LOGIN_VERIFY_WORLD,
@@ -70,6 +74,8 @@ def handle_player_login(pkt: player_login.ClientPlayerLogin,
             update_pkt,
         ),
     ]
+
+    packets += aura_packets
 
     # Trigger a cinematic if this is their first login.
     if is_first_login:

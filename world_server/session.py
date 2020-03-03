@@ -1,14 +1,16 @@
+import threading
 from typing import Optional, Text, Tuple
 
 from pony import orm
 
 from common import session, srp
 from database.world.realm import Realm
-from world_server import op_code
+from world_server import op_code, system
 from world_server.packets import auth_challenge
 
 
 class Session(session.Session):
+
     def setup(self):
         super(Session, self).setup()
 
@@ -17,6 +19,10 @@ class Session(session.Session):
             # TODO: think of a better way of passing this information in
             hostport = f'{self.server.server_address[0]}:{self.server.server_address[1]}'
             self.realm_name = Realm.get(hostport=hostport).name
+
+        # Start the aura manager.
+        aura_manager_thread = threading.Thread(target=system.Register.Get(system.System.ID.AURA_MANAGER).run)
+        aura_manager_thread.start()
 
         # The logged in user's details.
         self.account_name: Text = None
@@ -107,8 +113,7 @@ class Session(session.Session):
     def handle(self):
         """Send an initial AUTH_CHALLENGE packet when starting."""
         self.auth_challenge_seed = srp.Random(4)
-        pkt = auth_challenge.ServerAuthChallenge.build(
-            dict(seed=self.auth_challenge_seed))
+        pkt = auth_challenge.ServerAuthChallenge.build(dict(seed=self.auth_challenge_seed))
         self.send_packet(op_code.Server.AUTH_CHALLENGE, pkt)
 
         # Continue to handle requests like normal.

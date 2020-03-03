@@ -10,7 +10,7 @@ from database.dbc.chr_races import ChrRaces
 from database.dbc.chr_start_locations import ChrStartLocation
 from database.dbc.item_template import ItemTemplate
 from database.dbc.unit_template import UnitTemplate
-from database.dbc.aura_template import AuraTemplate
+from database.dbc.spell_template import SpellTemplate
 
 
 @orm.db_session
@@ -136,8 +136,8 @@ def LoadDBC():
             for item_template in json.load(f):
                 ItemTemplate(**item_template)
 
-    if orm.count(r for r in AuraTemplate) == 0:
-        logging.info('Loading AuraTemplate...')
-        AuraTemplate(id=10, name='Mighty Strength', strength_bonus=10, description='Do stuff woo')
+    if orm.count(r for r in SpellTemplate) == 0:
+        logging.info('Loading SpellTemplate...')
+        SpellTemplate(id=1459)
 
     # yapf: enable

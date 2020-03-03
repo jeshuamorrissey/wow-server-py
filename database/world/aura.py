@@ -6,8 +6,10 @@ from database.db import db
 
 
 class Aura(db.Entity):
-    id = orm.PrimaryKey(int, auto=True, min=10)
-
-    base_aura = orm.Required('AuraTemplate')
-    duration_remaining = orm.Optional(int)
     applied_to = orm.Required('Unit')
+    slot = orm.Required(int)
+
+    base_spell = orm.Required('SpellTemplate')  # TODO: this is in the DBC proper!
+    expiry_time = orm.Required(int)
+
+    orm.PrimaryKey(applied_to, slot)

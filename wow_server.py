@@ -4,6 +4,7 @@ import enum
 import logging
 import os
 import threading
+import time
 from typing import Text
 
 import coloredlogs
@@ -21,9 +22,10 @@ from database.dbc import constants as c
 from database.dbc import data
 from database.dbc.chr_start_locations import ChrStartLocation
 from database.dbc.item_template import ItemTemplate
+from database.dbc.spell_template import SpellTemplate
 from database.dbc.unit_template import UnitTemplate
-from database.dbc.aura_template import AuraTemplate
 from database.world.account import Account
+from database.world.aura import Aura
 from database.world.game_object.container import Container
 from database.world.game_object.game_object import GameObject
 from database.world.game_object.item import Item
@@ -31,7 +33,6 @@ from database.world.game_object.pet import Pet
 from database.world.game_object.player import (BackpackItem, EquippedBag, EquippedItem, Player)
 from database.world.game_object.unit import Unit
 from database.world.guild import Guild
-from database.world.aura import Aura
 from database.world.realm import Realm
 from login_server import router as login_router
 from login_server import session as login_session
@@ -91,9 +92,10 @@ def setup_db(args: argparse.Namespace):
                 spirit=5)
 
             Aura(
-                id=10,
-                base_aura=AuraTemplate.get(name='Mighty Strength'),
+                slot=0,
                 applied_to=jeshua,
+                base_spell=SpellTemplate[1459],
+                expiry_time=int(time.time()) + 20,
             )
 
             base_unit = UnitTemplate.get(Name='Young Nightsaber')
