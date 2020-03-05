@@ -246,7 +246,7 @@ class Player(unit.Unit):
             account=account,
             realm=realm,
             name=name,
-            level=1,
+            level=kwargs.pop('level', 1),
             race=race,
             class_=class_,
             gender=gender,
@@ -338,6 +338,22 @@ class Player(unit.Unit):
 
     def calculate_ranged_attack_power(self) -> int:
         return self.agility * 5
+
+    def calculate_strength(self) -> int:
+        print('IN HERE')
+        return self.strength - 1
+
+    def calculate_agility(self) -> int:
+        return self.agility + 2
+
+    def calculate_stamina(self) -> int:
+        return self.stamina - 3
+
+    def calculate_intellect(self) -> int:
+        return self.intellect + 4
+
+    def calculate_spirit(self) -> int:
+        return self.spirit - 5
 
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
@@ -436,6 +452,17 @@ class Player(unit.Unit):
         fields.update({
             f.DUEL_ARBITER: 0,
             f.DUEL_TEAM: 0,
+            f.SESSION_KILLS: 0,
+            f.YESTERDAY_KILLS: 0,
+            f.LAST_WEEK_KILLS: 0,
+            f.THIS_WEEK_KILLS: 0,
+            f.THIS_WEEK_CONTRIBUTION: 0,
+            f.LIFETIME_HONORABLE_KILLS: 0,
+            f.LIFETIME_DISHONORABLE_KILLS: 0,
+            f.YESTERDAY_CONTRIBUTION: 0,
+            f.LAST_WEEK_CONTRIBUTION: 0,
+            f.LAST_WEEK_RANK: 0,
+            f.PVP_MEDALS: 0,
         })
 
         # Quest updates.
@@ -447,61 +474,66 @@ class Player(unit.Unit):
                 start_field + 2: quest.due - int(time.time()) if quest.due else 0,
             })
 
+        # Stat changes.
+        if self.calculate_strength() - self.strength > 0:
+            fields[f.POSSTAT0] = self.calculate_strength() - self.strength
+        else:
+            fields[f.NEGSTAT0] = self.calculate_strength() - self.strength
+
+        if self.calculate_agility() - self.agility > 0:
+            fields[f.POSSTAT1] = self.calculate_agility() - self.agility
+        else:
+            fields[f.NEGSTAT1] = self.calculate_agility() - self.agility
+
+        if self.calculate_stamina() - self.stamina > 0:
+            fields[f.POSSTAT2] = self.calculate_stamina() - self.stamina
+        else:
+            fields[f.NEGSTAT2] = self.calculate_stamina() - self.stamina
+
+        if self.calculate_intellect() - self.intellect > 0:
+            fields[f.POSSTAT3] = self.calculate_intellect() - self.intellect
+        else:
+            fields[f.NEGSTAT3] = self.calculate_intellect() - self.intellect
+
+        if self.calculate_spirit() - self.spirit > 0:
+            fields[f.POSSTAT4] = self.calculate_spirit() - self.spirit
+        else:
+            fields[f.NEGSTAT4] = self.calculate_spirit() - self.spirit
+
         fields.update({
             f.FLAGS: self.player_flags(),
             f.BYTES: self.skin_color | self.face << 8 | self.hair_style << 16 | self.hair_color << 24,
             f.BYTES_2: self.feature,
             f.BYTES_3: self.gender,
-            f.FARSIGHT: 0,
+            f.FARSIGHT: 0,  # TODO: world objects
             f.COMBO_TARGET: 0,
             f.XP: 0,
             f.NEXT_LEVEL_XP: 0,
             f.SKILL_INFO_1_1: 0,
-            f.CHARACTER_POINTS1: 0,
-            f.CHARACTER_POINTS2: 0,
+            f.CHARACTER_POINTS1: 1,
+            f.CHARACTER_POINTS2: 2,
             f.TRACK_CREATURES: 0,
             f.TRACK_RESOURCES: 0,
             f.BLOCK_PERCENTAGE: 0,
             f.DODGE_PERCENTAGE: 0,
             f.PARRY_PERCENTAGE: 0,
-            f.CRIT_PERCENTAGE: 0,
-            f.RANGED_CRIT_PERCENTAGE: 0,
+            f.CRIT_PERCENTAGE: 1,
+            f.RANGED_CRIT_PERCENTAGE: 1,
             f.EXPLORED_ZONES_1: 0,
-            f.REST_STATE_EXPERIENCE: 0,
+            f.REST_STATE_EXPERIENCE: 1,
             f.COINAGE: 0,
-            f.POSSTAT0: 0,
-            f.POSSTAT1: 0,
-            f.POSSTAT2: 0,
-            f.POSSTAT3: 0,
-            f.POSSTAT4: 0,
-            f.NEGSTAT0: 0,
-            f.NEGSTAT1: 0,
-            f.NEGSTAT2: 0,
-            f.NEGSTAT3: 0,
-            f.NEGSTAT4: 0,
             f.RESISTANCEBUFFMODSPOSITIVE: 0,
             f.RESISTANCEBUFFMODSNEGATIVE: 0,
             f.MOD_DAMAGE_DONE_POS: 0,
             f.MOD_DAMAGE_DONE_NEG: 0,
             f.MOD_DAMAGE_DONE_PCT: 0,
-            f.BYTES: 0,
+            f.BYTES_4: 0,
             f.AMMO_ID: 0,
             f.SELF_RES_SPELL: 0,
-            f.PVP_MEDALS: 0,
             f.BUYBACK_PRICE_1: 0,
             f.BUYBACK_PRICE_LAST: 0,
             f.BUYBACK_TIMESTAMP_1: 0,
             f.BUYBACK_TIMESTAMP_LAST: 0,
-            f.SESSION_KILLS: 0,
-            f.YESTERDAY_KILLS: 0,
-            f.LAST_WEEK_KILLS: 0,
-            f.THIS_WEEK_KILLS: 0,
-            f.THIS_WEEK_CONTRIBUTION: 0,
-            f.LIFETIME_HONORABLE_KILLS: 0,
-            f.LIFETIME_DISHONORABLE_KILLS: 0,
-            f.YESTERDAY_CONTRIBUTION: 0,
-            f.LAST_WEEK_CONTRIBUTION: 0,
-            f.LAST_WEEK_RANK: 0,
             f.BYTES2: 0,
             f.WATCHED_FACTION_INDEX: 0,
             f.COMBAT_RATING_1: 0,

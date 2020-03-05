@@ -317,6 +317,21 @@ class Unit(game_object.GameObject):
             c.UnitFields.POWER_COST_MULTIPLIER + self.power_type(): multiplier,
         }
 
+    def calculate_strength(self) -> int:
+        return self.strength
+
+    def calculate_agility(self) -> int:
+        return self.agility
+
+    def calculate_stamina(self) -> int:
+        return self.stamina
+
+    def calculate_intellect(self) -> int:
+        return self.intellect
+
+    def calculate_spirit(self) -> int:
+        return self.spirit
+
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         f = c.UnitFields
@@ -421,11 +436,11 @@ class Unit(game_object.GameObject):
             f.MOD_CAST_SPEED: self.calculate_cast_speed_mod(),
             f.CREATED_BY_SPELL: 0,  # TODO: spell ID of the spell which created this unit
             f.NPC_EMOTESTATE: self.emote_state,
-            f.STRENGTH: self.strength,
-            f.AGILITY: self.agility,
-            f.STAMINA: self.stamina,
-            f.INTELLECT: self.intellect,
-            f.SPIRIT: self.spirit,
+            f.STRENGTH: self.calculate_strength(),
+            f.AGILITY: self.calculate_agility(),
+            f.STAMINA: self.calculate_stamina(),
+            f.INTELLECT: self.calculate_intellect(),
+            f.SPIRIT: self.calculate_spirit(),
             f.BASE_MANA: self.base_power,
             f.BASE_HEALTH: self.base_health,
             f.BYTES_2: self.bytes_2(),

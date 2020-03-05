@@ -99,6 +99,7 @@ def setup_db(args: argparse.Namespace):
                 stamina=5,
                 intellect=5,
                 spirit=5,
+                level=20,
             )
 
             GuildMembership(
