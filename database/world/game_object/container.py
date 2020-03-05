@@ -11,6 +11,7 @@ class Container(Item):
 
     # Reverse mappings.
     on_slot = orm.Optional('EquippedBag')
+    on_bank_slot = orm.Optional('BankBag')
 
     def position(self) -> Tuple[float, float, float]:
         """Get the current position of the object.
@@ -49,8 +50,7 @@ class Container(Item):
             c.ContainerFields.NUM_SLOTS: 0,
         }
 
-        for slot_f in range(c.ContainerFields.SLOT_1,
-                            c.ContainerFields.SLOT_LAST + 1, 2):
+        for slot_f in range(c.ContainerFields.SLOT_1, c.ContainerFields.SLOT_LAST + 1, 2):
             fields[slot_f] = 0
             fields[slot_f + 1] = 0
 

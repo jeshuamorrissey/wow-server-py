@@ -1,7 +1,10 @@
 import datetime
+import time
 from typing import Dict, Text, Any, Tuple
 
 from pony import orm
+
+from collections import defaultdict
 
 from database.db import db
 from database.dbc import constants as c
@@ -44,6 +47,38 @@ class EquippedBag(db.Entity):
     orm.PrimaryKey(owner, slot)
 
 
+class BankItem(db.Entity):
+    owner = orm.Required('Player')
+    slot = orm.Required(int, min=0, max=23)
+    item = orm.Required('Item')
+
+    orm.PrimaryKey(owner, slot)
+
+
+class BankBag(db.Entity):
+    owner = orm.Required('Player')
+    slot = orm.Required(int, min=0, max=5)
+    container = orm.Required('Container')
+
+    orm.PrimaryKey(owner, slot)
+
+
+class VendorBuybackItem(db.Entity):
+    owner = orm.Required('Player')
+    slot = orm.Required(int, min=0, max=11)
+    item = orm.Required('Item')
+
+    orm.PrimaryKey(owner, slot)
+
+
+class KeyringItem(db.Entity):
+    owner = orm.Required('Player')
+    slot = orm.Required(int, min=0, max=31)
+    item = orm.Required('Item')
+
+    orm.PrimaryKey(owner, slot)
+
+
 class Player(unit.Unit):
     # General character information.
     account = orm.Required('Account')
@@ -52,7 +87,7 @@ class Player(unit.Unit):
     last_login = orm.Optional(datetime.datetime)
 
     # Relationships.
-    guild = orm.Optional('Guild')
+    guild_membership = orm.Optional('GuildMembership')
 
     # Player location information.
     zone = orm.Required(int)
@@ -60,8 +95,14 @@ class Player(unit.Unit):
 
     # Inventory.
     equipment = orm.Set(EquippedItem)
-    backpack_items = orm.Set(BackpackItem)
+    backpack = orm.Set(BackpackItem)
     bags = orm.Set(EquippedBag)
+    bank = orm.Set(BankItem)
+    bank_bags = orm.Set(BankBag)
+    vendor_buyback = orm.Set(VendorBuybackItem)
+    keyring = orm.Set(KeyringItem)
+
+    quests = orm.Set('Quest')
 
     # Game-object specific information.
     skin_color = orm.Required(int, default=0)
@@ -71,12 +112,25 @@ class Player(unit.Unit):
     feature = orm.Required(int, default=0)
 
     # Player flags.
+    is_group_leader = orm.Required(bool, default=False)
+    is_afk = orm.Required(bool, default=False)
+    is_dnd = orm.Required(bool, default=False)
+    is_gm = orm.Required(bool, default=False)
     is_ghost = orm.Required(bool, default=False)
+    is_ffa_pvp = orm.Required(bool, default=False)
+    is_contested_pvp = orm.Required(bool, default=False)
+    is_in_pvp = orm.Required(bool, default=False)
     hide_helm = orm.Required(bool, default=False)
     hide_cloak = orm.Required(bool, default=False)
+    has_partial_play_time = orm.Required(bool, default=False)
+    has_no_play_time = orm.Required(bool, default=False)
+    in_sanctuary = orm.Required(bool, default=False)
+    on_taxi_benchmark = orm.Required(bool, default=False)
+    has_pvp_timer = orm.Required(bool, default=False)
 
     # Reverse mappings.
     created_items = orm.Set(Item)
+    dual_arbiter = orm.Optional('Player', reverse='dual_arbiter')
 
     def equipment_map(self) -> Dict[c.EquipmentSlot, Item]:
         """Return a mapping of equipment slot --> equipped item.
@@ -88,6 +142,43 @@ class Player(unit.Unit):
             A mapping from equipment slot --> item equipped in that slot.
         """
         return {eq.slot: eq.item for eq in self.equipment}
+
+    def player_flags(self) -> c.PlayerFlags:
+        f = c.PlayerFlags.NONE
+        if self.is_group_leader:
+            f |= c.PlayerFlags.GROUP_LEADER
+        if self.is_afk:
+            f |= c.PlayerFlags.AFK
+        if self.is_dnd:
+            f |= c.PlayerFlags.DND
+        if self.is_gm:
+            f |= c.PlayerFlags.GM
+        if self.is_ghost:
+            f |= c.PlayerFlags.GHOST
+        if self.is_resting:
+            f |= c.PlayerFlags.RESTING
+        if self.is_ffa_pvp:
+            f |= c.PlayerFlags.FFA_PVP
+        if self.is_contested_pvp:
+            f |= c.PlayerFlags.CONTESTED_PVP
+        if self.is_in_pvp:
+            f |= c.PlayerFlags.IN_PVP
+        if self.hide_helm:
+            f |= c.PlayerFlags.HIDE_HELM
+        if self.hide_cloak:
+            f |= c.PlayerFlags.HIDE_CLOAK
+        if self.has_partial_play_time:
+            f |= c.PlayerFlags.PARTIAL_PLAY_TIME
+        if self.has_no_play_time:
+            f |= c.PlayerFlags.NO_PLAY_TIME
+        if self.in_sanctuary:
+            f |= c.PlayerFlags.SANCTUARY
+        if self.on_taxi_benchmark:
+            f |= c.PlayerFlags.TAXI_BENCHMARK
+        if self.has_pvp_timer:
+            f |= c.PlayerFlags.PVP_TIMER
+
+        return f
 
     def visible_item_fields(self, slot: c.EquipmentSlot, item: Item) -> Dict[c.UpdateField, Any]:
         fields_start = c.PlayerFields.VISIBLE_ITEM_START + (slot * 12)
@@ -252,7 +343,7 @@ class Player(unit.Unit):
         """Return a mapping of UpdateField --> Value."""
         f = c.PlayerFields
         uf = c.UnitFields
-        fields: Dict[c.UpdateField, Any] = {}
+        fields: Dict[c.UpdateField, Any] = defaultdict(lambda: 0)
 
         equipment = self.equipment_map()
 
@@ -287,6 +378,25 @@ class Player(unit.Unit):
             fields.update(self.visible_item_fields(equipment_slot, item))
             fields.update(self.inventory_fields(equipment_slot, item))
 
+        # Populate backpack fields.
+        for backpack_item in self.backpack:
+            fields[f.PACK_SLOT_1 + (backpack_item.slot * 2)] = backpack_item.item.guid
+
+        for bag in self.bags:
+            fields[f.BAG_SLOT_1 + (bag.slot * 2)] = bag.container.guid
+
+        for bank_item in self.bank:
+            fields[f.BANK_SLOT_1 + (bank_item.slot * 2)] = bank_item.item.guid
+
+        for bank_bag in self.bank_bags:
+            fields[f.BANKBAG_SLOT_1 + (bank_bag.slot * 2)] = bank_bag.container.guid
+
+        for vendor_buyback_item in self.vendor_buyback:
+            fields[f.VENDORBUYBACK_SLOT_1 + (vendor_buyback_item.slot * 2)] = vendor_buyback_item.item.guid
+
+        for keyring_item in self.keyring:
+            fields[f.KEYRING_SLOT_1 + (keyring_item.slot * 2)] = keyring_item.item.guid
+
         fields.update({
             uf.BASEATTACKTIME: self.calculate_attack_time(c.EquipmentSlot.MAIN_HAND),
             uf.OFFHANDATTACKTIME: self.calculate_attack_time(c.EquipmentSlot.OFF_HAND),
@@ -299,7 +409,7 @@ class Player(unit.Unit):
             uf.MAXRANGEDDAMAGE: self.calculate_damage(c.EquipmentSlot.RANGED)[1],
             uf.ATTACK_POWER: self.calculate_melee_attack_power(),
             uf.RANGED_ATTACK_POWER: self.calculate_ranged_attack_power(),
-            uf.COMBATREACH: 1.5,
+            uf.COMBATREACH: 1.5,  # TODO: make this config
             uf.ARMOR: self.calculate_armor(),
             uf.HOLY_RESISTANCE: self.calculate_holy_resistance(),
             uf.FIRE_RESISTANCE: self.calculate_fire_resistance(),
@@ -309,32 +419,39 @@ class Player(unit.Unit):
             uf.ARCANE_RESISTANCE: self.calculate_arcane_resistance(),
         })
 
+        if self.guild_membership:
+            fields.update({
+                f.GUILDID: self.guild_membership.guild.id,
+                f.GUILDRANK: self.guild_membership.rank,
+                f.GUILD_TIMESTAMP: 0,
+            })
+        else:
+            fields.update({
+                f.GUILDID: 0,
+                f.GUILDRANK: 0,
+                f.GUILD_TIMESTAMP: 0,
+            })
+
+        # NOTE: Not implementing PvP fields, because this is meant to be single player.
         fields.update({
             f.DUEL_ARBITER: 0,
-            f.FLAGS: 0,
-            f.GUILDID: 0,
-            f.GUILDRANK: 0,
+            f.DUEL_TEAM: 0,
+        })
+
+        # Quest updates.
+        for i, quest in enumerate(self.quests):
+            start_field = f.QUEST_LOG_1_1 + (i * 3)
+            fields.update({
+                start_field + 0: quest.base_quest.id,
+                start_field + 1: quest.flags(),
+                start_field + 2: quest.due - int(time.time()) if quest.due else 0,
+            })
+
+        fields.update({
+            f.FLAGS: self.player_flags(),
             f.BYTES: self.skin_color | self.face << 8 | self.hair_style << 16 | self.hair_color << 24,
             f.BYTES_2: self.feature,
             f.BYTES_3: self.gender,
-            f.DUEL_TEAM: 0,
-            f.GUILD_TIMESTAMP: 0,
-            f.QUEST_LOG_1_1: 0,
-            f.QUEST_LOG_1_2: 0,
-            f.QUEST_LOG_1_3: 0,
-            f.QUEST_LOG_LAST_1: 0,
-            f.QUEST_LOG_LAST_2: 0,
-            f.QUEST_LOG_LAST_3: 0,
-            f.PACK_SLOT_1: 0,
-            f.PACK_SLOT_LAST: 0,
-            f.BANK_SLOT_1: 0,
-            f.BANK_SLOT_LAST: 0,
-            f.BANKBAG_SLOT_1: 0,
-            f.BANKBAG_SLOT_LAST: 0,
-            f.VENDORBUYBACK_SLOT_1: 0,
-            f.VENDORBUYBACK_SLOT_LAST: 0,
-            f.KEYRING_SLOT_1: 0,
-            f.KEYRING_SLOT_LAST: 0,
             f.FARSIGHT: 0,
             f.COMBO_TARGET: 0,
             f.XP: 0,

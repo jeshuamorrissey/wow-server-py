@@ -51,6 +51,16 @@ class EnchantmentSlot(enum.IntEnum):
     PROPERTY_3 = 6
 
 
+class QuestStatus(enum.IntEnum):
+    NONE = 0
+    COMPLETE = 1
+    UNAVAILABLE = 2
+    INCOMPLETE = 3
+    AVAILABLE = 4
+    FAILED = 5
+    FORCE_COMPLETE = 6
+
+
 class Class(enum.IntEnum):
     WARRIOR = 1
     PALADIN = 2
@@ -413,6 +423,12 @@ class PlayerFields(UpdateField):
     BYTES_3 = UnitFields.END + 0x07
     DUEL_TEAM = UnitFields.END + 0x08
     GUILD_TIMESTAMP = UnitFields.END + 0x09
+
+    # Three fields per quest:
+    #     - ID: The quests ID
+    #     - Flags[0-2]: 6 bits per quest objective count (yes, really)
+    #     - Flags[3]: QuestState
+    #     - Timer: The quests timer
     QUEST_LOG_1_1 = UnitFields.END + 0x0A
     QUEST_LOG_1_2 = UnitFields.END + 0x0B
     QUEST_LOG_1_3 = UnitFields.END + 0x0C
@@ -433,6 +449,8 @@ class PlayerFields(UpdateField):
     # equipped items, with a GUID for each equipment slot.
     INVENTORY_START = UnitFields.END + 0x12a
 
+    BAG_SLOT_1 = UnitFields.END + 0x150
+    BAG_SLOT_LAST = UnitFields.END + 0x156
     PACK_SLOT_1 = UnitFields.END + 0x158
     PACK_SLOT_LAST = UnitFields.END + 0x176
     BANK_SLOT_1 = UnitFields.END + 0x178
@@ -554,6 +572,29 @@ class ItemFlags(enum.IntFlag):
     UNLOCKED = 0x00000004
     WRAPPED = 0x00000008
     READABLE = 0x00000200
+
+
+class PlayerFlags(enum.IntFlag):
+    NONE = 0x00000000
+    GROUP_LEADER = 0x00000001
+    AFK = 0x00000002
+    DND = 0x00000004
+    GM = 0x00000008
+    GHOST = 0x00000010
+    RESTING = 0x00000020
+    UNK7 = 0x00000040
+    FFA_PVP = 0x00000080
+    CONTESTED_PVP = 0x00000100
+    IN_PVP = 0x00000200
+    HIDE_HELM = 0x00000400
+    HIDE_CLOAK = 0x00000800
+    PARTIAL_PLAY_TIME = 0x00001000
+    NO_PLAY_TIME = 0x00002000
+    UNK15 = 0x00004000
+    UNK16 = 0x00008000
+    SANCTUARY = 0x00010000
+    TAXI_BENCHMARK = 0x00020000
+    PVP_TIMER = 0x00040000
 
 
 class UnitFlags(enum.IntFlag):

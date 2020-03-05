@@ -11,14 +11,12 @@ from world_server.packets import char_enum
 
 @router.Handler(op_code.Client.CHAR_ENUM)
 @orm.db_session
-def handle_char_enum(
-        pkt: char_enum.ClientCharEnum,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     account = Account[session.account_name]
 
     characters = []
     for character in account.characters:
-        guild_id = character.guild.id if character.guild else 0
+        guild_id = character.guild_membership.guild.id if character.guild_membership else 0
 
         # Build up the equipment list. This list has to be in order, even if
         # the items aren't actually in order.
@@ -27,9 +25,7 @@ def handle_char_enum(
         for slot in c.EquipmentSlot:
             item = equipment_map.get(slot, None)
             if item:
-                equipment.append(
-                    dict(display_id=item.base_item.displayid,
-                         inventory_type=item.base_item.InventoryType))
+                equipment.append(dict(display_id=item.base_item.displayid, inventory_type=item.base_item.InventoryType))
             else:
                 equipment.append(dict(display_id=0, inventory_type=0))
 

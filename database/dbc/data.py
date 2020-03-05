@@ -11,6 +11,7 @@ from database.dbc.chr_start_locations import ChrStartLocation
 from database.dbc.item_template import ItemTemplate
 from database.dbc.unit_template import UnitTemplate
 from database.dbc.spell_template import SpellTemplate
+from database.dbc.quest_template import QuestTemplate, Objective
 
 
 @orm.db_session
@@ -139,5 +140,29 @@ def LoadDBC():
     if orm.count(r for r in SpellTemplate) == 0:
         logging.info('Loading SpellTemplate...')
         SpellTemplate(id=1459, aura_state_modifier=c.AuraState.BERSERKING.value)
+
+    if orm.count(r for r in QuestTemplate) == 0:
+        logging.info('Loading QuestTemplate...')
+        qt = QuestTemplate(title='With Duration', description='Quest with duration.', duration=60)
+        Objective(
+            base_quest=qt,
+            slot=0,
+        )
+
+        Objective(
+            base_quest=qt,
+            slot=1,
+        )
+
+        qt = QuestTemplate(title='Without Duration', description='Quest without duration.')
+        Objective(
+            base_quest=qt,
+            slot=0,
+        )
+
+        Objective(
+            base_quest=qt,
+            slot=1,
+        )
 
     # yapf: enable

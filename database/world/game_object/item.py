@@ -35,6 +35,9 @@ class Item(GameObject):
     container = orm.Optional('Container')
     equipped_by = orm.Optional('EquippedItem')
     in_backpack = orm.Optional('BackpackItem')
+    in_bank = orm.Optional('BankItem')
+    in_vendor_buyback = orm.Optional('VendorBuybackItem')
+    in_keyring = orm.Optional('KeyringItem')
 
     def position(self) -> Tuple[float, float, float]:
         """Get the current position of the object.

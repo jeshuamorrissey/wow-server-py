@@ -24,16 +24,19 @@ from database.dbc.chr_start_locations import ChrStartLocation
 from database.dbc.item_template import ItemTemplate
 from database.dbc.spell_template import SpellTemplate
 from database.dbc.unit_template import UnitTemplate
+from database.dbc.quest_template import QuestTemplate
 from database.world.account import Account
 from database.world.aura import Aura
 from database.world.game_object.container import Container
 from database.world.game_object.game_object import GameObject
 from database.world.game_object.item import Item
 from database.world.game_object.pet import Pet
-from database.world.game_object.player import (BackpackItem, EquippedBag, EquippedItem, Player)
+from database.world.game_object.player import (BackpackItem, EquippedBag, EquippedItem, BankBag, BankItem, KeyringItem,
+                                               VendorBuybackItem, Player)
 from database.world.game_object.unit import Unit
-from database.world.guild import Guild
+from database.world.guild import Guild, GuildMembership
 from database.world.realm import Realm
+from database.world.quest import Quest, ObjectiveProgress
 from login_server import router as login_router
 from login_server import session as login_session
 from world_server import router as world_router
@@ -56,10 +59,17 @@ def setup_db(args: argparse.Namespace):
     BackpackItem.drop_table(with_all_data=True)
     EquippedBag.drop_table(with_all_data=True)
     EquippedItem.drop_table(with_all_data=True)
+    BankBag.drop_table(with_all_data=True)
+    BankItem.drop_table(with_all_data=True)
+    KeyringItem.drop_table(with_all_data=True)
+    VendorBuybackItem.drop_table(with_all_data=True)
     GameObject.drop_table(with_all_data=True)
     Guild.drop_table(with_all_data=True)
     Realm.drop_table(with_all_data=True)
     Aura.drop_table(with_all_data=True)
+    GuildMembership.drop_table(with_all_data=True)
+    Quest.drop_table(with_all_data=True)
+    ObjectiveProgress.drop_table(with_all_data=True)
 
     db.create_tables()
 
@@ -81,7 +91,6 @@ def setup_db(args: argparse.Namespace):
                 race=c.Race.HUMAN,
                 class_=c.Class.WARRIOR,
                 gender=c.Gender.MALE,
-                guild=guild,
                 last_login=datetime.datetime.now(),
                 base_health=100,  # TODO: use ChrBaseStats
                 base_power=100,  # TODO: use ChrBaseStats
@@ -89,7 +98,17 @@ def setup_db(args: argparse.Namespace):
                 agility=5,
                 stamina=5,
                 intellect=5,
-                spirit=5)
+                spirit=5,
+            )
+
+            GuildMembership(
+                player=jeshua,
+                guild=guild,
+                rank=1,
+            )
+
+            Quest.New(jeshua, QuestTemplate.get(title='With Duration'))
+            Quest.New(jeshua, QuestTemplate.get(title='Without Duration'))
 
             Aura(
                 slot=0,
