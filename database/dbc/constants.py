@@ -63,14 +63,15 @@ class Class(enum.IntEnum):
     DRUID = 11
 
 
-class AuraState(enum.IntEnum):
-    DEFENSE = 1
-    HEALTHLESS_20_PERCENT = 2
-    BERSERKING = 3
-    FROZEN = 4
-    JUDGEMENT = 5
-    HUNTER_PARRY = 7
-    ROGUE_ATTACK_FROM_STEALTH = 7
+class AuraState(enum.IntFlag):
+    NONE = 0
+    DEFENSE = 1 << 0
+    HEALTHLESS_20_PERCENT = 1 << 1
+    BERSERKING = 1 << 2
+    FROZEN = 1 << 3
+    JUDGEMENT = 1 << 4
+    HUNTER_PARRY = 1 << 6
+    ROGUE_ATTACK_FROM_STEALTH = 1 << 6
 
 
 class Stat(enum.IntEnum):
@@ -324,19 +325,31 @@ class UnitFields(UpdateField):
     RANGED_INFO_1 = ObjectFields.END + 0x27
 
     FLAGS = ObjectFields.END + 0x28
+
+    ##
+    ## Aura Fields
+    ##
+    # 48 fields, each containing the spell ID of an aura.
     AURA = ObjectFields.END + 0x29
-    AURA_LAST = ObjectFields.END + 0x58
+
+    # 48 half-bytes (6 fields) of flags, not sure why this is needed.
     AURAFLAGS = ObjectFields.END + 0x59
-    AURAFLAGS_01 = ObjectFields.END + 0x5a
-    AURAFLAGS_02 = ObjectFields.END + 0x5b
-    AURAFLAGS_03 = ObjectFields.END + 0x5c
-    AURAFLAGS_04 = ObjectFields.END + 0x5d
-    AURAFLAGS_05 = ObjectFields.END + 0x5e
+
+    # 48 bytes (12 fields) specifying the level of the unit that cast
+    # the aura.
     AURALEVELS = ObjectFields.END + 0x5f
-    AURALEVELS_LAST = ObjectFields.END + 0x6a
+
+    # 48 bytes (12 fields) specifying the number of applications of each
+    # aura.
     AURAAPPLICATIONS = ObjectFields.END + 0x6b
-    AURAAPPLICATIONS_LAST = ObjectFields.END + 0x76
+
+    # State byte deciding what the character looks like, usually applied
+    # by their auras.
     AURASTATE = ObjectFields.END + 0x77
+    ##
+    ## END Aura Fields
+    ##
+
     BASEATTACKTIME = ObjectFields.END + 0x78
     OFFHANDATTACKTIME = ObjectFields.END + 0x79
     RANGEDATTACKTIME = ObjectFields.END + 0x7a

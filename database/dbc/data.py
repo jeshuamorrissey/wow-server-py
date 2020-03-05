@@ -138,6 +138,6 @@ def LoadDBC():
 
     if orm.count(r for r in SpellTemplate) == 0:
         logging.info('Loading SpellTemplate...')
-        SpellTemplate(id=1459)
+        SpellTemplate(id=1459, aura_state_modifier=c.AuraState.BERSERKING.value)
 
     # yapf: enable

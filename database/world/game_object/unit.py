@@ -354,10 +354,12 @@ class Unit(game_object.GameObject):
         aura_flags = [0] * 48  # 6 fields => 24 bytes => 48 nibbles, one per aura
         aura_levels = [0] * 48  # 12 fields => 48 bytes, one per aura
         aura_applications = [0] * 48  # 12 fields => 48 bytes, one per aura
+        aura_state = c.AuraState.NONE
         for aura in self.auras:
             aura_flags[aura.slot] = 0x09
             aura_levels[aura.slot] = 1  # TODO: aura caster levels?
             aura_applications[aura.slot] = 255 - 1  # TODO: aura stack count?
+            aura_state |= aura.base_spell.aura_state_modifier
 
             fields[f.AURA + aura.slot] = aura.base_spell.id
 
@@ -390,7 +392,7 @@ class Unit(game_object.GameObject):
         fields.update({f.AURALEVELS + i: val for i, val in enumerate(aura_applications_fields)})
 
         # AURASTATE is a set of flags (just a single byte).
-        fields[f.AURASTATE] = 1 << 5  # TODO: make this proper flags
+        fields[f.AURASTATE] = aura_state
 
         fields.update({
             f.CHARM: self.control.guid if self.control else None,

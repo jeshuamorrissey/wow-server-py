@@ -95,7 +95,7 @@ def setup_db(args: argparse.Namespace):
                 slot=0,
                 applied_to=jeshua,
                 base_spell=SpellTemplate[1459],
-                expiry_time=int(time.time()) + 20,
+                expiry_time=int(time.time()) + 6000,
             )
 
             base_unit = UnitTemplate.get(Name='Young Nightsaber')
