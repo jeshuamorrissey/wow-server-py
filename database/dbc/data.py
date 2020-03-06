@@ -12,6 +12,7 @@ from database.dbc.item_template import ItemTemplate
 from database.dbc.unit_template import UnitTemplate
 from database.dbc.spell_template import SpellTemplate
 from database.dbc.quest_template import QuestTemplate, Objective
+from database.dbc.profession import Profession
 
 
 @orm.db_session
@@ -164,5 +165,9 @@ def LoadDBC():
             base_quest=qt,
             slot=1,
         )
+
+    if orm.count(r for r in Profession) == 0:
+        logging.info('Loading Profession...')
+        Profession(name='Leatherworking')
 
     # yapf: enable

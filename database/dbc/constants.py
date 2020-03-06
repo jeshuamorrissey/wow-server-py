@@ -7,6 +7,16 @@ class Gender(enum.IntEnum):
     FEMALE = 1
 
 
+def NextLevelXP(level: int) -> int:
+    assert level > 0
+
+    return 10000  # TODO: exp formula
+
+
+def MaxNumberOfProfessions() -> int:
+    return 10  # TODO: make this config
+
+
 class Race(enum.IntEnum):
     HUMAN = 1
     ORC = 2
@@ -641,3 +651,19 @@ class UnitDynamicFlags(enum.IntFlag):
     ROOTED = 0x0008
     SPECIALINFO = 0x0010
     DEAD = 0x0020
+
+
+class PlayerByteFlags(enum.IntFlag):
+    TRACK_STEALTHED = 0x02
+    RELEASE_TIMER = 0x08
+    NO_RELEASE_WINDOW = 0x10
+
+
+class PlayerByte2Flags(enum.IntFlag):
+    NONE = 0x00
+    DETECT_AMORE_0 = 0x02
+    DETECT_AMORE_1 = 0x04
+    DETECT_AMORE_2 = 0x08
+    DETECT_AMORE_3 = 0x10
+    STEALTH = 0x20
+    INVISIBILITY_GLOW = 0x40

@@ -67,6 +67,7 @@ class VendorBuybackItem(db.Entity):
     owner = orm.Required('Player')
     slot = orm.Required(int, min=0, max=11)
     item = orm.Required('Item')
+    expiry = orm.Required(int)
 
     orm.PrimaryKey(owner, slot)
 
@@ -79,15 +80,33 @@ class KeyringItem(db.Entity):
     orm.PrimaryKey(owner, slot)
 
 
+class PlayerProfession(db.Entity):
+    player = orm.Required('Player')
+    profession = orm.Required('Profession')
+
+    level = orm.Required(int, default=0)
+    orm.PrimaryKey(player, profession)
+
+
 class Player(unit.Unit):
     # General character information.
     account = orm.Required('Account')
     realm = orm.Required('Realm')
     name = orm.Required(str, unique=True)
     last_login = orm.Optional(datetime.datetime)
+    xp = orm.Required(int, default=0)
+    rested_xp = orm.Required(int, default=0)  # amount of rested XP bonus
+    money = orm.Required(int, default=0)
+
+    watched_faction = orm.Required(int, default=-1)  # TODO: factions
+
+    professions = orm.Set(PlayerProfession)
 
     # Relationships.
     guild_membership = orm.Optional('GuildMembership')
+    combo_target = orm.Optional('Player', reverse='combo_target_of')
+    combo_target_of = orm.Set('Player', reverse='combo_target')
+    combo_points = orm.Optional(int)
 
     # Player location information.
     zone = orm.Required(int)
@@ -127,6 +146,17 @@ class Player(unit.Unit):
     in_sanctuary = orm.Required(bool, default=False)
     on_taxi_benchmark = orm.Required(bool, default=False)
     has_pvp_timer = orm.Required(bool, default=False)
+
+    is_tracking_stealth = orm.Required(bool, default=False)
+    has_release_timer = orm.Required(bool, default=False)
+    has_no_release_window = orm.Required(bool, default=False)
+
+    can_detect_amore_0 = orm.Required(bool, default=False)
+    can_detect_amore_1 = orm.Required(bool, default=False)
+    can_detect_amore_2 = orm.Required(bool, default=False)
+    can_detect_amore_3 = orm.Required(bool, default=False)
+    in_stealth = orm.Required(bool, default=False)
+    has_invisibility_glow = orm.Required(bool, default=False)
 
     # Reverse mappings.
     created_items = orm.Set(Item)
@@ -333,6 +363,19 @@ class Player(unit.Unit):
     def calculate_arcane_resistance(self) -> int:
         return 0
 
+    def calculate_resistance_buff(self, school: c.SpellSchool) -> int:
+        if school % 2 == 0:
+            return int(-school - 1)
+        return int(school + 1)
+
+    def calculate_bonus_damage(self, school: c.SpellSchool) -> int:
+        if school % 2 == 0:
+            return int(-school - 1)
+        return int(school + 1)
+
+    def calculate_bonus_damage_percent(self, school: c.SpellSchool) -> float:
+        return 1.0
+
     def calculate_melee_attack_power(self) -> int:
         return self.strength * 5
 
@@ -340,7 +383,6 @@ class Player(unit.Unit):
         return self.agility * 5
 
     def calculate_strength(self) -> int:
-        print('IN HERE')
         return self.strength - 1
 
     def calculate_agility(self) -> int:
@@ -354,6 +396,60 @@ class Player(unit.Unit):
 
     def calculate_spirit(self) -> int:
         return self.spirit - 5
+
+    def calculate_block_percent(self) -> float:
+        return 10.0
+
+    def calculate_dodge_percent(self) -> float:
+        return 20.0
+
+    def calculate_parry_percent(self) -> float:
+        return 30.0
+
+    def calculate_melee_crit_percent(self) -> float:
+        return 15.0
+
+    def calculate_ranged_crit_percent(self) -> float:
+        return 25.0
+
+    def bytes_4(self) -> int:
+        b = 0
+        if self.is_tracking_stealth:
+            b |= c.PlayerByteFlags.TRACK_STEALTHED
+        if self.has_release_timer:
+            b |= c.PlayerByteFlags.RELEASE_TIMER
+        if self.has_no_release_window:
+            b |= c.PlayerByteFlags.NO_RELEASE_WINDOW
+
+        b |= (self.combo_points or 0) << 8
+
+        # byte 3: action bars state? maybe sent by client
+        # byte 4: highest rank info, probably unused
+
+        return b
+
+    def bytes_5(self) -> int:
+        b = 0
+        f = 0
+        if self.can_detect_amore_0:
+            f |= c.PlayerByte2Flags.DETECT_AMORE_0
+        if self.can_detect_amore_1:
+            f |= c.PlayerByte2Flags.DETECT_AMORE_1
+        if self.can_detect_amore_2:
+            f |= c.PlayerByte2Flags.DETECT_AMORE_2
+        if self.can_detect_amore_3:
+            f |= c.PlayerByte2Flags.DETECT_AMORE_3
+        if self.in_stealth:
+            f |= c.PlayerByte2Flags.STEALTH
+        if self.has_invisibility_glow:
+            f |= c.PlayerByte2Flags.INVISIBILITY_GLOW
+
+        # byte 0: honor points
+        b |= (f << 8)
+        return b
+
+    def get_ammo(self) -> int:
+        return 12654  # TODO: actually find equipped ammo
 
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
@@ -409,6 +505,8 @@ class Player(unit.Unit):
 
         for vendor_buyback_item in self.vendor_buyback:
             fields[f.VENDORBUYBACK_SLOT_1 + (vendor_buyback_item.slot * 2)] = vendor_buyback_item.item.guid
+            fields[f.BUYBACK_PRICE_1 + (vendor_buyback_item.slot * 2)] = vendor_buyback_item.item.base_item.SellPrice
+            fields[f.BUYBACK_TIMESTAMP_1 + (vendor_buyback_item.slot * 2)] = vendor_buyback_item.expiry
 
         for keyring_item in self.keyring:
             fields[f.KEYRING_SLOT_1 + (keyring_item.slot * 2)] = keyring_item.item.guid
@@ -463,6 +561,7 @@ class Player(unit.Unit):
             f.LAST_WEEK_CONTRIBUTION: 0,
             f.LAST_WEEK_RANK: 0,
             f.PVP_MEDALS: 0,
+            f.COMBAT_RATING_1: 0,
         })
 
         # Quest updates.
@@ -500,43 +599,57 @@ class Player(unit.Unit):
         else:
             fields[f.NEGSTAT4] = self.calculate_spirit() - self.spirit
 
+        # Resistance buffs.
+        for school in c.SpellSchool:
+            buff = self.calculate_resistance_buff(school)
+            if buff < 0:
+                fields[f.RESISTANCEBUFFMODSNEGATIVE + school] = buff
+            else:
+                fields[f.RESISTANCEBUFFMODSPOSITIVE + school] = buff
+
+            dmg = self.calculate_bonus_damage(school)
+            if dmg < 0:
+                fields[f.MOD_DAMAGE_DONE_NEG + school] = buff
+            else:
+                fields[f.MOD_DAMAGE_DONE_POS + school] = buff
+
+            dmg_pct = self.calculate_bonus_damage_percent(school)
+            fields[f.MOD_DAMAGE_DONE_PCT + school] = dmg_pct
+
+        # Skills
+        fields.update({
+            f.SKILL_INFO_1_1: 0,  # TODO: skills
+        })
+
+        fields.update({
+            f.EXPLORED_ZONES_1: 0,  # TODO: explored zones
+        })
+
         fields.update({
             f.FLAGS: self.player_flags(),
             f.BYTES: self.skin_color | self.face << 8 | self.hair_style << 16 | self.hair_color << 24,
             f.BYTES_2: self.feature,
             f.BYTES_3: self.gender,
             f.FARSIGHT: 0,  # TODO: world objects
-            f.COMBO_TARGET: 0,
-            f.XP: 0,
-            f.NEXT_LEVEL_XP: 0,
-            f.SKILL_INFO_1_1: 0,
-            f.CHARACTER_POINTS1: 1,
-            f.CHARACTER_POINTS2: 2,
-            f.TRACK_CREATURES: 0,
-            f.TRACK_RESOURCES: 0,
-            f.BLOCK_PERCENTAGE: 0,
-            f.DODGE_PERCENTAGE: 0,
-            f.PARRY_PERCENTAGE: 0,
-            f.CRIT_PERCENTAGE: 1,
-            f.RANGED_CRIT_PERCENTAGE: 1,
-            f.EXPLORED_ZONES_1: 0,
-            f.REST_STATE_EXPERIENCE: 1,
-            f.COINAGE: 0,
-            f.RESISTANCEBUFFMODSPOSITIVE: 0,
-            f.RESISTANCEBUFFMODSNEGATIVE: 0,
-            f.MOD_DAMAGE_DONE_POS: 0,
-            f.MOD_DAMAGE_DONE_NEG: 0,
-            f.MOD_DAMAGE_DONE_PCT: 0,
-            f.BYTES_4: 0,
-            f.AMMO_ID: 0,
-            f.SELF_RES_SPELL: 0,
-            f.BUYBACK_PRICE_1: 0,
-            f.BUYBACK_PRICE_LAST: 0,
-            f.BUYBACK_TIMESTAMP_1: 0,
-            f.BUYBACK_TIMESTAMP_LAST: 0,
-            f.BYTES2: 0,
-            f.WATCHED_FACTION_INDEX: 0,
-            f.COMBAT_RATING_1: 0,
+            f.COMBO_TARGET: self.combo_target.guid if self.combo_target else 0,
+            f.XP: self.xp,
+            f.NEXT_LEVEL_XP: c.NextLevelXP(self.level),
+            f.CHARACTER_POINTS1: self.level,  # TODO: talents
+            f.CHARACTER_POINTS2: c.MaxNumberOfProfessions() - len(self.professions),
+            f.TRACK_CREATURES: 0,  # ???
+            f.TRACK_RESOURCES: 0,  # ???
+            f.BLOCK_PERCENTAGE: self.calculate_block_percent(),
+            f.DODGE_PERCENTAGE: self.calculate_dodge_percent(),
+            f.PARRY_PERCENTAGE: self.calculate_parry_percent(),
+            f.CRIT_PERCENTAGE: self.calculate_melee_crit_percent(),
+            f.RANGED_CRIT_PERCENTAGE: self.calculate_ranged_crit_percent(),
+            f.REST_STATE_EXPERIENCE: self.rested_xp,
+            f.COINAGE: self.money,
+            f.BYTES_4: self.bytes_4(),
+            f.AMMO_ID: self.get_ammo(),
+            f.SELF_RES_SPELL: 0,  # TODO: spell ID of self resurrecting spell
+            f.BYTES2: self.bytes_5(),
+            f.WATCHED_FACTION_INDEX: self.watched_faction,
         })
 
         return {**super(Player, self).update_fields(), **fields}
