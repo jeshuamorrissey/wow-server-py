@@ -25,6 +25,7 @@ from database.dbc.item_template import ItemTemplate
 from database.dbc.spell_template import SpellTemplate
 from database.dbc.unit_template import UnitTemplate
 from database.dbc.quest_template import QuestTemplate
+from database.dbc.skill_template import SkillTemplate
 from database.dbc.profession import Profession
 from database.world.account import Account
 from database.world.aura import Aura
@@ -33,7 +34,7 @@ from database.world.game_object.game_object import GameObject
 from database.world.game_object.item import Item
 from database.world.game_object.pet import Pet
 from database.world.game_object.player import (BackpackItem, EquippedBag, EquippedItem, BankBag, BankItem, KeyringItem,
-                                               VendorBuybackItem, Player, PlayerProfession)
+                                               VendorBuybackItem, Player, PlayerProfession, PlayerSkill)
 from database.world.game_object.unit import Unit
 from database.world.guild import Guild, GuildMembership
 from database.world.realm import Realm
@@ -72,6 +73,7 @@ def setup_db(args: argparse.Namespace):
     Quest.drop_table(with_all_data=True)
     ObjectiveProgress.drop_table(with_all_data=True)
     PlayerProfession.drop_table(with_all_data=True)
+    PlayerSkill.drop_table(with_all_data=True)
 
     db.create_tables()
 
@@ -110,6 +112,12 @@ def setup_db(args: argparse.Namespace):
                 player=jeshua,
                 profession=Profession.get(name='Leatherworking'),
                 level=10,
+            )
+
+            PlayerSkill(
+                player=jeshua,
+                skill=SkillTemplate[196],
+                slot=1,
             )
 
             GuildMembership(

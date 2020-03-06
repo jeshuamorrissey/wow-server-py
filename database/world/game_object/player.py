@@ -88,6 +88,15 @@ class PlayerProfession(db.Entity):
     orm.PrimaryKey(player, profession)
 
 
+class PlayerSkill(db.Entity):
+    player = orm.Required('Player')
+    skill = orm.Required('SkillTemplate')
+    slot = orm.Required(int)
+
+    orm.PrimaryKey(player, skill)
+    orm.composite_key(player, slot)
+
+
 class Player(unit.Unit):
     # General character information.
     account = orm.Required('Account')
@@ -101,6 +110,8 @@ class Player(unit.Unit):
     watched_faction = orm.Required(int, default=-1)  # TODO: factions
 
     professions = orm.Set(PlayerProfession)
+
+    skills = orm.Set(PlayerSkill)
 
     # Relationships.
     guild_membership = orm.Optional('GuildMembership')
@@ -617,9 +628,15 @@ class Player(unit.Unit):
             fields[f.MOD_DAMAGE_DONE_PCT + school] = dmg_pct
 
         # Skills
-        fields.update({
-            f.SKILL_INFO_1_1: 0,  # TODO: skills
-        })
+        for skill in self.skills:
+            base_field = f.SKILL_INFO_1_1 + (skill.slot * 3)
+
+            # TODO: fix this
+            fields.update({
+                base_field + 0: 668 | (0 << 16),
+                base_field + 1: 255 | (255 << 16),
+                base_field + 2: 0 | (0 << 16),
+            })
 
         fields.update({
             f.EXPLORED_ZONES_1: 0,  # TODO: explored zones
@@ -630,14 +647,11 @@ class Player(unit.Unit):
             f.BYTES: self.skin_color | self.face << 8 | self.hair_style << 16 | self.hair_color << 24,
             f.BYTES_2: self.feature,
             f.BYTES_3: self.gender,
-            f.FARSIGHT: 0,  # TODO: world objects
             f.COMBO_TARGET: self.combo_target.guid if self.combo_target else 0,
             f.XP: self.xp,
             f.NEXT_LEVEL_XP: c.NextLevelXP(self.level),
             f.CHARACTER_POINTS1: self.level,  # TODO: talents
             f.CHARACTER_POINTS2: c.MaxNumberOfProfessions() - len(self.professions),
-            f.TRACK_CREATURES: 0,  # ???
-            f.TRACK_RESOURCES: 0,  # ???
             f.BLOCK_PERCENTAGE: self.calculate_block_percent(),
             f.DODGE_PERCENTAGE: self.calculate_dodge_percent(),
             f.PARRY_PERCENTAGE: self.calculate_parry_percent(),
@@ -647,9 +661,12 @@ class Player(unit.Unit):
             f.COINAGE: self.money,
             f.BYTES_4: self.bytes_4(),
             f.AMMO_ID: self.get_ammo(),
-            f.SELF_RES_SPELL: 0,  # TODO: spell ID of self resurrecting spell
             f.BYTES2: self.bytes_5(),
             f.WATCHED_FACTION_INDEX: self.watched_faction,
+            f.TRACK_CREATURES: 0,  # ???
+            f.TRACK_RESOURCES: 0,  # ???
+            f.SELF_RES_SPELL: 0,  # TODO: spell ID of self resurrecting spell
+            f.FARSIGHT: 0,  # TODO: world objects
         })
 
         return {**super(Player, self).update_fields(), **fields}
