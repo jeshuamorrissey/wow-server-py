@@ -90,11 +90,18 @@ class PlayerProfession(db.Entity):
 
 class PlayerSkill(db.Entity):
     player = orm.Required('Player')
-    skill = orm.Required('SkillTemplate')
-    slot = orm.Required(int)
+    skill = orm.Required(c.SkillType)
+
+    level = orm.Required(int, default=0)
+    bonus = orm.Required(int, default=0)
+
+    def max_level(self) -> int:
+        return self.player.level * 5
+
+    def temp_bonus(self) -> int:
+        return 5
 
     orm.PrimaryKey(player, skill)
-    orm.composite_key(player, slot)
 
 
 class Player(unit.Unit):
@@ -110,6 +117,7 @@ class Player(unit.Unit):
     watched_faction = orm.Required(int, default=-1)  # TODO: factions
 
     professions = orm.Set(PlayerProfession)
+    explored_zones = orm.Required(orm.IntArray)
 
     skills = orm.Set(PlayerSkill)
 
@@ -629,18 +637,21 @@ class Player(unit.Unit):
 
         # Skills
         for skill in self.skills:
-            base_field = f.SKILL_INFO_1_1 + (skill.slot * 3)
+            base_field = f.SKILL_INFO_1_1 + (skill.skill * 3)
 
-            # TODO: fix this
             fields.update({
-                base_field + 0: 668 | (0 << 16),
-                base_field + 1: 255 | (255 << 16),
-                base_field + 2: 0 | (0 << 16),
+                base_field + 0: skill.skill,  # upper 16 bits is "step"
+                base_field + 1: skill.level | (skill.max_level() << 16),
+                base_field + 2: skill.temp_bonus() | (skill.bonus << 16),
             })
 
-        fields.update({
-            f.EXPLORED_ZONES_1: 0,  # TODO: explored zones
-        })
+        # 1 bit per zone
+        for zone_id in range(c.MAX_EXPLORED_ZONES):
+            if zone_id in self.explored_zones:
+                field = f.EXPLORED_ZONES_1 + (zone_id // 32)
+                byte = 1 << (zone_id % 32)
+
+                fields[field] = fields.get(field, 0) | byte
 
         fields.update({
             f.FLAGS: self.player_flags(),

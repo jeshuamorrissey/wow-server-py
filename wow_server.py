@@ -25,7 +25,6 @@ from database.dbc.item_template import ItemTemplate
 from database.dbc.spell_template import SpellTemplate
 from database.dbc.unit_template import UnitTemplate
 from database.dbc.quest_template import QuestTemplate
-from database.dbc.skill_template import SkillTemplate
 from database.dbc.profession import Profession
 from database.world.account import Account
 from database.world.aura import Aura
@@ -106,6 +105,7 @@ def setup_db(args: argparse.Namespace):
                 level=20,
                 rested_xp=5000,
                 money=10000,
+                explored_zones=range(c.MAX_EXPLORED_ZONES),
             )
 
             PlayerProfession(
@@ -116,8 +116,9 @@ def setup_db(args: argparse.Namespace):
 
             PlayerSkill(
                 player=jeshua,
-                skill=SkillTemplate[196],
-                slot=1,
+                skill=c.SkillType.AXES,
+                level=10,
+                bonus=10,
             )
 
             GuildMembership(

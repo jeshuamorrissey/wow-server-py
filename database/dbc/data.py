@@ -13,7 +13,6 @@ from database.dbc.unit_template import UnitTemplate
 from database.dbc.spell_template import SpellTemplate
 from database.dbc.quest_template import QuestTemplate, Objective
 from database.dbc.profession import Profession
-from database.dbc.skill_template import SkillTemplate
 
 
 @orm.db_session
@@ -170,9 +169,5 @@ def LoadDBC():
     if orm.count(r for r in Profession) == 0:
         logging.info('Loading Profession...')
         Profession(name='Leatherworking')
-
-    if orm.count(r for r in SkillTemplate) == 0:
-        logging.info('Loading SkillTemplate...')
-        SkillTemplate(id=196, name='One-Handed Axes')
 
     # yapf: enable
