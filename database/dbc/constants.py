@@ -1,4 +1,3 @@
-"""DBC constants, easier than reading them from the raw DBC files."""
 import enum
 
 

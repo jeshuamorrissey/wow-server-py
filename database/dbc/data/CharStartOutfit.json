@@ -1,0 +1,2436 @@
+[
+    {
+        "race": 1,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 38,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 39,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 40,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 38,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 39,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 40,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 2,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 45,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 43,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 44,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2361,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            159,
+            2070
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 2,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 45,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 43,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 44,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2361,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            159,
+            2070
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 4,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            2070,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 4,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            2070,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 5,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6098,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            2070,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 5,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6098,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            2070,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 8,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 56,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            }
+        ],
+        "items": [
+            2070,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 8,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 56,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            }
+        ],
+        "items": [
+            2070,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 9,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 57,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6097,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 1,
+        "class_": 9,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 57,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6097,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 140,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 12282,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 140,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 12282,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 3,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 127,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6126,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6127,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2504,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            159,
+            6948,
+            2101,
+            117,
+            2512
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 3,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 127,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6126,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6127,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2504,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            159,
+            6948,
+            2101,
+            117,
+            2512
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 4,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 2105,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 120,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 121,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 4,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 2105,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 120,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 121,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 7,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 154,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 153,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117,
+            159
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 7,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 154,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 153,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117,
+            159
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 9,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6129,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117,
+            159
+        ]
+    },
+    {
+        "race": 2,
+        "class_": 9,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6129,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117,
+            159
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 38,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 39,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 40,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 12282,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 38,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 39,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 40,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 12282,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            117
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 2,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6117,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6118,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 43,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2361,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            4540,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 2,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6117,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6118,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 43,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2361,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            4540,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 3,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 148,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 147,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 129,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            2102,
+            2508,
+            2516,
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 3,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 148,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 147,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 129,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            2102,
+            2508,
+            2516,
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 4,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 4,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 5,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6098,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 5,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6098,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 8,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6116,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            159,
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 3,
+        "class_": 8,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6116,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            159,
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6120,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6121,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6122,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6120,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6121,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6122,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 3,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 148,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 147,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 129,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2504,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            159,
+            2101,
+            2512,
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 3,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 148,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 147,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 129,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2504,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            159,
+            2101,
+            2512,
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 4,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 4,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            4540,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 5,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6119,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            }
+        ],
+        "items": [
+            2070,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 5,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6119,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            }
+        ],
+        "items": [
+            2070,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 11,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 3661,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6123,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6124,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            159,
+            4536,
+            6948
+        ]
+    },
+    {
+        "race": 4,
+        "class_": 11,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 3661,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6123,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6124,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            159,
+            4536,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 140,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            4604,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 140,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            4604,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 4,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2105,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 120,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 121,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            4604,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 4,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2105,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 120,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 121,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            4604,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 5,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6144,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 5,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6144,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 51,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 8,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6140,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 8,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6140,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 9,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6129,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 5,
+        "class_": 9,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6129,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            4604,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2361,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            4540
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2361,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            4540
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 3,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 127,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6126,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            159,
+            2508,
+            2102,
+            2516,
+            117
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 3,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 127,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6126,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            159,
+            2508,
+            2102,
+            2516,
+            117
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 7,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 154,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 153,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            4604,
+            159
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 7,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 154,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 153,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            6948,
+            4604,
+            159
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 11,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6139,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6124,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            159,
+            4536,
+            6948
+        ]
+    },
+    {
+        "race": 6,
+        "class_": 11,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6139,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6124,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            159,
+            4536,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 38,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 39,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 40,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 38,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 39,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 40,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 25,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 4,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 4,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 49,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 48,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 47,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2947,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 8,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 56,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            4536,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 8,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 56,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            4536,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 9,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 57,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6097,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            4604,
+            6948
+        ]
+    },
+    {
+        "race": 7,
+        "class_": 9,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 57,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 6097,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 1396,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 59,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            159,
+            4604,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 1,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 1,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6125,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 139,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 2362,
+                "equipment_slot": "OFF_HAND"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 3,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2504,
+                "equipment_slot": "RANGED"
+            },
+            {
+                "entry": 6126,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 127,
+                "equipment_slot": "BODY"
+            }
+        ],
+        "items": [
+            4604,
+            2101,
+            2512,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 3,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 37,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 2504,
+                "equipment_slot": "RANGED"
+            },
+            {
+                "entry": 6126,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 127,
+                "equipment_slot": "BODY"
+            }
+        ],
+        "items": [
+            4604,
+            2101,
+            2512,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 4,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6136,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6137,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6138,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 4,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 2092,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6136,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6137,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6138,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 3111,
+                "equipment_slot": "RANGED"
+            }
+        ],
+        "items": [
+            117,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 5,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6144,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            4540,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 5,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6144,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 53,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 52,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            4540,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 7,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6134,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6135,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            117,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 7,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 36,
+                "equipment_slot": "MAIN_HAND"
+            },
+            {
+                "entry": 6134,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 6135,
+                "equipment_slot": "LEGS"
+            }
+        ],
+        "items": [
+            117,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 8,
+        "gender": 0,
+        "equipment": [
+            {
+                "entry": 6140,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            117,
+            159,
+            6948
+        ]
+    },
+    {
+        "race": 8,
+        "class_": 8,
+        "gender": 1,
+        "equipment": [
+            {
+                "entry": 6140,
+                "equipment_slot": "CHEST"
+            },
+            {
+                "entry": 1395,
+                "equipment_slot": "LEGS"
+            },
+            {
+                "entry": 6096,
+                "equipment_slot": "BODY"
+            },
+            {
+                "entry": 55,
+                "equipment_slot": "FEET"
+            },
+            {
+                "entry": 35,
+                "equipment_slot": "MAIN_HAND"
+            }
+        ],
+        "items": [
+            117,
+            159,
+            6948
+        ]
+    }
+]
