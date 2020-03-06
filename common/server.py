@@ -8,6 +8,7 @@ import construct
 
 class Server(socketserver.TCPServer):
     """Implementation of a TCPServer which can handle packets."""
+
     def __init__(
         self,
         packet_formats: Dict[Any, construct.Struct],

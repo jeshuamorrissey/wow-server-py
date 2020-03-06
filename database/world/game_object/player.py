@@ -674,8 +674,8 @@ class Player(unit.Unit):
             f.AMMO_ID: self.get_ammo(),
             f.BYTES2: self.bytes_5(),
             f.WATCHED_FACTION_INDEX: self.watched_faction,
-            f.TRACK_CREATURES: 0,  # ???
-            f.TRACK_RESOURCES: 0,  # ???
+            f.TRACK_CREATURES: 0,  # TODO: spells
+            f.TRACK_RESOURCES: 0,  # TODO: spells
             f.SELF_RES_SPELL: 0,  # TODO: spell ID of self resurrecting spell
             f.FARSIGHT: 0,  # TODO: world objects
         })

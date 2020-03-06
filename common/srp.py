@@ -111,8 +111,7 @@ def GenerateEphemeral(v: int) -> Tuple[int, int]:
     return b, B
 
 
-def CalculateSessionKey(A: int, B: int, b: int, v: int, s: int,
-                        account_name: str) -> Tuple[int, int]:
+def CalculateSessionKey(A: int, B: int, b: int, v: int, s: int, account_name: str) -> Tuple[int, int]:
     """Calculate the SRP session key.
 
     Args:
@@ -125,6 +124,7 @@ def CalculateSessionKey(A: int, B: int, b: int, v: int, s: int,
     Returns:
         The SRP session key + M validator.
     """
+
     def Interleave(S: int) -> int:
         """Apply the SHA_Interleave function on S."""
         T = IntToBytes(S)[::-1]
@@ -147,7 +147,6 @@ def CalculateServerProof(A: int, M: int, K: int) -> int:
     return _H(A, M, K)
 
 
-def CalculateAuthSessionProof(account_name: str, t: int, client_seed: int,
-                              seed: int, K: int) -> int:
+def CalculateAuthSessionProof(account_name: str, t: int, client_seed: int, seed: int, K: int) -> int:
     """Calculate the AUTH_SESSION key."""
     return _H(account_name, t, client_seed, seed, K)
