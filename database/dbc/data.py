@@ -6,17 +6,31 @@ import os
 from pony import orm
 
 from database.db import db
-from database.dbc import *
+from database.dbc import (char_start_outfit, chr_races, chr_start_locations, item_template, profession, quest_template,
+                          spell_template, unit_template)
+
+_LOAD_ORDER = [
+    char_start_outfit.CharStartOutfit,
+    chr_races.ChrRaces,
+    chr_start_locations.ChrStartLocation,
+    item_template.ItemTemplate,
+    profession.Profession,
+    quest_template.QuestTemplate,
+    quest_template.Objective,
+    spell_template.SpellTemplate,
+    unit_template.UnitTemplate,
+]
 
 
 @orm.db_session
 def LoadDBC():
-    for cls in db.Entity.__subclasses__():
+    for cls in _LOAD_ORDER:
+        base_file = f'database/dbc/data/{cls.__name__}'
         data_file = None
-        if os.path.exists(f'database/dbc/data/{cls.__name__}.json'):
-            data_file = f'database/dbc/data/{cls.__name__}.json'
-        elif os.path.exists(f'database/dbc/data/{cls.__name__}.json.gz'):
-            data_file = f'database/dbc/data/{cls.__name__}.json.gz'
+        if os.path.exists(f'{base_file}.json'):
+            data_file = f'{base_file}.json'
+        elif os.path.exists(f'{base_file}.json.gz'):
+            data_file = f'{base_file}.json.gz'
 
         if data_file:
             if orm.count(r for r in cls) == 0:
