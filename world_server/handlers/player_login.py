@@ -5,7 +5,7 @@ from typing import List, Tuple
 from pony import orm
 
 from database.dbc import constants as c
-from database.dbc.chr_races import ChrRaces
+from database.dbc.dbc import ChrRaces
 from database.world.account import Account
 from database.world.game_object.player import Player
 from database.world.realm import Realm

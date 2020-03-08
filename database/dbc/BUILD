@@ -10,5 +10,6 @@ py_library(
     visibility = ["//visibility:public"],
     deps = [
         requirement("pony"),
+        "//database:db",
     ],
 )

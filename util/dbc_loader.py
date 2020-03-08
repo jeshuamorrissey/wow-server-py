@@ -3,7 +3,9 @@
 import os
 import argparse
 import gzip
+from typing import List, Text, Set
 from mpyq import MPQArchive
+from database.dbc.dbc import *
 import json
 from construct import Struct, Const, Int32ul, Array, Bytes, Computed, Adapter, Float32l, Int64ul
 
@@ -39,42 +41,30 @@ LangStringRef = Struct(
     'flags' / Int32ul,
 )
 
-AnimationData = Struct(
-    'id' / Int32ul,
-    'name' / StringRef,
-    'weapon_flags' / Int32ul,
-    'body_flags' / Int32ul,
-    'flags' / Int32ul,
-    'fallback' / Int32ul,
-    'previous' / Int32ul,
-)
 
-AreaPOI = Struct(
-    'id' / Int32ul,
-    'importance' / Int32ul,
-    'icon' / Int32ul,
-    'faction_id' / Int32ul,
-    'x' / Float32l,
-    'y' / Float32l,
-    'z' / Float32l,
-    'continent_id' / Int32ul,
-    'flags' / Int32ul,
-    Int32ul,  # unk
-    'name' / LangStringRef,
-)
+def GenerateStruct(cls) -> Struct:
+    struct_fields = []
+    for attr in cls._attrs_:
+        if attr.name.endswith('_backlink'):
+            continue
 
-AreaTrigger = Struct(
-    'id' / Int32ul,
-    'continent_id' / Int32ul,
-    'x' / Float32l,
-    'y' / Float32l,
-    'z' / Float32l,
-    'radius' / Float32l,
-    'box_length' / Float32l,
-    'box_width' / Float32l,
-    'box_height' / Float32l,
-    'box_yaw' / Float32l,
-)
+        if attr.py_type == int:
+            struct_fields.append(attr.name / Int32ul)
+        elif attr.py_type == SingleString:
+            struct_fields.append(attr.name / StringRef)
+        elif attr.py_type == MultiString:
+            struct_fields.append(attr.name / LangStringRef)
+        elif attr.py_type == float:
+            struct_fields.append(attr.name / Float32l)
+        elif attr.py_type == FixedIntArray:
+            struct_fields.append(attr.name / Array(attr.size, Int32ul))
+        else:
+            if attr.py_type == cls.__name__:
+                struct_fields.append((attr.name + '_fk') / Int32ul)
+            else:
+                struct_fields.append(attr.name / Int32ul)
+
+    return Struct(*struct_fields)
 
 
 def LoadStringBlock(c):
@@ -85,6 +75,26 @@ def LoadStringBlock(c):
         index += len(string) + 1
 
     return strings
+
+
+def NumFieldsInStruct(struct: Struct):
+    n = len(struct.subcons or struct.count)
+    for subcon in struct.subcons:
+        if hasattr(subcon, 'subcons'):
+            n -= 1
+            n += NumFieldsInStruct(subcon)
+    return n
+
+
+def StructToDict(record):
+    d = {k: v for k, v in record.items() if not k.startswith('_')}
+    for k, v in d.items():
+        if hasattr(v, 'items'):
+            if 'en_us' in d[k]:
+                d[k] = d[k]['en_us']
+            else:
+                d[k] = StructToDict(v)
+    return d
 
 
 DBCFile = Struct(
@@ -104,48 +114,80 @@ DBCFile = Struct(
 )
 
 
-def NumFieldsInStruct(struct: Struct):
-    n = len(struct.subcons)
-    for subcon in struct.subcons:
-        if hasattr(subcon, 'subcons'):
-            n -= 1
-            n += NumFieldsInStruct(subcon)
-    return n
+class MPQMultiArchive:
+
+    def __init__(self, base_path: Text, *archives: Text):
+        self.archives = [MPQArchive(os.path.join(base_path, 'Data', a)) for a in archives]
+
+    @property
+    def files(self) -> Set[Text]:
+        files = set()
+        for a in self.archives:
+            files.update([f for f in a.files if f.endswith(b'dbc')])
+
+        return files
+
+    def read_file(self, fname: Text) -> bytes:
+        for a in self.archives[::-1]:
+            contents = a.read_file(fname)
+            if contents:
+                return contents
+
+        raise RuntimeError(f'Unknown file {fname}')
 
 
-def StructToDict(record):
-    d = {k: v for k, v in record.items() if not k.startswith('_')}
-    for k, v in d.items():
-        if hasattr(v, 'items'):
-            d[k] = StructToDict(v)
-    return d
-
-
-def main(wow_dir: str, output_dir: str):
-    archive = MPQArchive(os.path.join(wow_dir, 'Data', 'dbc.MPQ'))
-    for fname in archive.files:
+def main(wow_dir: Text, output_dir: Text):
+    multi_archive = MPQMultiArchive(wow_dir, 'dbc.MPQ', 'patch.MPQ', 'patch-2.MPQ')
+    for fname in multi_archive.files:
         record_name = fname.decode('utf-8').split('\\')[1].split('.')[0]
-        dbc_file = DBCFile.parse(archive.read_file(fname))
-        cls: Struct = globals().get(record_name, None)
+        cls = globals().get(record_name, None)
         if not cls:
             # print(f'Warning: no record format found for {record_name}!')
             continue
 
-        if cls.sizeof() != dbc_file.header.record_size or NumFieldsInStruct(cls) != dbc_file.header.field_count:
+        # Make a struct from this class.
+        print(f'Loading {record_name}... ')
+        dbc_file = DBCFile.parse(multi_archive.read_file(fname))
+        record_struct = GenerateStruct(cls)
+
+        if record_struct.sizeof() != dbc_file.header.record_size or NumFieldsInStruct(
+                record_struct) != dbc_file.header.field_count:
             print(
-                f'{record_name} is not a valid size (size is "{cls.sizeof()}", should be "{dbc_file.header.record_size}") (field count is "{NumFieldsInStruct(cls)}", should be "{dbc_file.header.field_count}")!'
+                f'{record_name} is not a valid size (size is "{record_struct.sizeof()}", should be "{dbc_file.header.record_size}") (field count is "{NumFieldsInStruct(record_struct)}", should be "{dbc_file.header.field_count}")!'
             )
             continue
 
         records = []
         for record_data in dbc_file.records:
-            record = cls.parse(record_data, strings=dbc_file.strings)
+            record = record_struct.parse(record_data, strings=dbc_file.strings)
+
+            # HACK: APPLY TRANSFORMATIONS TO OBVIOUSLY WRONG DBC ENTRIES
+            # For some reason, Gnomes and Troll have the wrong faction ID.
+            if cls == ChrRaces:
+                if record['id'] == 7:
+                    record['faction'] = 54
+                elif record['id'] == 8:
+                    record['faction'] = 530
+                elif record['id'] == 9:
+                    record['cinematic_sequence'] = None
+
+            # Foreign keys use 0 == None.
+            if cls == CinematicSequences:
+                for i in range(1, 8 + 1):
+                    if getattr(record, f'camera{i}') == 0:
+                        delattr(record, f'camera{i}')
+            # END HACK
+
             records.append(StructToDict(record))
 
         output = json.dumps(records)
         with gzip.GzipFile(filename=os.path.join(output_dir, f'{record_name}.json.gz'), mode='wb') as f:
-            print(f'Writing {record_name}...')
             f.write(output.encode('ascii'))
+
+        with open(os.path.join(output_dir, f'{record_name}.json'), 'wb') as f:
+            f.write(output.encode('ascii'))
+
+        print('Done!')
 
 
 if __name__ == '__main__':

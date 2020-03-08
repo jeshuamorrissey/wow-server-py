@@ -27,6 +27,7 @@ from database.dbc.unit_template import UnitTemplate
 from database.dbc.quest_template import QuestTemplate
 from database.dbc.profession import Profession
 from database.world.account import Account
+from database.dbc.dbc import AnimationData
 from database.world.aura import Aura
 from database.world.game_object.container import Container
 from database.world.game_object.game_object import GameObject
@@ -76,8 +77,14 @@ def setup_db(args: argparse.Namespace):
 
     db.create_tables()
 
+    # @db.on_connect(provider='sqlite')
+    # def sqlite_disable_foreign_key_checks(db, connection):
+    #     cursor = connection.cursor()
+    #     cursor.execute('PRAGMA foreign_keys = OFF')
+
     # Load DBC data.
     data.LoadDBC()
+    # db._on_connect_funcs.clear()
 
     # Generate some test data.
     # Clear the world database tables so they can be created again.
