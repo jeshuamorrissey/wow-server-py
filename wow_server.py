@@ -77,14 +77,8 @@ def setup_db(args: argparse.Namespace):
 
     db.create_tables()
 
-    # @db.on_connect(provider='sqlite')
-    # def sqlite_disable_foreign_key_checks(db, connection):
-    #     cursor = connection.cursor()
-    #     cursor.execute('PRAGMA foreign_keys = OFF')
-
     # Load DBC data.
     data.LoadDBC()
-    # db._on_connect_funcs.clear()
 
     # Generate some test data.
     # Clear the world database tables so they can be created again.

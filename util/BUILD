@@ -10,3 +10,14 @@ py_binary(
         "//database/dbc",
     ],
 )
+
+py_binary(
+    name = "gen_enums",
+    srcs = ["gen_enums.py"],
+    deps = [
+        "//database:common",
+        "//database/dbc",
+        "//database/world",
+        requirement("stringcase"),
+    ],
+)

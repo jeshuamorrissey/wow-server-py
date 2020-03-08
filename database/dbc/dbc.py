@@ -8,7 +8,15 @@ class SingleString(str):
     pass
 
 
+class SingleEnumString(SingleString):
+    pass
+
+
 class MultiString(str):
+    pass
+
+
+class MultiEnumString(MultiString):
     pass
 
 
@@ -20,7 +28,7 @@ class FixedIntArray(orm.IntArray):
 
 class AnimationData(db.Entity):
     id = orm.PrimaryKey(int)
-    name = orm.Required(SingleString)
+    name = orm.Required(SingleEnumString)
     weapon_flags = orm.Required(int)
     body_flags = orm.Required(int)
     flags = orm.Required(int)
@@ -80,7 +88,7 @@ class AuctionHouse(db.Entity):
     faction = orm.Required('Faction', reverse='auction_house_backlink')
     deposit_rate = orm.Required(int)
     consignment_rate = orm.Required(int)
-    name = orm.Required(MultiString)
+    name = orm.Required(MultiEnumString)
 
 
 class BankBagSlotPrices(db.Entity):
@@ -108,7 +116,7 @@ class Faction(db.Entity):
     reputation_flags3 = orm.Required(int, unsigned=True)
     reputation_flags4 = orm.Required(int, unsigned=True)
     parent_faction = orm.Optional('Faction', reverse='parent_faction_backlink')
-    name = orm.Required(MultiString)
+    name = orm.Required(MultiEnumString)
     description = orm.Optional(MultiString)
 
     parent_faction_backlink = orm.Set('Faction', reverse='parent_faction')
@@ -118,14 +126,14 @@ class Faction(db.Entity):
 
 class Languages(db.Entity):
     id = orm.PrimaryKey(int)
-    name = orm.Required(MultiString)
+    name = orm.Required(MultiEnumString)
 
     chr_races_backlink = orm.Set('ChrRaces', reverse='base_language')
 
 
 class CreatureType(db.Entity):
     id = orm.PrimaryKey(int)
-    name = orm.Required(MultiString)
+    name = orm.Required(MultiEnumString)
     flags = orm.Required(int)
 
     chr_races_backlink = orm.Set('ChrRaces', reverse='creature_type')
@@ -252,7 +260,7 @@ class Spell(db.Entity):
     spell_icon_id = orm.Required(int, unsigned=True)
     active_icon_id = orm.Required(int, unsigned=True)
     spell_priority = orm.Required(int, unsigned=True)
-    spell_name = orm.Required(MultiString)
+    spell_name = orm.Required(MultiEnumString)
     spell_rank = orm.Optional(MultiString)
     spell_description = orm.Optional(MultiString)
     spell_tool_tip = orm.Optional(MultiString)
@@ -331,7 +339,7 @@ class ChrRaces(db.Entity):
     starting_taxi_nodes = orm.Required(int)
     client_file_string = orm.Required(SingleString)
     cinematic_sequence = orm.Optional('CinematicSequences', reverse='chr_races_backlink')
-    name = orm.Required(MultiString)
+    name = orm.Required(MultiEnumString)
     facial_hair_customization_male = orm.Required(SingleString)
     facial_hair_customization_female = orm.Required(SingleString)
     hair_customization = orm.Required(SingleString)
