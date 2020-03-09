@@ -7,6 +7,7 @@ py_binary(
     deps = [
         requirement("mpyq"),
         requirement("construct"),
+        "//database:common",
         "//database/dbc",
     ],
 )

@@ -20,6 +20,10 @@ class MultiEnumString(MultiString):
     pass
 
 
+class MultiEnumSecondaryString(MultiString):
+    pass
+
+
 class FixedIntArray(orm.IntArray):
 
     def __init__(self, size: int):
@@ -261,7 +265,7 @@ class Spell(db.Entity):
     active_icon_id = orm.Required(int, unsigned=True)
     spell_priority = orm.Required(int, unsigned=True)
     spell_name = orm.Required(MultiEnumString)
-    spell_rank = orm.Optional(MultiString)
+    spell_rank = orm.Optional(MultiEnumSecondaryString)
     spell_description = orm.Optional(MultiString)
     spell_tool_tip = orm.Optional(MultiString)
     mana_cost_percentage = orm.Required(int, unsigned=True)
@@ -343,3 +347,29 @@ class ChrRaces(db.Entity):
     facial_hair_customization_male = orm.Required(SingleString)
     facial_hair_customization_female = orm.Required(SingleString)
     hair_customization = orm.Required(SingleString)
+
+
+class ChrClasses(db.Entity):
+    id = orm.PrimaryKey(int)
+    player_class = orm.Required(int)
+    damage_bonus_stat = orm.Required(int)
+    display_power = orm.Required(int)
+    pet_name_token = orm.Required(SingleString)
+    name = orm.Required(MultiEnumString)
+    filename = orm.Required(SingleString)
+    spell_class_set = orm.Required(int)
+    flags = orm.Required(int)
+
+
+class Resistances(db.Entity):
+    id = orm.PrimaryKey(int)
+    flags = orm.Required(int)
+    fizzle_sound_id = orm.Required(int)
+    name = orm.Required(MultiEnumString)
+
+
+class ItemClass(db.Entity):
+    id = orm.PrimaryKey(int)
+    subclass_map = orm.Required(int)
+    flags = orm.Required(int)
+    name = orm.Required(MultiEnumString)

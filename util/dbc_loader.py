@@ -50,9 +50,9 @@ def GenerateStruct(cls) -> Struct:
 
         if attr.py_type == int:
             struct_fields.append(attr.name / Int32ul)
-        elif attr.py_type == SingleString:
+        elif attr.py_type in (SingleString, SingleEnumString):
             struct_fields.append(attr.name / StringRef)
-        elif attr.py_type == MultiString:
+        elif attr.py_type in (MultiString, MultiEnumString, MultiEnumSecondaryString):
             struct_fields.append(attr.name / LangStringRef)
         elif attr.py_type == float:
             struct_fields.append(attr.name / Float32l)
@@ -186,8 +186,6 @@ def main(wow_dir: Text, output_dir: Text):
 
         with open(os.path.join(output_dir, f'{record_name}.json'), 'wb') as f:
             f.write(output.encode('ascii'))
-
-        print('Done!')
 
 
 if __name__ == '__main__':

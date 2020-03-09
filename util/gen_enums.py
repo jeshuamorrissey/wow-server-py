@@ -16,29 +16,50 @@ def main(output_file: Text):
     db.SetupDatabase(db_file=':memory:')
 
     lines = ['import enum', '']
+    enum_lines = {}
     for cls in db.db.Entity.__subclasses__():
         enum_name = None
         enum_field = None
+        secondary_enum_field = None
 
         for attr in cls._attrs_:
             if attr.py_type in (dbc.SingleEnumString, dbc.MultiEnumString):
                 enum_name = cls.__name__
                 enum_field = attr.name
-                break
+            elif attr.py_type in (dbc.MultiEnumSecondaryString,):
+                secondary_enum_field = attr.name
 
         if not enum_name or not enum_field:
             continue
 
+        if secondary_enum_field:
+            logging.info(f'Processing {cls.__name__} (enum fields "{enum_field}", "{secondary_enum_field}")')
+        else:
+            logging.info(f'Processing {cls.__name__} (enum field "{enum_field}")')
+
+        import string
+        SPECIAL_CHARS = string.punctuation.replace('%', '').replace('_', '')
+
+        enums = {}
         with orm.db_session:
-            lines.append(f'class {enum_name}(enum.IntEnum):')
-            for id, name in orm.select((r.id, getattr(r, enum_field)) for r in cls).order_by(1):
-                name = ''.join(c for c in name if c not in '\'",-(){}+/!:[]')
+            for r in cls.select():
+                name = ''.join(c for c in getattr(r, enum_field) if c not in SPECIAL_CHARS)
+                name = name.replace('%', '_percent')
+                if secondary_enum_field and getattr(r, secondary_enum_field):
+                    name += '_' + getattr(r, secondary_enum_field)
                 name = stringcase.constcase(name)
                 if name[0].isnumeric():
                     name = '_' + name
                 name = re.sub('_+', '_', name)
-                lines.append(f'    {name} = {id}')
-            lines.append('')
+                enums[name] = r.id
+
+        enum_lines[enum_name] = [f'class {enum_name}(enum.IntEnum):']
+        for k, v in sorted(enums.items()):
+            enum_lines[enum_name].append(f'    {k} = {v}')
+        enum_lines[enum_name].append('')
+
+    for _, el in sorted(enum_lines.items()):
+        lines.extend(el)
 
     with open(output_file, 'w') as f:
         f.write('\n'.join(lines))
