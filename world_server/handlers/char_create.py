@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from pony import orm
 
-from database.dbc import constants as c
+from database.game import constants as c
 from database.world.account import Account
 from database.world.game_object.player import Player
 from database.world.realm import Realm
@@ -41,9 +41,8 @@ class ResponseCode(enum.IntEnum):
 
 @router.Handler(op_code.Client.CHAR_CREATE)
 @orm.db_session
-def handle_char_create(
-        pkt: char_create.ClientCharCreate,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_char_create(pkt: char_create.ClientCharCreate,
+                       session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     account = Account[session.account_name]
     realm = Realm[session.realm_name]
 
@@ -51,25 +50,21 @@ def handle_char_create(
     if len(account.characters) >= config.MAX_CHARACTERS_PER_ACCOUNT:
         return [(
             op_code.Server.CHAR_CREATE,
-            char_create.ServerCharCreate.build(
-                dict(error=ResponseCode.ACCOUNT_LIMIT)),
+            char_create.ServerCharCreate.build(dict(error=ResponseCode.ACCOUNT_LIMIT)),
         )]
 
     # Server limit.
-    if orm.count(p for p in Player if p.account == account
-                 and p.realm == realm) > config.MAX_CHARACTERS_PER_REALM:
+    if orm.count(p for p in Player if p.account == account and p.realm == realm) > config.MAX_CHARACTERS_PER_REALM:
         return [(
             op_code.Server.CHAR_CREATE,
-            char_create.ServerCharCreate.build(
-                dict(error=ResponseCode.SERVER_LIMIT)),
+            char_create.ServerCharCreate.build(dict(error=ResponseCode.SERVER_LIMIT)),
         )]
 
     # Name already in use.
     if orm.count(p for p in Player if p.name.upper() == pkt.name.upper()) > 0:
         return [(
             op_code.Server.CHAR_CREATE,
-            char_create.ServerCharCreate.build(
-                dict(error=ResponseCode.NAME_IN_USE)),
+            char_create.ServerCharCreate.build(dict(error=ResponseCode.NAME_IN_USE)),
         )]
 
     Player.New(

@@ -5,15 +5,13 @@ from typing import List, Tuple
 from pony import orm
 
 from database import constants
-from database.dbc import constants as c
+from database.game import constants as c
 from database.world.account import Account
 from database.world.game_object.player import Player
 from database.world.realm import Realm
 from world_server import op_code, router, session, system
-from world_server.packets import (account_data_times, init_world_states,
-                                  login_verify_world, player_login,
-                                  trigger_cinematic, tutorial_flags,
-                                  update_aura_duration)
+from world_server.packets import (account_data_times, init_world_states, login_verify_world, player_login,
+                                  trigger_cinematic, tutorial_flags, update_aura_duration)
 
 
 class ResponseCode(enum.IntEnum):

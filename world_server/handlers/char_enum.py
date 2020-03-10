@@ -3,7 +3,7 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.dbc import constants as c
+from database.game import constants as c
 from database.world.account import Account
 from world_server import op_code, router, session
 from world_server.packets import char_enum

@@ -18,16 +18,16 @@ import world_server.systems  # register systems
 from common import server
 from database import common
 from database import db
-from database.dbc import constants as c
-from database.dbc import data
-from database.dbc.chr_start_locations import ChrStartLocation
-from database.dbc.item_template import ItemTemplate
-from database.dbc.spell_template import SpellTemplate
-from database.dbc.unit_template import UnitTemplate
-from database.dbc.quest_template import QuestTemplate
-from database.dbc.profession import Profession
+from database.game import constants as c
+from database.game import data
+from database.game.chr_start_locations import ChrStartLocation
+from database.game.item_template import ItemTemplate
+from database.game.spell_template import SpellTemplate
+from database.game.unit_template import UnitTemplate
+from database.game.quest_template import QuestTemplate
+from database.game.profession import Profession
 from database.world.account import Account
-from database.dbc.dbc import AnimationData
+from database.game.dbc import AnimationData
 from database.world.aura import Aura
 from database.world.game_object.container import Container
 from database.world.game_object.game_object import GameObject

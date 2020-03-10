@@ -16,6 +16,7 @@ def main(output_file: Text):
     coloredlogs.install(level=logging.DEBUG)
     db.SetupDatabase(db_file=':memory:')
 
+    logging.debug('Generating enums...')
     lines = ['import enum', '']
     enum_lines = {}
     for cls in db.db.Entity.__subclasses__():

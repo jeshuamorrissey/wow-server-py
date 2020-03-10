@@ -4,7 +4,7 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.dbc import constants as c
+from database.game import constants as c
 from database.world.account import Account
 from database.world.game_object.player import Player
 from database.world.realm import Realm
@@ -21,20 +21,17 @@ class ResponseCode(enum.IntEnum):
 
 @router.Handler(op_code.Client.CHAR_DELETE)
 @orm.db_session
-def handle_char_delete(
-        pkt: char_delete.ClientCharDelete,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_char_delete(pkt: char_delete.ClientCharDelete,
+                       session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     realm = Realm[session.realm_name]
     account = Account[session.account_name]
 
     to_delete = Player.get(realm=realm, account=account, id=pkt.guid_low)
     if not to_delete:
-        session.log.error(
-            f'Tried to delete character {pkt.guid_low}, but it does not exist')
+        session.log.error(f'Tried to delete character {pkt.guid_low}, but it does not exist')
         return [(
             op_code.Server.CHAR_DELETE,
-            char_delete.ServerCharDelete.build(
-                dict(error=ResponseCode.FAILED)),
+            char_delete.ServerCharDelete.build(dict(error=ResponseCode.FAILED)),
         )]
 
     to_delete.delete()

@@ -1,18 +1,17 @@
 import enum
-
-from pony import orm
 import time
 
-from database.db import db
-from database.dbc import constants as c
+from pony import orm
 
-from database.dbc.quest_template import QuestTemplate
-from database.world.game_object.player import Player
+from database import game
+from database.db import db
+
+from .player import Player
 
 
 class ObjectiveProgress(db.Entity):
     quest = orm.Required('Quest')
-    objective = orm.Required('Objective')
+    objective = orm.Required('QuestObjectiveTemplate')
     slot = orm.Required(int, min=0, max=3)
     progress = orm.Required(int)
 
@@ -25,12 +24,12 @@ class Quest(db.Entity):
 
     progress = orm.Set(ObjectiveProgress)
     due = orm.Optional(int)
-    status = orm.Required(c.QuestStatus, default=c.QuestStatus.NONE)
+    status = orm.Required(game.QuestStatus, default=game.QuestStatus.NONE)
 
     orm.PrimaryKey(player, base_quest)
 
     @classmethod
-    def New(cls, player: Player, base_quest: QuestTemplate, **kwargs) -> 'Quest':
+    def New(cls, player: Player, base_quest: game.QuestTemplate, **kwargs) -> 'Quest':
         quest = Quest(
             player=player,
             base_quest=base_quest,
@@ -53,9 +52,9 @@ class Quest(db.Entity):
         for objective in self.progress:
             objective_bytes |= (objective.slot << (objective.progress * 6))
 
-        if self.status == c.QuestStatus.COMPLETE:
+        if self.status == game.QuestStatus.COMPLETE:
             objective_bytes |= (1 << 24)
-        elif self.status == c.QuestStatus.FAILED:
+        elif self.status == game.QuestStatus.FAILED:
             objective_bytes |= (2 << 24)
 
         return objective_bytes

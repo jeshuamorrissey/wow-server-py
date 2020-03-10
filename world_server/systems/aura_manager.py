@@ -4,14 +4,13 @@ from typing import Dict, List, Tuple
 
 from pony import orm
 
-from database.dbc.spell_template import SpellTemplate
+from database.game.spell_template import SpellTemplate
 from database.world.aura import Aura
 from database.world.game_object.player import Player
 from database.world.game_object.unit import Unit
-from world_server import system
-from world_server.session import Session
-from world_server import op_code
+from world_server import op_code, system
 from world_server.packets import update_aura_duration
+from world_server.session import Session
 
 
 @system.Register(system.System.ID.AURA_MANAGER)

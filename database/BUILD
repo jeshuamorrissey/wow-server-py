@@ -7,6 +7,7 @@ py_library(
     deps = [
         ":db",
         "//database/constants",
+        "//database/game",
         "//database/world",
     ],
 )

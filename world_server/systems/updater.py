@@ -5,7 +5,7 @@ from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes, GreedyR
                        Rebuild, Struct, Switch)
 from pony import orm
 
-from database.dbc import constants as c
+from database.game import constants as c
 from database.world.game_object.container import Container
 from database.world.game_object.game_object import GameObject
 from database.world.game_object.item import Item

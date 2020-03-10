@@ -235,8 +235,8 @@ def main(wow_dir: Text, output_dir: Text):
         with gzip.GzipFile(filename=os.path.join(output_dir, f'{record_name}.json.gz'), mode='wb') as f:
             f.write(output.encode('ascii'))
 
-        with open(os.path.join(output_dir, f'{record_name}.json'), 'wb') as f:
-            f.write(output.encode('ascii'))
+        # with open(os.path.join(output_dir, f'{record_name}.json'), 'wb') as f:
+        #     f.write(output.encode('ascii'))
 
 
 if __name__ == '__main__':

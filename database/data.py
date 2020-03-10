@@ -2,31 +2,20 @@ import gzip
 import json
 import logging
 import os
-from typing import Dict, Set, Text, Type
+from typing import Dict, List, Set, Text, Type
 
 from pony import orm
 
-_LOADED: Set[Text] = set()
 
-
-def _Load(cls_name: Text, cls: Type, all_cls: Dict[Text, Type], dependencies: Dict[Text, Set[Text]]):
+def _load(cls_name: Text, cls: Type, module: Text):
     """Load the given class' data file.
 
     Args:
         cls_name: The name of the class to load.
         cls: The type of the class to load.
-        all_cls: A mapping of class names --> types (all of them).
-        dependencies: A mapping of class names --> dependent class names.
+        module: The module the class is in (either "constants" or "game")
     """
-    if cls_name in _LOADED:
-        return
-
-    _LOADED.add(cls_name)
-
-    for dep in dependencies.get(cls_name, set()):
-        _Load(dep, all_cls[dep], all_cls, dependencies)
-
-    base_file = f'database/constants/data/{cls_name}'
+    base_file = f'database/{module}/data/{cls_name}'
     data_file = None
     if os.path.exists(f'{base_file}.json.gz'):
         data_file = f'{base_file}.json.gz'
@@ -79,24 +68,103 @@ def _Load(cls_name: Text, cls: Type, all_cls: Dict[Text, Type], dependencies: Di
                         orm.flush()  # flush here to force a save and to avoid save chains
 
 
-def _FindSubclasses(cls: Type) -> Dict[Text, Type]:
+def _sorted_by_dependencies(classes: Dict[Text, Type]) -> List[Set[Text]]:
+    """Return a sorted list of classes based on dependency order.
+
+    This will resolve dependencies by inspecting the class attributes and determine
+    the required order for class loading.
+
+    Args:
+        classes: A mapping from class name --> class type.
+    
+    Returns:
+        A list of sets. Each set is a "phase"; anything within a phase can be loaded at
+        the same time, but phases must be sequential.
+    """
+    # First, build up a simple dependency graph.
+    dependencies: Dict[Text, Set[Text]] = {entity_name: set() for entity_name in classes}
+    for entity_name, entity_type in classes.items():
+        for attr in entity_type._attrs_:
+            attr_type_name = attr.py_type.__name__
+
+            # Special case: ignore self-links (assume they will be resolvable).
+            if attr_type_name == entity_name:
+                continue
+
+            # Special case: ignore attributes which aren't the right type.
+            if attr_type_name not in classes:
+                continue
+
+            # Special case: ignore backlinks.
+            if attr.name.endswith('_backlink'):
+                continue
+
+            dependencies[entity_name].add(attr_type_name)
+
+    # Now, do a topological sort.
+    processed: Set[Text] = set()
+    last_phase: Set[Text] = set()
+    sorted_dependencies: List[Set[Text]] = []
+    while True:
+        phase: Set[Text] = set()
+
+        # Find everything with no dependencies; these are in the next phase.
+        for name, deps in dependencies.items():
+            if name not in processed and len(deps - processed) == 0:
+                phase.add(name)
+
+        # If we got the same phase again, then we have reached a cycle :(
+        if phase == last_phase:
+            raise RuntimeError('Dependency graph produced a cycle! Are backlinks named correctly?')
+
+        # If there was nothing in this phase, we must be done.
+        if not phase:
+            break
+
+        sorted_dependencies.append(phase)
+        processed.update(phase)
+        last_phase = phase
+
+    assert len(processed) == len(classes)
+    return sorted_dependencies
+
+
+def _find_subclasses(cls: Type) -> Dict[Text, Type]:
+    """Find all subclasses of the given type (recusively).
+
+    Args:
+        cls: The object type to find subclasses of.
+
+    Returns:
+        A mapping of subclass name --> subclass type.
+    """
     subclasses = {}
     for subclass in cls.__subclasses__():
+        # Ignore world classes; they have no static data.
+        if subclass.__module__.startswith('database.world'):
+            continue
+
         subclasses[subclass.__name__] = subclass
-        subclasses.update(_FindSubclasses(subclass))
+        subclasses.update(_find_subclasses(subclass))
 
     return subclasses
 
 
 @orm.db_session
-def LoadDBC(db: orm.Database):
-    entity_types = _FindSubclasses(db.Entity)
-    dependencies: Dict[Text, Set[Text]] = {entity_name: set() for entity_name in entity_types}
-    for entity_name, entity_type in entity_types.items():
-        for attr in entity_type._attrs_:
-            if issubclass(attr.py_type,
-                          db.Entity) and attr.py_type.__name__ != entity_name and not attr.name.endswith('_backlink'):
-                dependencies[entity_name].add(attr.py_type.__name__)
+def load_constants(db: orm.Database):
+    """Load the constant data files into the appropriate tables.
 
-    for entity_name, entity_type in sorted(entity_types.items()):
-        _Load(entity_name, entity_type, entity_types, dependencies)
+    Each of the database classes should have been imported by this point; this function
+    uses db.Entity.__subclasses__() to discover classes we should populate data for.
+
+    Args:
+        db: The database to load the constants into.
+    """
+    classes = _find_subclasses(db.Entity)
+    load_order = _sorted_by_dependencies(classes)
+
+    for i, phase in enumerate(load_order):
+        logging.debug(f'Loading, phase {i}...')
+        for entity_name in sorted(phase):
+            module = classes[entity_name].__module__.split('.')[1]
+            _load(entity_name, classes[entity_name], module)

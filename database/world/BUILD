@@ -11,7 +11,7 @@ py_library(
         "//common:srp",
         "//database:common",
         "//database:db",
-        "//database/dbc",
+        "//database/constants",
         requirement("pony"),
     ],
 )

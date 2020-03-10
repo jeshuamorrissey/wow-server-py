@@ -1,0 +1,13 @@
+[
+    {
+        "id": 10,
+        "title": "With Duration",
+        "description": "Quest with duration.",
+        "duration": 60
+    },
+    {
+        "id": 11,
+        "title": "Without Duration",
+        "description": "Quest without duration."
+    }
+]

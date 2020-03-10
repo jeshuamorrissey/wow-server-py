@@ -9,4 +9,4 @@ class Enchantment(db.Entity):
     id = orm.PrimaryKey(int, auto=True)
 
     # Reverse mappings.
-    applied_to = orm.Optional('ItemEnchantment')
+    item_enchantment_backlink = orm.Optional('ItemEnchantment')

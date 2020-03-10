@@ -1,7 +1,7 @@
 from pony import orm
 
-from database.db import db
 from database.constants import common
+from database.db import db
 
 
 class Spell(db.Entity):
@@ -125,8 +125,8 @@ class Spell(db.Entity):
     spell_icon_id = orm.Required(int, unsigned=True)
     active_icon_id = orm.Required(int, unsigned=True)
     spell_priority = orm.Required(int, unsigned=True)
-    spell_name = orm.Required(common.MultiEnumString)
-    spell_rank = orm.Optional(common.MultiEnumSecondaryString)
+    spell_name = orm.Required(common.MultiString)
+    spell_rank = orm.Optional(common.MultiString)
     spell_description = orm.Optional(common.MultiString)
     spell_tool_tip = orm.Optional(common.MultiString)
     mana_cost_percentage = orm.Required(int, unsigned=True)
@@ -150,3 +150,4 @@ class Spell(db.Entity):
     chr_races_login_effect_backlink = orm.Set('ChrRaces', reverse='login_effect')
     chr_races_combat_stun_backlink = orm.Set('ChrRaces', reverse='combat_stun')
     chr_races_res_sickness_backlink = orm.Set('ChrRaces', reverse='res_sickness')
+    aura_base_spell_backlink = orm.Set('Aura', reverse='base_spell')
