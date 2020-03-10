@@ -48,11 +48,19 @@ class Item(game_object.GameObject):
         Returns:
             A 3-tuple of floats (x, y, z).
         """
-        if self.equipped_by:
+        if self.container:
+            return self.container.container.position()
+        elif self.equipped_by:
             return self.equipped_by.owner.position()
         elif self.in_backpack:
             return self.in_backpack.owner.position()
-        raise RuntimeError(f'item {self.id} does not have an owner!')
+        elif self.in_bank:
+            return self.in_bank.owner.position()
+        elif self.in_vendor_buyback:
+            return self.in_vendor_buyback.owner.position()
+        elif self.in_keyring:
+            return self.in_keyring.owner.position()
+        raise RuntimeError(f'item {self.id} ({self.base_item.name}) does not have an owner!')
 
     def enchantment_map(self) -> Dict[game.EnchantmentSlot, enchantment.Enchantment]:
         return {ench.slot: ench.enchantment for ench in self.enchantments}
@@ -104,7 +112,7 @@ class Item(game_object.GameObject):
             })
         elif self.container:
             fields.update({
-                f.OWNER: self.container.container.on_slot.owner.guid,
+                f.OWNER: self.container.container.equipped_bag_backlink.owner.guid,
                 f.CONTAINED: self.container.container.guid,
             })
 

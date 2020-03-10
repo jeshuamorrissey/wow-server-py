@@ -3,8 +3,7 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.game import constants as c
-from database.world.account import Account
+from database import game, world
 from world_server import op_code, router, session
 from world_server.packets import char_enum
 
@@ -12,7 +11,7 @@ from world_server.packets import char_enum
 @router.Handler(op_code.Client.CHAR_ENUM)
 @orm.db_session
 def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
-    account = Account[session.account_name]
+    account = world.Account[session.account_name]
 
     characters = []
     for character in account.characters:
@@ -22,7 +21,7 @@ def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) ->
         # the items aren't actually in order.
         equipment_map = character.equipment_map()
         equipment = []
-        for slot in c.EquipmentSlot:
+        for slot in game.EquipmentSlot:
             item = equipment_map.get(slot, None)
             if item:
                 equipment.append(dict(display_id=item.base_item.displayid, inventory_type=item.base_item.InventoryType))

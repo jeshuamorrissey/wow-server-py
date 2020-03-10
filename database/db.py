@@ -12,7 +12,7 @@ from database import common, data
 db = orm.Database()
 
 
-def SetupDatabase(db_file: Text, clear_database: bool = False):
+def SetupDatabase(db_file: Text, clear_database: bool = False, clear_dynamic_database: bool = False):
     # Import database entities.
     from database import constants
     from database import game
@@ -27,29 +27,10 @@ def SetupDatabase(db_file: Text, clear_database: bool = False):
     db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
     db.generate_mapping(check_tables=False)
 
-    # Clear all of the WORLD database tables.
-    # for cls in [
-    #         Account,
-    #         BackpackItem,
-    #         EquippedBag,
-    #         EquippedItem,
-    #         BankBag,
-    #         BankItem,
-    #         KeyringItem,
-    #         VendorBuybackItem,
-    #         GameObject,
-    #         Guild,
-    #         Realm,
-    #         Aura,
-    #         GuildMembership,
-    #         Quest,
-    #         ObjectiveProgress,
-    #         PlayerProfession,
-    #         PlayerSkill,
-    # ]:
-    #     cls.drop_table(with_all_data=True)
+    # If necessary, drop the dynamic portion of the database.
+    if clear_dynamic_database:
+        data.clear_world_database(db)
 
-    # Now actually make the dables.
     db.create_tables()
 
     # Setup the DBC.

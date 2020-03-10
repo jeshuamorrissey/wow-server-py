@@ -1,4 +1,3 @@
-load("@requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
@@ -8,11 +7,6 @@ py_library(
     ]),
     visibility = ["//world_server:__subpackages__"],
     deps = [
-        ":constants",
+        "//database",
     ],
-)
-
-py_library(
-    name = "constants",
-    srcs = ["constants.py"],
 )

@@ -129,25 +129,45 @@ def _sorted_by_dependencies(classes: Dict[Text, Type]) -> List[Set[Text]]:
     return sorted_dependencies
 
 
-def _find_subclasses(cls: Type) -> Dict[Text, Type]:
+def _find_subclasses(cls: Type, include_prefix=None) -> Dict[Text, Type]:
     """Find all subclasses of the given type (recusively).
 
     Args:
         cls: The object type to find subclasses of.
+        include_prefix: A tuple of module prefixes to include.
 
     Returns:
         A mapping of subclass name --> subclass type.
     """
+    if not include_prefix:
+        include_prefix = ()
+
     subclasses = {}
     for subclass in cls.__subclasses__():
         # Ignore world classes; they have no static data.
-        if subclass.__module__.startswith('database.world'):
+        if not subclass.__module__.startswith(include_prefix):
             continue
 
         subclasses[subclass.__name__] = subclass
         subclasses.update(_find_subclasses(subclass))
 
     return subclasses
+
+
+def clear_world_database(db: orm.Database):
+    """Drop all of the world database tables and re-create them.
+
+    This is useful to only clear the cheap to re-create test data and avoid having
+    to reload the whole database each time.
+
+    Args:
+        db: The database to clear the tables from.
+    """
+    classes = _find_subclasses(db.Entity, include_prefix=('database.world',))
+
+    for cls_name, cls in classes.items():
+        logging.debug(f'Dropping table world.{cls_name}')
+        cls.drop_table(with_all_data=True)
 
 
 @orm.db_session
@@ -160,7 +180,7 @@ def load_constants(db: orm.Database):
     Args:
         db: The database to load the constants into.
     """
-    classes = _find_subclasses(db.Entity)
+    classes = _find_subclasses(db.Entity, include_prefix=('database.constants', 'database.game'))
     load_order = _sorted_by_dependencies(classes)
 
     for i, phase in enumerate(load_order):

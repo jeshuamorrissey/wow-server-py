@@ -243,7 +243,7 @@ class Unit(game_object.GameObject):
                 return self.base_unit.FactionAlliance
             return self.base_unit.FactionHorde
 
-        return constants.ChrRaces[self.race].faction_template_id
+        return constants.ChrRaces[self.race].faction.id
 
     def health(self) -> int:
         return self.max_health() * self.health_percent
@@ -372,7 +372,7 @@ class Unit(game_object.GameObject):
             aura_flags[aura.slot] = 0x09
             aura_levels[aura.slot] = 1  # TODO: aura caster levels?
             aura_applications[aura.slot] = 255 - 1  # TODO: aura stack count?
-            aura_state |= aura.base_spell.aura_state_modifier
+            # aura_state |= aura.base_spell.aura_state_modifier  # TODO: use proper spell
 
             fields[f.AURA + aura.slot] = aura.base_spell.id
 

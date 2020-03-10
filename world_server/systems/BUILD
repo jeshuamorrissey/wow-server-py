@@ -1,4 +1,3 @@
-load("@requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
@@ -8,6 +7,7 @@ py_library(
     ]),
     visibility = ["//world_server:__subpackages__"],
     deps = [
+        "//database",
         "//world_server:system",
     ],
 )

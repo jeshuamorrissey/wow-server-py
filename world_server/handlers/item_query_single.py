@@ -2,16 +2,16 @@ from typing import List, Tuple
 
 from pony import orm
 
+from database import game
 from world_server import op_code, router, session
 from world_server.packets import item_query_single
-from database.game.item_template import ItemTemplate
 
 
 @router.Handler(op_code.Client.ITEM_QUERY_SINGLE)
 @orm.db_session
 def handle_ping(pkt: item_query_single.ClientItemQuerySingle,
                 session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
-    item = ItemTemplate[pkt.entry]
+    item = game.ItemTemplate[pkt.entry]
 
     return [(
         op_code.Server.ITEM_QUERY_SINGLE_RESPONSE,

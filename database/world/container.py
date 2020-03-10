@@ -35,6 +35,8 @@ class Container(item.Item):
         """
         if self.equipped_bag_backlink:
             return self.equipped_bag_backlink.owner.position()
+        elif self.bank_bag_backlink:
+            return self.bank_bag_backlink.owner.position()
         return super(Container, self).position()
 
     #

@@ -1,11 +1,12 @@
+# type: ignore[operator]
+
 import enum
 import struct
 
 from construct import (Adapter, Array, Byte, Bytes, Const, Debugger, Enum, Float32l, GreedyBytes, GreedyRange, If,
                        IfThenElse, Int8ul, Int32ul, Int64ul, Rebuild, Struct, Switch)
 
-from database.game import constants as c
-from database.world.game_object import game_object
+from database import constants, game, world
 
 
 class PackedGUIDAdapter(Adapter):
@@ -84,7 +85,7 @@ class UpdateFieldsAdapter(Adapter):
                 continue
 
             mask |= (1 << field)
-            if isinstance(value, game_object.GUID):
+            if isinstance(value, world.GUID):
                 mask |= (1 << (field + 1))
                 fields.append(value.low.to_bytes(4, 'little'))
                 fields.append(value.high.to_bytes(4, 'little'))
@@ -128,7 +129,7 @@ FullMovementUpdate = Struct(
     'z' / Float32l,
     'o' / Float32l,
     'transport' /
-    If(is_set(c.MovementFlags.ONTRANSPORT),
+    If(is_set(game.MovementFlags.ONTRANSPORT),
        Struct(
            'guid' / Int64ul,
            'x' / Float32l,
@@ -138,15 +139,15 @@ FullMovementUpdate = Struct(
            'time' / Int32ul,
        )),
     'swimming' / If(
-        is_set(c.MovementFlags.SWIMMING),
+        is_set(game.MovementFlags.SWIMMING),
         Struct('pitch' / Float32l),
     ),
     'last_fall_time' / If(
-        is_not_set(c.MovementFlags.ONTRANSPORT),
+        is_not_set(game.MovementFlags.ONTRANSPORT),
         Int32ul,
     ),
     'falling' / If(
-        is_set(c.MovementFlags.FALLING),
+        is_set(game.MovementFlags.FALLING),
         Struct(
             'velocity' / Float32l,
             'sin_angle' / Float32l,
@@ -155,7 +156,7 @@ FullMovementUpdate = Struct(
         ),
     ),
     'spline_elevation' / If(
-        is_set(c.MovementFlags.SPLINE_ELEVATION),
+        is_set(game.MovementFlags.SPLINE_ELEVATION),
         Struct('unk1' / Float32l),
     ),
     'speed' / Struct(
@@ -167,11 +168,11 @@ FullMovementUpdate = Struct(
         'turn' / Float32l,
     ),
     'spline_update' / If(
-        is_set(c.MovementFlags.SPLINE_ENABLED),
+        is_set(game.MovementFlags.SPLINE_ENABLED),
         Struct(
             'flags' / Int32ul,
             'facing' / If(
-                is_set(c.SplineFlags.Final_Point),
+                is_set(game.SplineFlags.Final_Point),
                 Struct(
                     'x' / Float32l,
                     'y' / Float32l,
@@ -179,12 +180,13 @@ FullMovementUpdate = Struct(
                 ),
             ),
             'target' / If(
-                lambda this: this.flags & c.SplineFlags.Final_Point and not (this.flags & c.SplineFlags.Final_Target),
+                lambda this: this.flags & game.SplineFlags.Final_Point and not (this.flags & game.SplineFlags.
+                                                                                Final_Target),
                 Int64ul,
             ),
             'angle' / If(
-                lambda this: this.flags & c.SplineFlags.Final_Angle and not (this.flags & c.SplineFlags.Final_Point) and
-                not (this.flags & c.SplineFlags.Final_Target),
+                lambda this: this.flags & game.SplineFlags.Final_Angle and not (
+                    this.flags & game.SplineFlags.Final_Point) and not (this.flags & game.SplineFlags.Final_Target),
                 Float32l,
             ),
             'time_passed' / Int32ul,
@@ -233,27 +235,27 @@ FullUpdateBlock = Struct(
     'object_type' / Int8ul,
     'flags' / Int8ul,
     'movement_update' / IfThenElse(
-        is_set(c.UpdateFlags.LIVING),
+        is_set(game.UpdateFlags.LIVING),
         FullMovementUpdate,
         If(
-            is_set(c.UpdateFlags.HAS_POSITION),
+            is_set(game.UpdateFlags.HAS_POSITION),
             PositionMovementUpdate,
         ),
     ),
     'high_guid' / If(
-        is_set(c.UpdateFlags.HIGHGUID),
+        is_set(game.UpdateFlags.HIGHGUID),
         Int32ul,
     ),
     'is_update_all' / If(
-        is_set(c.UpdateFlags.ALL),
+        is_set(game.UpdateFlags.ALL),
         Const(int(1).to_bytes(4, 'little')),
     ),
     'victim_guid' / If(
-        is_set(c.UpdateFlags.FULLGUID),
+        is_set(game.UpdateFlags.FULLGUID),
         PackedGUID,
     ),
     'world_time' / If(
-        is_set(c.UpdateFlags.TRANSPORT),
+        is_set(game.UpdateFlags.TRANSPORT),
         Int32ul,
     ),
     'update_fields' / UpdateFields,
@@ -274,8 +276,8 @@ UpdateBlock = Struct(
     'update_block' / Switch(
         lambda this: this.update_type,
         cases={
-            c.UpdateType.OUT_OF_RANGE_OBJECTS: OutOfRangeUpdateBlock,
-            c.UpdateType.VALUES: ValuesUpdateBlock,
+            game.UpdateType.OUT_OF_RANGE_OBJECTS: OutOfRangeUpdateBlock,
+            game.UpdateType.VALUES: ValuesUpdateBlock,
         },
         default=FullUpdateBlock,
     ),

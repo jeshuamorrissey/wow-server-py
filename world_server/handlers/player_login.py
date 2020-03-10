@@ -4,11 +4,7 @@ from typing import List, Tuple
 
 from pony import orm
 
-from database import constants
-from database.game import constants as c
-from database.world.account import Account
-from database.world.game_object.player import Player
-from database.world.realm import Realm
+from database import constants, world
 from world_server import op_code, router, session, system
 from world_server.packets import (account_data_times, init_world_states, login_verify_world, player_login,
                                   trigger_cinematic, tutorial_flags, update_aura_duration)
@@ -25,7 +21,7 @@ class ResponseCode(enum.IntEnum):
 @orm.db_session
 def handle_player_login(pkt: player_login.ClientPlayerLogin,
                         session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
-    player = Player[pkt.guid_low]
+    player = world.Player[pkt.guid_low]
     session.player_id = player.id
 
     # If this is the first time the player has logged in, send the

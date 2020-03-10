@@ -16,54 +16,32 @@ import world_server.handlers  # register handlers
 import world_server.packets  # register packet formats
 import world_server.systems  # register systems
 from common import server
-from database import common
-from database import db
-from database.game import constants as c
-from database.game import data
-from database.game.chr_start_locations import ChrStartLocation
-from database.game.item_template import ItemTemplate
-from database.game.spell_template import SpellTemplate
-from database.game.unit_template import UnitTemplate
-from database.game.quest_template import QuestTemplate
-from database.game.profession import Profession
-from database.world.account import Account
-from database.game.dbc import AnimationData
-from database.world.aura import Aura
-from database.world.game_object.container import Container
-from database.world.game_object.game_object import GameObject
-from database.world.game_object.container import Container, ContainerItem
-from database.world.game_object.item import Item
-from database.world.game_object.pet import Pet
-from database.world.game_object.player import (BackpackItem, EquippedBag, EquippedItem, BankBag, BankItem, KeyringItem,
-                                               VendorBuybackItem, Player, PlayerProfession, PlayerSkill)
-from database.world.game_object.unit import Unit
-from database.world.guild import Guild, GuildMembership
-from database.world.realm import Realm
-from database.world.quest import Quest, ObjectiveProgress
+from database import constants, db, game, world
 from login_server import router as login_router
 from login_server import session as login_session
 from world_server import router as world_router
 from world_server import session as world_session
+from world_server import system
 
 
 def setup_db(args: argparse.Namespace):
-    db.SetupDatabase(args.db_file, clear_database=args.reset_database)
+    db.SetupDatabase(args.db_file, clear_database=args.reset_database, clear_dynamic_database=args.reset_world_database)
 
     # Generate some test data.
     # Clear the world database tables so they can be created again.
     if args.reset_world_database:
         with orm.db_session:
-            account = Account.New(username='jeshua', password='jeshua')
-            realm = Realm(name='Brisbane', hostport=f'{args.host}:{args.world_port}')
-            guild = Guild()
-            jeshua = Player.New(
+            account = world.Account.New(username='jeshua', password='jeshua')
+            realm = world.Realm(name='Brisbane', hostport=f'{args.host}:{args.world_port}')
+            guild = world.Guild()
+            jeshua = world.Player.New(
                 id=10,
                 account=account,
                 realm=realm,
                 name='Jeshua',
-                race=c.Race.HUMAN,
-                class_=c.Class.WARRIOR,
-                gender=c.Gender.MALE,
+                race=constants.EChrRaces.HUMAN,
+                class_=constants.EChrClasses.WARRIOR,
+                gender=game.Gender.MALE,
                 last_login=datetime.datetime.now(),
                 base_health=100,  # TODO: use ChrBaseStats
                 base_power=100,  # TODO: use ChrBaseStats
@@ -75,51 +53,52 @@ def setup_db(args: argparse.Namespace):
                 level=20,
                 rested_xp=5000,
                 money=10000,
-                explored_zones=range(c.MAX_EXPLORED_ZONES),
+                explored_zones=range(game.MAX_EXPLORED_ZONES),
             )
 
-            ContainerItem(
-                container=Container.New(base_item=ItemTemplate.get(name='Travellers Backpack')),
-                item=Item.New(base_item=ItemTemplate.get('Travellers Backpack')),
+            bag = world.Container.New(base_item=game.ItemTemplate[14156])
+            world.EquippedBag(
+                owner=jeshua,
+                slot=0,
+                container=bag,
+            )
+
+            world.ContainerItem(
+                container=bag,
+                item=world.Item.New(base_item=game.ItemTemplate[14156]),
                 slot=0,
             )
 
-            PlayerProfession(
+            world.PlayerSkill(
                 player=jeshua,
-                profession=Profession.get(name='Leatherworking'),
-                level=10,
-            )
-
-            PlayerSkill(
-                player=jeshua,
-                skill=c.SkillType.AXES,
+                skill=game.SkillType.AXES,
                 level=10,
                 bonus=10,
             )
 
-            GuildMembership(
+            world.GuildMembership(
                 player=jeshua,
                 guild=guild,
                 rank=1,
             )
 
-            Quest.New(jeshua, QuestTemplate.get(title='With Duration'))
-            Quest.New(jeshua, QuestTemplate.get(title='Without Duration'))
+            world.Quest.New(jeshua, game.QuestTemplate.get(title='With Duration'))
+            world.Quest.New(jeshua, game.QuestTemplate.get(title='Without Duration'))
 
-            Aura(
+            world.Aura(
                 slot=0,
                 applied_to=jeshua,
-                base_spell=SpellTemplate[1459],
+                base_spell=constants.Spell[1459],
                 expiry_time=int(time.time()) + 6000,
             )
 
-            base_unit = UnitTemplate.get(Name='Young Nightsaber')
-            Pet(
+            base_unit = game.UnitTemplate.get(Name='Young Nightsaber')
+            world.Pet(
                 base_unit=base_unit,
                 level=1,
                 race=0,
                 class_=base_unit.UnitClass,
-                gender=c.Gender.FEMALE,
+                gender=game.Gender.FEMALE,
                 team=jeshua.team,
                 x=jeshua.x + 2,
                 y=jeshua.y + 2,
@@ -131,22 +110,22 @@ def setup_db(args: argparse.Namespace):
                 base_power=100,
             )
 
-            base_unit = UnitTemplate.get(Name='Lady Sylvanas Windrunner')
-            Unit(
+            base_unit = game.UnitTemplate.get(Name='Lady Sylvanas Windrunner')
+            world.Unit(
                 base_unit=base_unit,
                 level=55,
                 race=0,
                 class_=base_unit.UnitClass,
-                gender=c.Gender.MALE,
+                gender=game.Gender.MALE,
                 x=jeshua.x + 2,
                 y=jeshua.y - 2,
                 z=jeshua.z,
                 o=jeshua.o,
                 base_health=100,
                 base_power=100,
-                team=c.Team.HORDE,
-                npc_ranged=ItemTemplate.get(name='Soulstring'),
-                sheathed_state=c.SheathedState.RANGED,
+                team=game.Team.HORDE,
+                npc_ranged=game.ItemTemplate.get(name='Soulstring'),
+                sheathed_state=game.SheathedState.RANGED,
             )
 
 
@@ -175,9 +154,14 @@ def main(args: argparse.Namespace):
                                         handlers=world_router.Handler.ROUTES,
                                     ))
 
+    # Start the aura manager.
+    aura_manager_thread = threading.Thread(target=system.Register.Get(system.System.ID.AURA_MANAGER).run)
+    aura_manager_thread.start()
+
     auth_thread.start()
     world_thread.start()
 
+    aura_manager_thread.join()
     auth_thread.join()
     world_thread.join()
 

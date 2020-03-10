@@ -3,10 +3,7 @@ from typing import List, Tuple
 
 from pony import orm
 
-from database.game import constants as c
-from database.world.account import Account
-from database.world.game_object.player import Player
-from database.world.realm import Realm
+from database import constants, game, world
 from world_server import config, op_code, router, session
 from world_server.packets import char_create
 
@@ -43,8 +40,8 @@ class ResponseCode(enum.IntEnum):
 @orm.db_session
 def handle_char_create(pkt: char_create.ClientCharCreate,
                        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
-    account = Account[session.account_name]
-    realm = Realm[session.realm_name]
+    account = world.Account[session.account_name]
+    realm = world.Realm[session.realm_name]
 
     # Account limit.
     if len(account.characters) >= config.MAX_CHARACTERS_PER_ACCOUNT:
@@ -54,26 +51,27 @@ def handle_char_create(pkt: char_create.ClientCharCreate,
         )]
 
     # Server limit.
-    if orm.count(p for p in Player if p.account == account and p.realm == realm) > config.MAX_CHARACTERS_PER_REALM:
+    if orm.count(
+            p for p in world.Player if p.account == account and p.realm == realm) > config.MAX_CHARACTERS_PER_REALM:
         return [(
             op_code.Server.CHAR_CREATE,
             char_create.ServerCharCreate.build(dict(error=ResponseCode.SERVER_LIMIT)),
         )]
 
     # Name already in use.
-    if orm.count(p for p in Player if p.name.upper() == pkt.name.upper()) > 0:
+    if orm.count(p for p in world.Player if p.name.upper() == pkt.name.upper()) > 0:
         return [(
             op_code.Server.CHAR_CREATE,
             char_create.ServerCharCreate.build(dict(error=ResponseCode.NAME_IN_USE)),
         )]
 
-    Player.New(
+    world.Player.New(
         account=account,
         realm=realm,
         name=pkt.name,
-        race=c.Race(pkt.race),
-        class_=c.Class(pkt.class_),
-        gender=c.Gender(pkt.gender),
+        race=constants.EChrRaces(pkt.race),
+        class_=constants.EChrClasses(pkt.class_),
+        gender=game.Gender(pkt.gender),
         skin_color=pkt.skin_color,
         face=pkt.face,
         hair_style=pkt.hair_style,

@@ -3,23 +3,21 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.world.account import Account
+from database import world
 from world_server import op_code, router, session
 from world_server.packets import auth_response, auth_session
 
 
 @router.Handler(op_code.Client.AUTH_SESSION)
 @orm.db_session
-def handle_auth_session(
-        pkt: auth_session.ClientAuthSession,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_auth_session(pkt: auth_session.ClientAuthSession,
+                        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     # Retreive account from database and save session key.
-    account = Account[pkt.account_name]
+    account = world.Account[pkt.account_name]
     if not account:
         return [(
             op_code.Server.AUTH_RESPONSE,
-            auth_response.ServerAuthResponse.build(
-                dict(error=auth_response.ErrorCode.UNKNOWN_ACCOUNT)),
+            auth_response.ServerAuthResponse.build(dict(error=auth_response.ErrorCode.UNKNOWN_ACCOUNT)),
         )]
 
     # Save details about the account.
@@ -39,12 +37,10 @@ def handle_auth_session(
     if proof != pkt.client_proof:
         return [(
             op_code.Server.AUTH_RESPONSE,
-            auth_response.ServerAuthResponse.build(
-                dict(error=auth_response.ErrorCode.FAILED)),
+            auth_response.ServerAuthResponse.build(dict(error=auth_response.ErrorCode.FAILED)),
         )]
 
     return [(
         op_code.Server.AUTH_RESPONSE,
-        auth_response.ServerAuthResponse.build(
-            dict(error=auth_response.ErrorCode.OK)),
+        auth_response.ServerAuthResponse.build(dict(error=auth_response.ErrorCode.OK)),
     )]
