@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from pony import orm
 
-from database import game
+from database import enums, game
 from database.db import db
 
 
@@ -64,24 +64,24 @@ class GameObject(db.Entity):
     #
     # Class Methods (should be overwritten in children).
     #
-    def type_id(self) -> game.TypeID:
-        return game.TypeID.OBJECT
+    def type_id(self) -> enums.TypeID:
+        return enums.TypeID.OBJECT
 
-    def type_mask(self) -> game.TypeMask:
-        return game.TypeMask.OBJECT
+    def type_mask(self) -> enums.TypeMask:
+        return enums.TypeMask.OBJECT
 
-    def update_flags(self) -> game.UpdateFlags:
-        return game.UpdateFlags.NONE
+    def update_flags(self) -> enums.UpdateFlags:
+        return enums.UpdateFlags.NONE
 
-    def high_guid(self) -> game.HighGUID:
+    def high_guid(self) -> enums.HighGUID:
         raise NotImplementedError('GameObjects must have a high GUID.')
 
     def num_fields(self) -> int:
         return 0x06
 
-    def update_fields(self) -> Dict[game.UpdateField, Any]:
+    def update_fields(self) -> Dict[enums.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
-        of = game.ObjectFields
+        of = enums.ObjectFields
         return {
             of.GUID: self.guid,
             of.TYPE: self.type_mask(),

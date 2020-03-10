@@ -2,19 +2,19 @@ from typing import Any, Dict, Optional, Tuple
 
 from pony import orm
 
-from database import constants, game
+from database import constants, enums, game
 
 from . import game_object
 
 
 class Unit(game_object.GameObject):
     level = orm.Required(int, min=1)
-    race = orm.Required(constants.EChrRaces)
-    class_ = orm.Required(constants.EChrClasses)
-    gender = orm.Required(game.Gender)
+    race = orm.Required(constants.ChrRaces)
+    class_ = orm.Required(constants.ChrClasses)
+    gender = orm.Required(enums.Gender)
 
-    sheathed_state = orm.Required(game.SheathedState, default=game.SheathedState.UNARMED)
-    stand_state = orm.Required(game.StandState, default=game.StandState.STAND)
+    sheathed_state = orm.Required(enums.SheathedState, default=enums.SheathedState.UNARMED)
+    stand_state = orm.Required(enums.StandState, default=enums.StandState.STAND)
     emote_state = orm.Optional(int)
 
     # Stats.
@@ -25,7 +25,7 @@ class Unit(game_object.GameObject):
     spirit = orm.Required(int, default=0)  # TODO: make this not have a default
 
     # The current team.
-    team = orm.Required(game.Team)
+    team = orm.Required(enums.Team)
 
     # For NPC units, they will link to a template.
     base_unit = orm.Optional(game.UnitTemplate)
@@ -119,108 +119,108 @@ class Unit(game_object.GameObject):
     def entry(self) -> Optional[int]:
         return self.base_unit.entry if self.base_unit else None
 
-    def type_id(self) -> game.TypeID:
-        return game.TypeID.UNIT
+    def type_id(self) -> enums.TypeID:
+        return enums.TypeID.UNIT
 
-    def type_mask(self) -> game.TypeMask:
-        return super(Unit, self).type_mask() | game.TypeMask.UNIT
+    def type_mask(self) -> enums.TypeMask:
+        return super(Unit, self).type_mask() | enums.TypeMask.UNIT
 
-    def update_flags(self) -> game.UpdateFlags:
-        return game.UpdateFlags.ALL | game.UpdateFlags.LIVING | game.UpdateFlags.HAS_POSITION
+    def update_flags(self) -> enums.UpdateFlags:
+        return enums.UpdateFlags.ALL | enums.UpdateFlags.LIVING | enums.UpdateFlags.HAS_POSITION
 
-    def high_guid(self) -> game.HighGUID:
-        return game.HighGUID.UNIT
+    def high_guid(self) -> enums.HighGUID:
+        return enums.HighGUID.UNIT
 
     def num_fields(self) -> int:
         return 0x06 + 0xB6
 
     def bytes_0(self) -> int:
-        return self.race | self.class_ << 8 | self.gender << 16
+        return self.race.id | self.class_.id << 8 | self.gender << 16
 
     def bytes_1(self) -> int:
         f = 0
         if self.is_always_stand:
-            f |= game.UnitBytes1Flags.ALWAYS_STAND
+            f |= enums.UnitBytes1Flags.ALWAYS_STAND
         if self.is_creep:
-            f |= game.UnitBytes1Flags.CREEP
+            f |= enums.UnitBytes1Flags.CREEP
         if self.is_untrackable:
-            f |= game.UnitBytes1Flags.UNTRACKABLE
+            f |= enums.UnitBytes1Flags.UNTRACKABLE
 
         return self.stand_state | f << 16
 
     def bytes_2(self) -> int:
         return self.sheathed_state
 
-    def flags(self) -> game.UnitFlags:
-        f = game.UnitFlags.NONE
+    def flags(self) -> enums.UnitFlags:
+        f = enums.UnitFlags.NONE
         if self.is_non_attackable:
-            f |= game.UnitFlags.NON_ATTACKABLE
+            f |= enums.UnitFlags.NON_ATTACKABLE
         if self.has_movement_disabled:
-            f |= game.UnitFlags.DISABLE_MOVE
+            f |= enums.UnitFlags.DISABLE_MOVE
         if self.is_pvp_attackable:
-            f |= game.UnitFlags.PVP_ATTACKABLE
+            f |= enums.UnitFlags.PVP_ATTACKABLE
         if self.has_rename:
-            f |= game.UnitFlags.RENAME
+            f |= enums.UnitFlags.RENAME
         if self.is_resting:
-            f |= game.UnitFlags.RESTING
+            f |= enums.UnitFlags.RESTING
         if self.is_ooc_not_attackable:
-            f |= game.UnitFlags.OOC_NOT_ATTACKABLE
+            f |= enums.UnitFlags.OOC_NOT_ATTACKABLE
         if self.is_passive:
-            f |= game.UnitFlags.PASSIVE
+            f |= enums.UnitFlags.PASSIVE
         if self.is_pvp:
-            f |= game.UnitFlags.PVP
+            f |= enums.UnitFlags.PVP
         if self.is_silenced:
-            f |= game.UnitFlags.SILENCED
+            f |= enums.UnitFlags.SILENCED
         if self.is_pacified:
-            f |= game.UnitFlags.PACIFIED
+            f |= enums.UnitFlags.PACIFIED
         if self.is_disable_rotate:
-            f |= game.UnitFlags.DISABLE_ROTATE
+            f |= enums.UnitFlags.DISABLE_ROTATE
         if self.is_in_combat:
-            f |= game.UnitFlags.IN_COMBAT
+            f |= enums.UnitFlags.IN_COMBAT
         if self.is_not_selectable:
-            f |= game.UnitFlags.NOT_SELECTABLE
+            f |= enums.UnitFlags.NOT_SELECTABLE
         if self.is_skinnable:
-            f |= game.UnitFlags.SKINNABLE
+            f |= enums.UnitFlags.SKINNABLE
         if self.is_auras_visible:
-            f |= game.UnitFlags.AURAS_VISIBLE
+            f |= enums.UnitFlags.AURAS_VISIBLE
         if self.is_sheathe:
-            f |= game.UnitFlags.SHEATHE
+            f |= enums.UnitFlags.SHEATHE
         if self.is_not_attackable_1:
-            f |= game.UnitFlags.NOT_ATTACKABLE_1
+            f |= enums.UnitFlags.NOT_ATTACKABLE_1
         if self.is_looting:
-            f |= game.UnitFlags.LOOTING
+            f |= enums.UnitFlags.LOOTING
         if self.is_pet_in_combat:
-            f |= game.UnitFlags.PET_IN_COMBAT
+            f |= enums.UnitFlags.PET_IN_COMBAT
         if self.is_stunned:
-            f |= game.UnitFlags.STUNNED
+            f |= enums.UnitFlags.STUNNED
         if self.is_taxi_flight:
-            f |= game.UnitFlags.TAXI_FLIGHT
+            f |= enums.UnitFlags.TAXI_FLIGHT
         if self.is_disarmed:
-            f |= game.UnitFlags.DISARMED
+            f |= enums.UnitFlags.DISARMED
         if self.is_confused:
-            f |= game.UnitFlags.CONFUSED
+            f |= enums.UnitFlags.CONFUSED
         if self.is_fleeing:
-            f |= game.UnitFlags.FLEEING
+            f |= enums.UnitFlags.FLEEING
         if self.is_player_controlled:
-            f |= game.UnitFlags.PLAYER_CONTROLLED
+            f |= enums.UnitFlags.PLAYER_CONTROLLED
 
         return f
 
-    def dynamic_flags(self) -> game.UnitDynamicFlags:
-        f = game.UnitDynamicFlags.NONE
+    def dynamic_flags(self) -> enums.UnitDynamicFlags:
+        f = enums.UnitDynamicFlags.NONE
 
         if self.is_lootable:
-            f |= game.UnitDynamicFlags.LOOTABLE
+            f |= enums.UnitDynamicFlags.LOOTABLE
         if self.is_track_unit:
-            f |= game.UnitDynamicFlags.TRACK_UNIT
+            f |= enums.UnitDynamicFlags.TRACK_UNIT
         if self.is_tapped:
-            f |= game.UnitDynamicFlags.TAPPED
+            f |= enums.UnitDynamicFlags.TAPPED
         if self.is_rooted:
-            f |= game.UnitDynamicFlags.ROOTED
+            f |= enums.UnitDynamicFlags.ROOTED
         if self.is_specialinfo:
-            f |= game.UnitDynamicFlags.SPECIALINFO
+            f |= enums.UnitDynamicFlags.SPECIALINFO
         if self.health_percent == 0:
-            f |= game.UnitDynamicFlags.DEAD
+            f |= enums.UnitDynamicFlags.DEAD
 
         return f
 
@@ -231,19 +231,17 @@ class Unit(game_object.GameObject):
         if self.base_unit:
             return self.base_unit.ModelId1
 
-        # For players, read from the DBC.
-        race_info = constants.ChrRaces[self.race]
-        if self.gender == game.Gender.MALE:
-            return race_info.male_display_id
-        return race_info.female_display_id
+        if self.gender == enums.Gender.MALE:
+            return self.race.male_display_id
+        return self.race.female_display_id
 
     def faction_template(self) -> int:
         if self.base_unit:
-            if self.team == game.Team.ALLIANCE:
+            if self.team == enums.Team.ALLIANCE:
                 return self.base_unit.FactionAlliance
             return self.base_unit.FactionHorde
 
-        return constants.ChrRaces[self.race].faction.id
+        return self.race.faction.id
 
     def health(self) -> int:
         return self.max_health() * self.health_percent
@@ -257,31 +255,26 @@ class Unit(game_object.GameObject):
     def max_power(self) -> int:
         return self.base_power
 
-    def power_type(self) -> game.PowerType:
-        # TODO: use ChrClasses for this information
-        if self.class_ == constants.EChrClasses.WARRIOR:
-            return game.PowerType.RAGE
-        elif self.class_ == constants.EChrClasses.ROGUE:
-            return game.PowerType.ENERGY
-        return game.PowerType.MANA
+    def power_type(self) -> enums.PowerType:
+        return self.class_.display_power
 
-    def virtual_item_fields(self, slot: game.EquipmentSlot,
-                            item: Optional[game.ItemTemplate]) -> Dict[game.UpdateField, Any]:
+    def virtual_item_fields(self, slot: enums.EquipmentSlot,
+                            item: Optional[game.ItemTemplate]) -> Dict[enums.UpdateField, Any]:
         if not item:
             return {}
 
-        if slot == game.EquipmentSlot.MAIN_HAND:
-            DISPLAY = game.UnitFields.MAIN_HAND_DISPLAY
-            INFO_0 = game.UnitFields.MAIN_HAND_INFO_0
-            INFO_1 = game.UnitFields.MAIN_HAND_INFO_1
-        elif slot == game.EquipmentSlot.OFF_HAND:
-            DISPLAY = game.UnitFields.OFF_HAND_DISPLAY
-            INFO_0 = game.UnitFields.OFF_HAND_INFO_0
-            INFO_1 = game.UnitFields.OFF_HAND_INFO_1
-        elif slot == game.EquipmentSlot.RANGED:
-            DISPLAY = game.UnitFields.RANGED_DISPLAY
-            INFO_0 = game.UnitFields.RANGED_INFO_0
-            INFO_1 = game.UnitFields.RANGED_INFO_1
+        if slot == enums.EquipmentSlot.MAIN_HAND:
+            DISPLAY = enums.UnitFields.MAIN_HAND_DISPLAY
+            INFO_0 = enums.UnitFields.MAIN_HAND_INFO_0
+            INFO_1 = enums.UnitFields.MAIN_HAND_INFO_1
+        elif slot == enums.EquipmentSlot.OFF_HAND:
+            DISPLAY = enums.UnitFields.OFF_HAND_DISPLAY
+            INFO_0 = enums.UnitFields.OFF_HAND_INFO_0
+            INFO_1 = enums.UnitFields.OFF_HAND_INFO_1
+        elif slot == enums.EquipmentSlot.RANGED:
+            DISPLAY = enums.UnitFields.RANGED_DISPLAY
+            INFO_0 = enums.UnitFields.RANGED_INFO_0
+            INFO_1 = enums.UnitFields.RANGED_INFO_1
         else:
             return {}
 
@@ -303,16 +296,16 @@ class Unit(game_object.GameObject):
     def ranged_attack_power_multiplier(self) -> float:
         return 1.0
 
-    def power_cost_modifier_field(self) -> Dict[game.UpdateField, Any]:
+    def power_cost_modifier_field(self) -> Dict[enums.UpdateField, Any]:
         modifier = 0
         return {
-            game.UnitFields.POWER_COST_MODIFIER + self.power_type(): modifier,
+            enums.UnitFields.POWER_COST_MODIFIER + self.power_type(): modifier,
         }
 
-    def power_cost_multiplier_field(self) -> Dict[game.UpdateField, Any]:
+    def power_cost_multiplier_field(self) -> Dict[enums.UpdateField, Any]:
         multiplier = 1.0
         return {
-            game.UnitFields.POWER_COST_MULTIPLIER + self.power_type(): multiplier,
+            enums.UnitFields.POWER_COST_MULTIPLIER + self.power_type(): multiplier,
         }
 
     def calculate_strength(self) -> int:
@@ -330,16 +323,16 @@ class Unit(game_object.GameObject):
     def calculate_spirit(self) -> int:
         return self.spirit
 
-    def update_fields(self) -> Dict[game.UpdateField, Any]:
+    def update_fields(self) -> Dict[enums.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
-        f = game.UnitFields
-        fields: Dict[game.UpdateField, Any] = {}
+        f = enums.UnitFields
+        fields: Dict[enums.UpdateField, Any] = {}
 
         if self.base_unit:
             # TODO: get data about virtual items for units
-            fields.update(self.virtual_item_fields(game.EquipmentSlot.MAIN_HAND, self.npc_main_hand))
-            fields.update(self.virtual_item_fields(game.EquipmentSlot.OFF_HAND, self.npc_off_hand))
-            fields.update(self.virtual_item_fields(game.EquipmentSlot.RANGED, self.npc_ranged))
+            fields.update(self.virtual_item_fields(enums.EquipmentSlot.MAIN_HAND, self.npc_main_hand))
+            fields.update(self.virtual_item_fields(enums.EquipmentSlot.OFF_HAND, self.npc_off_hand))
+            fields.update(self.virtual_item_fields(enums.EquipmentSlot.RANGED, self.npc_ranged))
 
             fields.update({
                 f.BASEATTACKTIME: self.base_unit.MeleeBaseAttackTime,
@@ -367,7 +360,7 @@ class Unit(game_object.GameObject):
         aura_flags = [0] * 48  # 6 fields => 24 bytes => 48 nibbles, one per aura
         aura_levels = [0] * 48  # 12 fields => 48 bytes, one per aura
         aura_applications = [0] * 48  # 12 fields => 48 bytes, one per aura
-        aura_state = game.AuraState.NONE
+        aura_state = enums.AuraState.NONE
         for aura in self.auras:
             aura_flags[aura.slot] = 0x09
             aura_levels[aura.slot] = 1  # TODO: aura caster levels?

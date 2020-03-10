@@ -1,12 +1,12 @@
 from pony import orm
 
-from database import constants
+from database import enums
 from database.db import db
 
 
 class StartingLocations(db.Entity):
     """StartingLocations decides where players should start on the map."""
-    race = orm.PrimaryKey(constants.EChrRaces)
+    race = orm.PrimaryKey(enums.EChrRaces)
 
     # Location information.
     map = orm.Required(int)

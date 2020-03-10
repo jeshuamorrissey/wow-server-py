@@ -29,9 +29,9 @@ from .chr_races import *
 from .cinematic_camera import *
 from .cinematic_sequences import *
 from .creature_type import *
-from .enum import *
 from .faction import *
 from .item_class import *
 from .languages import *
 from .resistances import *
+from .skill_line import *
 from .spell import *

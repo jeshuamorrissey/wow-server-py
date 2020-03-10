@@ -1,7 +1,7 @@
 from pony import orm
 
-from database.db import db
 from database.constants import common
+from database.db import db
 
 
 class ChrRaces(db.Entity):
@@ -26,3 +26,5 @@ class ChrRaces(db.Entity):
     facial_hair_customization_male = orm.Required(common.SingleString)
     facial_hair_customization_female = orm.Required(common.SingleString)
     hair_customization = orm.Required(common.SingleString)
+
+    unit_backlink = orm.Set('Unit')

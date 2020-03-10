@@ -13,6 +13,7 @@ py_library(
         requirement("pony"),
         ":common",
         "//database:db",
+        "//database/enums",
     ],
 )
 

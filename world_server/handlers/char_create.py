@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from pony import orm
 
-from database import constants, game, world
+from database import constants, enums, game, world
 from world_server import config, op_code, router, session
 from world_server.packets import char_create
 
@@ -69,9 +69,9 @@ def handle_char_create(pkt: char_create.ClientCharCreate,
         account=account,
         realm=realm,
         name=pkt.name,
-        race=constants.EChrRaces(pkt.race),
-        class_=constants.EChrClasses(pkt.class_),
-        gender=game.Gender(pkt.gender),
+        race=constants.ChrRaces[pkt.race],
+        class_=constants.ChrClasses[pkt.class_],
+        gender=enums.Gender(pkt.gender),
         skin_color=pkt.skin_color,
         face=pkt.face,
         hair_style=pkt.hair_style,

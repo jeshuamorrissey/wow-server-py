@@ -3,7 +3,7 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database import game, world
+from database import enums, game, world
 from world_server import op_code, router, session
 from world_server.packets import char_enum
 
@@ -21,7 +21,7 @@ def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) ->
         # the items aren't actually in order.
         equipment_map = character.equipment_map()
         equipment = []
-        for slot in game.EquipmentSlot:
+        for slot in enums.EquipmentSlot:
             item = equipment_map.get(slot, None)
             if item:
                 equipment.append(dict(display_id=item.base_item.displayid, inventory_type=item.base_item.InventoryType))
@@ -41,8 +41,8 @@ def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) ->
             dict(
                 guid=character.id,
                 name=character.name,
-                race=character.race,
-                class_=character.class_,
+                race=character.race.id,
+                class_=character.class_.id,
                 gender=character.gender,
                 appearance=dict(
                     skin=character.skin_color,

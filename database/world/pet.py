@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from pony import orm
 
-from database import game
+from database import enums
 
 from . import unit
 
@@ -13,14 +13,14 @@ class Pet(unit.Unit):
     def bytes_1(self) -> int:
         return super(Pet, self).bytes_1() | self.talent_points << 8
 
-    def high_guid(self) -> game.HighGUID:
-        return game.HighGUID.PET
+    def high_guid(self) -> enums.HighGUID:
+        return enums.HighGUID.PET
 
     def faction_template(self) -> int:
         return self.summoner.faction_template()
 
-    def update_fields(self) -> Dict[game.UpdateField, Any]:
-        f = game.UnitFields
+    def update_fields(self) -> Dict[enums.UpdateField, Any]:
+        f = enums.UnitFields
         fields = {
             f.PETNUMBER: self.entry(),
             f.PET_NAME_TIMESTAMP: 0,

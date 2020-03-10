@@ -5,6 +5,7 @@ py_library(
     name = "game",
     srcs = glob(
         ["**/*.py"],
+        exclude = ["enum.py"],
     ),
     data = glob(["data/*"]),
     visibility = ["//visibility:public"],
@@ -12,5 +13,6 @@ py_library(
         requirement("pony"),
         "//database:db",
         "//database/constants",
+        "//database/enums",
     ],
 )

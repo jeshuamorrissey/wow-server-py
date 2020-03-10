@@ -5,7 +5,7 @@ from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes, GreedyR
                        Rebuild, Struct, Switch)
 from pony import orm
 
-from database import constants, game, world
+from database import constants, enums, game, world
 from world_server import config, op_code, session, system
 from world_server.packets import compressed_update_object, update_object
 
@@ -45,9 +45,9 @@ class Updater(system.System):
             has no movement update, then return None.
         """
         # TODO: do a proper movement update with all data
-        if game.UpdateFlags.LIVING in game_object.update_flags():
+        if enums.UpdateFlags.LIVING in game_object.update_flags():
             return dict(
-                flags=game.MovementFlags.NONE,
+                flags=enums.MovementFlags.NONE,
                 time=0,
                 x=game_object.x,
                 y=game_object.y,
@@ -68,7 +68,7 @@ class Updater(system.System):
                 ),
                 spline_update=None,
             )
-        elif game.UpdateFlags.HAS_POSITION in game_object.update_flags():
+        elif enums.UpdateFlags.HAS_POSITION in game_object.update_flags():
             return dict(
                 x=game_object.x,
                 y=game_object.y,
@@ -105,15 +105,15 @@ class Updater(system.System):
         update_type = None
         if game_object.id not in player_cache.values_updates:
             # We need to create the object.
-            update_type = game.UpdateType.CREATE_OBJECT
+            update_type = enums.UpdateType.CREATE_OBJECT
         else:
             if movement_update != last_movement_update:
                 # Movement update required.
-                update_type = game.UpdateType.MOVEMENT
+                update_type = enums.UpdateType.MOVEMENT
             else:
                 if values_update_diff:
                     # No movement update, only a values update.
-                    update_type = game.UpdateType.VALUES
+                    update_type = enums.UpdateType.VALUES
                 else:
                     # Shortcut: there is no update to perform.
                     return {}
@@ -123,7 +123,7 @@ class Updater(system.System):
             player_cache.movement_updates[game_object.id] = movement_update
         player_cache.values_updates[game_object.id] = values_update
 
-        if update_type == game.UpdateType.VALUES:
+        if update_type == enums.UpdateType.VALUES:
             return dict(
                 update_type=update_type,
                 update_block=dict(
@@ -137,7 +137,7 @@ class Updater(system.System):
 
         update_flags = game_object.update_flags()
         if player.guid == game_object.guid:
-            update_flags |= game.UpdateFlags.SELF
+            update_flags |= enums.UpdateFlags.SELF
 
         return dict(
             update_type=update_type,
@@ -175,7 +175,7 @@ class Updater(system.System):
         if out_of_range_guids:
             update_blocks.append(
                 dict(
-                    update_type=game.UpdateType.OUT_OF_RANGE_OBJECTS,
+                    update_type=enums.UpdateType.OUT_OF_RANGE_OBJECTS,
                     update_block=dict(
                         n_guids=len(out_of_range_guids),
                         guids=out_of_range_guids,

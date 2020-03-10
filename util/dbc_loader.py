@@ -189,7 +189,7 @@ def main(wow_dir: Text, output_dir: Text):
     dbc_classes = {c.__name__: c for c in db.db.Entity.__subclasses__()}
 
     multi_archive = MPQMultiArchive(wow_dir, 'dbc.MPQ', 'patch.MPQ', 'patch-2.MPQ')
-    for fname in multi_archive.files:
+    for fname in sorted(multi_archive.files):
         record_name = fname.decode('utf-8').split('\\')[1].split('.')[0]
         cls = dbc_classes.get(record_name, None)
         if not cls:

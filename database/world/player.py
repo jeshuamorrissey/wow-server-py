@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, Text, Tuple
 
 from pony import orm
 
-from database import constants, game
+from database import constants, enums, game
 from database.db import db
 
 from . import item, unit
@@ -16,7 +16,7 @@ from .realm import Realm
 class EquippedItem(db.Entity):
     """Mapping table to store details about which items are equipped."""
     owner = orm.Required('Player')
-    slot = orm.Required(game.EquipmentSlot)
+    slot = orm.Required(enums.EquipmentSlot)
     item = orm.Required(item.Item)
 
     orm.PrimaryKey(owner, slot)
@@ -86,7 +86,7 @@ class KeyringItem(db.Entity):
 
 class PlayerSkill(db.Entity):
     player = orm.Required('Player')
-    skill = orm.Required(game.SkillType)
+    skill = orm.Required(constants.SkillLine)
 
     level = orm.Required(int, default=0)
     bonus = orm.Required(int, default=0)
@@ -177,7 +177,7 @@ class Player(unit.Unit):
     created_items = orm.Set('Item')
     dual_arbiter = orm.Optional('Player', reverse='dual_arbiter')
 
-    def equipment_map(self) -> Dict[game.EquipmentSlot, item.Item]:
+    def equipment_map(self) -> Dict[enums.EquipmentSlot, item.Item]:
         """Return a mapping of equipment slot --> equipped item.
         
         This is useful in situations where we have to fully specify the
@@ -188,49 +188,49 @@ class Player(unit.Unit):
         """
         return {eq.slot: eq.item for eq in self.equipment}
 
-    def player_flags(self) -> game.PlayerFlags:
-        f = game.PlayerFlags.NONE
+    def player_flags(self) -> enums.PlayerFlags:
+        f = enums.PlayerFlags.NONE
         if self.is_group_leader:
-            f |= game.PlayerFlags.GROUP_LEADER
+            f |= enums.PlayerFlags.GROUP_LEADER
         if self.is_afk:
-            f |= game.PlayerFlags.AFK
+            f |= enums.PlayerFlags.AFK
         if self.is_dnd:
-            f |= game.PlayerFlags.DND
+            f |= enums.PlayerFlags.DND
         if self.is_gm:
-            f |= game.PlayerFlags.GM
+            f |= enums.PlayerFlags.GM
         if self.is_ghost:
-            f |= game.PlayerFlags.GHOST
+            f |= enums.PlayerFlags.GHOST
         if self.is_resting:
-            f |= game.PlayerFlags.RESTING
+            f |= enums.PlayerFlags.RESTING
         if self.is_ffa_pvp:
-            f |= game.PlayerFlags.FFA_PVP
+            f |= enums.PlayerFlags.FFA_PVP
         if self.is_contested_pvp:
-            f |= game.PlayerFlags.CONTESTED_PVP
+            f |= enums.PlayerFlags.CONTESTED_PVP
         if self.is_in_pvp:
-            f |= game.PlayerFlags.IN_PVP
+            f |= enums.PlayerFlags.IN_PVP
         if self.hide_helm:
-            f |= game.PlayerFlags.HIDE_HELM
+            f |= enums.PlayerFlags.HIDE_HELM
         if self.hide_cloak:
-            f |= game.PlayerFlags.HIDE_CLOAK
+            f |= enums.PlayerFlags.HIDE_CLOAK
         if self.has_partial_play_time:
-            f |= game.PlayerFlags.PARTIAL_PLAY_TIME
+            f |= enums.PlayerFlags.PARTIAL_PLAY_TIME
         if self.has_no_play_time:
-            f |= game.PlayerFlags.NO_PLAY_TIME
+            f |= enums.PlayerFlags.NO_PLAY_TIME
         if self.in_sanctuary:
-            f |= game.PlayerFlags.SANCTUARY
+            f |= enums.PlayerFlags.SANCTUARY
         if self.on_taxi_benchmark:
-            f |= game.PlayerFlags.TAXI_BENCHMARK
+            f |= enums.PlayerFlags.TAXI_BENCHMARK
         if self.has_pvp_timer:
-            f |= game.PlayerFlags.PVP_TIMER
+            f |= enums.PlayerFlags.PVP_TIMER
 
         return f
 
-    def visible_item_fields(self, slot: game.EquipmentSlot, item: Optional[item.Item]) -> Dict[game.UpdateField, Any]:
-        fields_start = game.PlayerFields.VISIBLE_ITEM_START + (slot * 12)
+    def visible_item_fields(self, slot: enums.EquipmentSlot, item: Optional[item.Item]) -> Dict[enums.UpdateField, Any]:
+        fields_start = enums.PlayerFields.VISIBLE_ITEM_START + (slot * 12)
         if item:
             enchantments = item.enchantment_map()
             fields = {}
-            for ench_slot in game.EnchantmentSlot:
+            for ench_slot in enums.EnchantmentSlot:
                 ench = enchantments.get(ench_slot)
                 if ench:
                     fields[fields_start + 3 + ench_slot] = ench.id
@@ -249,8 +249,8 @@ class Player(unit.Unit):
 
         return {f: 0 for f in range(fields_start, fields_start + 11 + 1)}
 
-    def inventory_fields(self, slot: game.EquipmentSlot, item: Optional[item.Item]) -> Dict[game.UpdateField, Any]:
-        field = game.PlayerFields.INVENTORY_START + (slot * 2)
+    def inventory_fields(self, slot: enums.EquipmentSlot, item: Optional[item.Item]) -> Dict[enums.UpdateField, Any]:
+        field = enums.PlayerFields.INVENTORY_START + (slot * 2)
         if item:
             return {field: item.guid}
         return {field: 0}
@@ -261,9 +261,9 @@ class Player(unit.Unit):
             account: Account,
             realm: Realm,
             name: Text,
-            race: constants.EChrRaces,
-            class_: game.Class,
-            gender: game.Gender,
+            race: constants.ChrRaces,
+            class_: constants.ChrClasses,
+            gender: enums.Gender,
             **kwargs,
     ) -> 'Player':
         """Create a new player and return it.
@@ -280,13 +280,12 @@ class Player(unit.Unit):
         Returns:
             The newly created character.
         """
-        starting_location = game.StartingLocations.get(race=race)
-        starting_items = game.StartingItems.get(race=race, class_=class_, gender=gender)
+        starting_location = game.StartingLocations.get(race=race.id)
+        starting_items = game.StartingItems.get(race=race.id, class_=class_.id, gender=gender)
 
-        team = game.Team.ALLIANCE
-        if race in (constants.EChrRaces.ORC, constants.EChrRaces.UNDEAD, constants.EChrRaces.TAUREN,
-                    constants.EChrRaces.TROLL):
-            team = game.Team.HORDE
+        team = enums.Team.ALLIANCE
+        if race.id in (enums.EChrRaces.ORC, enums.EChrRaces.UNDEAD, enums.EChrRaces.TAUREN, enums.EChrRaces.TROLL):
+            team = enums.Team.HORDE
 
         player = Player(
             account=account,
@@ -309,7 +308,7 @@ class Player(unit.Unit):
         for equipment in starting_items.equipment:
             EquippedItem(
                 owner=player,
-                slot=game.EquipmentSlot[equipment['equipment_slot']],
+                slot=enums.EquipmentSlot[equipment['equipment_slot']],
                 item=item.Item.New(game.ItemTemplate[equipment['entry']]),
             )
 
@@ -325,28 +324,28 @@ class Player(unit.Unit):
     #
     # Class Methods (should be overwritten in children).
     #
-    def type_id(self) -> game.TypeID:
-        return game.TypeID.PLAYER
+    def type_id(self) -> enums.TypeID:
+        return enums.TypeID.PLAYER
 
-    def type_mask(self) -> game.TypeMask:
-        return super(Player, self).type_mask() | game.TypeMask.PLAYER
+    def type_mask(self) -> enums.TypeMask:
+        return super(Player, self).type_mask() | enums.TypeMask.PLAYER
 
-    def high_guid(self) -> game.HighGUID:
-        return game.HighGUID.PLAYER
+    def high_guid(self) -> enums.HighGUID:
+        return enums.HighGUID.PLAYER
 
     def num_fields(self) -> int:
         return 0x06 + 0xB6 + 0x446
 
-    def calculate_attack_time(self, slot: game.EquipmentSlot) -> int:
+    def calculate_attack_time(self, slot: enums.EquipmentSlot) -> int:
         equipment = self.equipment_map()
 
-        base = 1000 if slot == game.EquipmentSlot.MAIN_HAND else 0
+        base = 1000 if slot == enums.EquipmentSlot.MAIN_HAND else 0
         if slot in equipment:
             base = equipment[slot].base_item.delay
 
         return base
 
-    def calculate_damage(self, slot: game.EquipmentSlot) -> Tuple[float, float]:
+    def calculate_damage(self, slot: enums.EquipmentSlot) -> Tuple[float, float]:
         equipment = self.equipment_map()
 
         base = 1.0, 1.0
@@ -379,17 +378,17 @@ class Player(unit.Unit):
     def calculate_arcane_resistance(self) -> int:
         return 0
 
-    def calculate_resistance_buff(self, school: game.SpellSchool) -> int:
+    def calculate_resistance_buff(self, school: enums.SpellSchool) -> int:
         if school % 2 == 0:
             return int(-school - 1)
         return int(school + 1)
 
-    def calculate_bonus_damage(self, school: game.SpellSchool) -> int:
+    def calculate_bonus_damage(self, school: enums.SpellSchool) -> int:
         if school % 2 == 0:
             return int(-school - 1)
         return int(school + 1)
 
-    def calculate_bonus_damage_percent(self, school: game.SpellSchool) -> float:
+    def calculate_bonus_damage_percent(self, school: enums.SpellSchool) -> float:
         return 1.0
 
     def calculate_melee_attack_power(self) -> int:
@@ -431,11 +430,11 @@ class Player(unit.Unit):
     def bytes_4(self) -> int:
         b = 0
         if self.is_tracking_stealth:
-            b |= game.PlayerByteFlags.TRACK_STEALTHED
+            b |= enums.PlayerByteFlags.TRACK_STEALTHED
         if self.has_release_timer:
-            b |= game.PlayerByteFlags.RELEASE_TIMER
+            b |= enums.PlayerByteFlags.RELEASE_TIMER
         if self.has_no_release_window:
-            b |= game.PlayerByteFlags.NO_RELEASE_WINDOW
+            b |= enums.PlayerByteFlags.NO_RELEASE_WINDOW
 
         b |= (self.combo_points or 0) << 8
 
@@ -448,17 +447,17 @@ class Player(unit.Unit):
         b = 0
         f = 0
         if self.can_detect_amore_0:
-            f |= game.PlayerByte2Flags.DETECT_AMORE_0
+            f |= enums.PlayerByte2Flags.DETECT_AMORE_0
         if self.can_detect_amore_1:
-            f |= game.PlayerByte2Flags.DETECT_AMORE_1
+            f |= enums.PlayerByte2Flags.DETECT_AMORE_1
         if self.can_detect_amore_2:
-            f |= game.PlayerByte2Flags.DETECT_AMORE_2
+            f |= enums.PlayerByte2Flags.DETECT_AMORE_2
         if self.can_detect_amore_3:
-            f |= game.PlayerByte2Flags.DETECT_AMORE_3
+            f |= enums.PlayerByte2Flags.DETECT_AMORE_3
         if self.in_stealth:
-            f |= game.PlayerByte2Flags.STEALTH
+            f |= enums.PlayerByte2Flags.STEALTH
         if self.has_invisibility_glow:
-            f |= game.PlayerByte2Flags.INVISIBILITY_GLOW
+            f |= enums.PlayerByte2Flags.INVISIBILITY_GLOW
 
         # byte 0: honor points
         b |= (f << 8)
@@ -467,41 +466,41 @@ class Player(unit.Unit):
     def get_ammo(self) -> int:
         return 12654  # TODO: actually find equipped ammo
 
-    def update_fields(self) -> Dict[game.UpdateField, Any]:
+    def update_fields(self) -> Dict[enums.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
-        f = game.PlayerFields
-        uf = game.UnitFields
-        fields: Dict[game.UpdateField, Any] = defaultdict(lambda: 0)
+        f = enums.PlayerFields
+        uf = enums.UnitFields
+        fields: Dict[enums.UpdateField, Any] = defaultdict(lambda: 0)
 
         equipment = self.equipment_map()
 
         # Populate fields for virtual items (i.e. how sheathed items should
         # be displayed).
-        if self.sheathed_state == game.SheathedState.MELEE:
-            if game.EquipmentSlot.MAIN_HAND in equipment:
+        if self.sheathed_state == enums.SheathedState.MELEE:
+            if enums.EquipmentSlot.MAIN_HAND in equipment:
                 fields.update(
                     self.virtual_item_fields(
-                        game.EquipmentSlot.MAIN_HAND,
-                        equipment[game.EquipmentSlot.MAIN_HAND].base_item,
+                        enums.EquipmentSlot.MAIN_HAND,
+                        equipment[enums.EquipmentSlot.MAIN_HAND].base_item,
                     ))
 
-            if game.EquipmentSlot.OFF_HAND in equipment:
+            if enums.EquipmentSlot.OFF_HAND in equipment:
                 fields.update(
                     self.virtual_item_fields(
-                        game.EquipmentSlot.OFF_HAND,
-                        equipment[game.EquipmentSlot.OFF_HAND].base_item,
+                        enums.EquipmentSlot.OFF_HAND,
+                        equipment[enums.EquipmentSlot.OFF_HAND].base_item,
                     ))
 
-        elif self.sheathed_state == game.SheathedState.RANGED:
-            if game.EquipmentSlot.RANGED in equipment:
+        elif self.sheathed_state == enums.SheathedState.RANGED:
+            if enums.EquipmentSlot.RANGED in equipment:
                 fields.update(
                     self.virtual_item_fields(
-                        game.EquipmentSlot.RANGED,
-                        equipment[game.EquipmentSlot.RANGED].base_item,
+                        enums.EquipmentSlot.RANGED,
+                        equipment[enums.EquipmentSlot.RANGED].base_item,
                     ))
 
         # Populate equipment fields.
-        for equipment_slot in game.EquipmentSlot:
+        for equipment_slot in enums.EquipmentSlot:
             item = equipment.get(equipment_slot)
             fields.update(self.visible_item_fields(equipment_slot, item))
             fields.update(self.inventory_fields(equipment_slot, item))
@@ -528,15 +527,15 @@ class Player(unit.Unit):
             fields[f.KEYRING_SLOT_1 + (keyring_item.slot * 2)] = keyring_item.item.guid
 
         fields.update({
-            uf.BASEATTACKTIME: self.calculate_attack_time(game.EquipmentSlot.MAIN_HAND),
-            uf.OFFHANDATTACKTIME: self.calculate_attack_time(game.EquipmentSlot.OFF_HAND),
-            uf.RANGEDATTACKTIME: self.calculate_attack_time(game.EquipmentSlot.RANGED),
-            uf.MINDAMAGE: self.calculate_damage(game.EquipmentSlot.MAIN_HAND)[0],
-            uf.MAXDAMAGE: self.calculate_damage(game.EquipmentSlot.MAIN_HAND)[1],
-            uf.MINOFFHANDDAMAGE: self.calculate_damage(game.EquipmentSlot.OFF_HAND)[0],
-            uf.MAXOFFHANDDAMAGE: self.calculate_damage(game.EquipmentSlot.OFF_HAND)[1],
-            uf.MINRANGEDDAMAGE: self.calculate_damage(game.EquipmentSlot.RANGED)[0],
-            uf.MAXRANGEDDAMAGE: self.calculate_damage(game.EquipmentSlot.RANGED)[1],
+            uf.BASEATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.MAIN_HAND),
+            uf.OFFHANDATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.OFF_HAND),
+            uf.RANGEDATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.RANGED),
+            uf.MINDAMAGE: self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[0],
+            uf.MAXDAMAGE: self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[1],
+            uf.MINOFFHANDDAMAGE: self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[0],
+            uf.MAXOFFHANDDAMAGE: self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[1],
+            uf.MINRANGEDDAMAGE: self.calculate_damage(enums.EquipmentSlot.RANGED)[0],
+            uf.MAXRANGEDDAMAGE: self.calculate_damage(enums.EquipmentSlot.RANGED)[1],
             uf.ATTACK_POWER: self.calculate_melee_attack_power(),
             uf.RANGED_ATTACK_POWER: self.calculate_ranged_attack_power(),
             uf.COMBATREACH: 1.5,  # TODO: make this config
@@ -616,7 +615,7 @@ class Player(unit.Unit):
             fields[f.NEGSTAT4] = self.calculate_spirit() - self.spirit
 
         # Resistance buffs.
-        for school in game.SpellSchool:
+        for school in enums.SpellSchool:
             buff = self.calculate_resistance_buff(school)
             if buff < 0:
                 fields[f.RESISTANCEBUFFMODSNEGATIVE + school] = buff
@@ -634,16 +633,16 @@ class Player(unit.Unit):
 
         # Skills
         for skill in self.skills:
-            base_field = f.SKILL_INFO_1_1 + (skill.skill * 3)
+            base_field = f.SKILL_INFO_1_1 + (skill.skill.id * 3)
 
             fields.update({
-                base_field + 0: skill.skill,  # upper 16 bits is "step"
+                base_field + 0: skill.skill.id,  # upper 16 bits is "step"
                 base_field + 1: skill.level | (skill.max_level() << 16),
                 base_field + 2: skill.temp_bonus() | (skill.bonus << 16),
             })
 
         # 1 bit per zone
-        for zone_id in range(game.MAX_EXPLORED_ZONES):
+        for zone_id in range(enums.MAX_EXPLORED_ZONES):
             if zone_id in self.explored_zones:
                 field = f.EXPLORED_ZONES_1 + (zone_id // 32)
                 byte = 1 << (zone_id % 32)
@@ -657,9 +656,9 @@ class Player(unit.Unit):
             f.BYTES_3: self.gender,
             f.COMBO_TARGET: self.combo_target.guid if self.combo_target else 0,
             f.XP: self.xp,
-            f.NEXT_LEVEL_XP: game.NextLevelXP(self.level),
+            f.NEXT_LEVEL_XP: enums.NextLevelXP(self.level),
             f.CHARACTER_POINTS1: self.level,  # TODO: talents
-            f.CHARACTER_POINTS2: game.MaxNumberOfProfessions(),  # TODO: professions are spells?
+            f.CHARACTER_POINTS2: enums.MaxNumberOfProfessions(),  # TODO: professions are spells?
             f.BLOCK_PERCENTAGE: self.calculate_block_percent(),
             f.DODGE_PERCENTAGE: self.calculate_dodge_percent(),
             f.PARRY_PERCENTAGE: self.calculate_parry_percent(),

@@ -1,14 +1,14 @@
 from pony import orm
 
-from database import constants, game
+from database import enums
 from database.db import db
 
 
 class StartingItems(db.Entity):
     """StartingItems decides which items should be given to players on creation."""
-    race = orm.Required(constants.EChrRaces)
-    class_ = orm.Required(constants.EChrClasses)
-    gender = orm.Required(game.Gender)
+    race = orm.Required(enums.EChrRaces)
+    class_ = orm.Required(enums.EChrClasses)
+    gender = orm.Required(enums.Gender)
     orm.PrimaryKey(race, class_, gender)
 
     # The JSON here has the following structure:

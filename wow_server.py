@@ -16,7 +16,7 @@ import world_server.handlers  # register handlers
 import world_server.packets  # register packet formats
 import world_server.systems  # register systems
 from common import server
-from database import constants, db, game, world
+from database import constants, db, enums, game, world
 from login_server import router as login_router
 from login_server import session as login_session
 from world_server import router as world_router
@@ -39,9 +39,9 @@ def setup_db(args: argparse.Namespace):
                 account=account,
                 realm=realm,
                 name='Jeshua',
-                race=constants.EChrRaces.HUMAN,
-                class_=constants.EChrClasses.WARRIOR,
-                gender=game.Gender.MALE,
+                race=constants.ChrRaces[enums.EChrRaces.HUMAN],
+                class_=constants.ChrClasses[enums.EChrClasses.WARRIOR],
+                gender=enums.Gender.MALE,
                 last_login=datetime.datetime.now(),
                 base_health=100,  # TODO: use ChrBaseStats
                 base_power=100,  # TODO: use ChrBaseStats
@@ -53,7 +53,7 @@ def setup_db(args: argparse.Namespace):
                 level=20,
                 rested_xp=5000,
                 money=10000,
-                explored_zones=range(game.MAX_EXPLORED_ZONES),
+                explored_zones=range(enums.MAX_EXPLORED_ZONES),
             )
 
             bag = world.Container.New(base_item=game.ItemTemplate[14156])
@@ -71,7 +71,7 @@ def setup_db(args: argparse.Namespace):
 
             world.PlayerSkill(
                 player=jeshua,
-                skill=game.SkillType.AXES,
+                skill=enums.ESkillLine.AXES,
                 level=10,
                 bonus=10,
             )
@@ -96,9 +96,9 @@ def setup_db(args: argparse.Namespace):
             world.Pet(
                 base_unit=base_unit,
                 level=1,
-                race=0,
-                class_=base_unit.UnitClass,
-                gender=game.Gender.FEMALE,
+                race=constants.ChrRaces[1],
+                class_=constants.ChrClasses[base_unit.UnitClass],
+                gender=enums.Gender.FEMALE,
                 team=jeshua.team,
                 x=jeshua.x + 2,
                 y=jeshua.y + 2,
@@ -114,18 +114,18 @@ def setup_db(args: argparse.Namespace):
             world.Unit(
                 base_unit=base_unit,
                 level=55,
-                race=0,
-                class_=base_unit.UnitClass,
-                gender=game.Gender.MALE,
+                race=constants.ChrRaces[1],
+                class_=constants.ChrClasses[base_unit.UnitClass],
+                gender=enums.Gender.MALE,
                 x=jeshua.x + 2,
                 y=jeshua.y - 2,
                 z=jeshua.z,
                 o=jeshua.o,
                 base_health=100,
                 base_power=100,
-                team=game.Team.HORDE,
+                team=enums.Team.HORDE,
                 npc_ranged=game.ItemTemplate.get(name='Soulstring'),
-                sheathed_state=game.SheathedState.RANGED,
+                sheathed_state=enums.SheathedState.RANGED,
             )
 
 

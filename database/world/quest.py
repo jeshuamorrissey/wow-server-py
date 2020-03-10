@@ -3,7 +3,7 @@ import time
 
 from pony import orm
 
-from database import game
+from database import enums, game
 from database.db import db
 
 from .player import Player
@@ -24,7 +24,7 @@ class Quest(db.Entity):
 
     progress = orm.Set(ObjectiveProgress)
     due = orm.Optional(int)
-    status = orm.Required(game.QuestStatus, default=game.QuestStatus.NONE)
+    status = orm.Required(enums.QuestStatus, default=enums.QuestStatus.NONE)
 
     orm.PrimaryKey(player, base_quest)
 
@@ -52,9 +52,9 @@ class Quest(db.Entity):
         for objective in self.progress:
             objective_bytes |= (objective.slot << (objective.progress * 6))
 
-        if self.status == game.QuestStatus.COMPLETE:
+        if self.status == enums.QuestStatus.COMPLETE:
             objective_bytes |= (1 << 24)
-        elif self.status == game.QuestStatus.FAILED:
+        elif self.status == enums.QuestStatus.FAILED:
             objective_bytes |= (2 << 24)
 
         return objective_bytes

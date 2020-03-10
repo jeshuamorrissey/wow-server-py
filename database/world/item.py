@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from pony import orm
 
-from database import game
+from database import enums, game
 from database.db import db
 from database.world import enchantment
 
@@ -12,7 +12,7 @@ from . import game_object
 class ItemEnchantment(db.Entity):
     item = orm.Required('Item')
     enchantment = orm.Required('Enchantment')
-    slot = orm.Required(game.EnchantmentSlot)
+    slot = orm.Required(enums.EnchantmentSlot)
 
     orm.PrimaryKey(item, slot)
 
@@ -62,7 +62,7 @@ class Item(game_object.GameObject):
             return self.in_keyring.owner.position()
         raise RuntimeError(f'item {self.id} ({self.base_item.name}) does not have an owner!')
 
-    def enchantment_map(self) -> Dict[game.EnchantmentSlot, enchantment.Enchantment]:
+    def enchantment_map(self) -> Dict[enums.EnchantmentSlot, enchantment.Enchantment]:
         return {ench.slot: ench.enchantment for ench in self.enchantments}
 
     #
@@ -80,25 +80,25 @@ class Item(game_object.GameObject):
     def entry(self) -> Optional[int]:
         return self.base_item.entry
 
-    def type_id(self) -> game.TypeID:
-        return game.TypeID.ITEM
+    def type_id(self) -> enums.TypeID:
+        return enums.TypeID.ITEM
 
-    def type_mask(self) -> game.TypeMask:
-        return super(Item, self).type_mask() | game.TypeMask.ITEM
+    def type_mask(self) -> enums.TypeMask:
+        return super(Item, self).type_mask() | enums.TypeMask.ITEM
 
-    def update_flags(self) -> game.UpdateFlags:
-        return game.UpdateFlags.ALL
+    def update_flags(self) -> enums.UpdateFlags:
+        return enums.UpdateFlags.ALL
 
-    def high_guid(self) -> game.HighGUID:
-        return game.HighGUID.ITEM
+    def high_guid(self) -> enums.HighGUID:
+        return enums.HighGUID.ITEM
 
     def num_fields(self) -> int:
         return 0x06 + 0x2A
 
-    def update_fields(self) -> Dict[game.UpdateField, Any]:
+    def update_fields(self) -> Dict[enums.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
-        f = game.ItemFields
-        fields: Dict[game.UpdateField, Any] = {}
+        f = enums.ItemFields
+        fields: Dict[enums.UpdateField, Any] = {}
 
         if self.equipped_by:
             fields.update({
@@ -119,13 +119,13 @@ class Item(game_object.GameObject):
         # Encode the flags.
         flags = 0
         if self.is_bound:
-            flags |= game.ItemFlags.BOUND
+            flags |= enums.ItemFlags.BOUND
         if self.is_unlocked:
-            flags |= game.ItemFlags.UNLOCKED
+            flags |= enums.ItemFlags.UNLOCKED
         if self.is_wrapped:
-            flags |= game.ItemFlags.WRAPPED
+            flags |= enums.ItemFlags.WRAPPED
         if self.is_readable:
-            flags |= game.ItemFlags.READABLE
+            flags |= enums.ItemFlags.READABLE
 
         fields.update({
             f.CREATOR: self.creator.guid if self.creator else 0,

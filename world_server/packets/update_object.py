@@ -3,10 +3,11 @@
 import enum
 import struct
 
-from construct import (Adapter, Array, Byte, Bytes, Const, Debugger, Enum, Float32l, GreedyBytes, GreedyRange, If,
-                       IfThenElse, Int8ul, Int32ul, Int64ul, Rebuild, Struct, Switch)
+from construct import (Adapter, Array, Byte, Bytes, Const, Debugger, Enum,
+                       Float32l, GreedyBytes, GreedyRange, If, IfThenElse,
+                       Int8ul, Int32ul, Int64ul, Rebuild, Struct, Switch)
 
-from database import constants, game, world
+from database import constants, enums, game, world
 
 
 class PackedGUIDAdapter(Adapter):
@@ -129,7 +130,7 @@ FullMovementUpdate = Struct(
     'z' / Float32l,
     'o' / Float32l,
     'transport' /
-    If(is_set(game.MovementFlags.ONTRANSPORT),
+    If(is_set(enums.MovementFlags.ONTRANSPORT),
        Struct(
            'guid' / Int64ul,
            'x' / Float32l,
@@ -139,15 +140,15 @@ FullMovementUpdate = Struct(
            'time' / Int32ul,
        )),
     'swimming' / If(
-        is_set(game.MovementFlags.SWIMMING),
+        is_set(enums.MovementFlags.SWIMMING),
         Struct('pitch' / Float32l),
     ),
     'last_fall_time' / If(
-        is_not_set(game.MovementFlags.ONTRANSPORT),
+        is_not_set(enums.MovementFlags.ONTRANSPORT),
         Int32ul,
     ),
     'falling' / If(
-        is_set(game.MovementFlags.FALLING),
+        is_set(enums.MovementFlags.FALLING),
         Struct(
             'velocity' / Float32l,
             'sin_angle' / Float32l,
@@ -156,7 +157,7 @@ FullMovementUpdate = Struct(
         ),
     ),
     'spline_elevation' / If(
-        is_set(game.MovementFlags.SPLINE_ELEVATION),
+        is_set(enums.MovementFlags.SPLINE_ELEVATION),
         Struct('unk1' / Float32l),
     ),
     'speed' / Struct(
@@ -168,11 +169,11 @@ FullMovementUpdate = Struct(
         'turn' / Float32l,
     ),
     'spline_update' / If(
-        is_set(game.MovementFlags.SPLINE_ENABLED),
+        is_set(enums.MovementFlags.SPLINE_ENABLED),
         Struct(
             'flags' / Int32ul,
             'facing' / If(
-                is_set(game.SplineFlags.Final_Point),
+                is_set(enums.SplineFlags.Final_Point),
                 Struct(
                     'x' / Float32l,
                     'y' / Float32l,
@@ -180,13 +181,13 @@ FullMovementUpdate = Struct(
                 ),
             ),
             'target' / If(
-                lambda this: this.flags & game.SplineFlags.Final_Point and not (this.flags & game.SplineFlags.
+                lambda this: this.flags & enums.SplineFlags.Final_Point and not (this.flags & enums.SplineFlags.
                                                                                 Final_Target),
                 Int64ul,
             ),
             'angle' / If(
-                lambda this: this.flags & game.SplineFlags.Final_Angle and not (
-                    this.flags & game.SplineFlags.Final_Point) and not (this.flags & game.SplineFlags.Final_Target),
+                lambda this: this.flags & enums.SplineFlags.Final_Angle and not (
+                    this.flags & enums.SplineFlags.Final_Point) and not (this.flags & enums.SplineFlags.Final_Target),
                 Float32l,
             ),
             'time_passed' / Int32ul,
@@ -235,27 +236,27 @@ FullUpdateBlock = Struct(
     'object_type' / Int8ul,
     'flags' / Int8ul,
     'movement_update' / IfThenElse(
-        is_set(game.UpdateFlags.LIVING),
+        is_set(enums.UpdateFlags.LIVING),
         FullMovementUpdate,
         If(
-            is_set(game.UpdateFlags.HAS_POSITION),
+            is_set(enums.UpdateFlags.HAS_POSITION),
             PositionMovementUpdate,
         ),
     ),
     'high_guid' / If(
-        is_set(game.UpdateFlags.HIGHGUID),
+        is_set(enums.UpdateFlags.HIGHGUID),
         Int32ul,
     ),
     'is_update_all' / If(
-        is_set(game.UpdateFlags.ALL),
+        is_set(enums.UpdateFlags.ALL),
         Const(int(1).to_bytes(4, 'little')),
     ),
     'victim_guid' / If(
-        is_set(game.UpdateFlags.FULLGUID),
+        is_set(enums.UpdateFlags.FULLGUID),
         PackedGUID,
     ),
     'world_time' / If(
-        is_set(game.UpdateFlags.TRANSPORT),
+        is_set(enums.UpdateFlags.TRANSPORT),
         Int32ul,
     ),
     'update_fields' / UpdateFields,
@@ -276,8 +277,8 @@ UpdateBlock = Struct(
     'update_block' / Switch(
         lambda this: this.update_type,
         cases={
-            game.UpdateType.OUT_OF_RANGE_OBJECTS: OutOfRangeUpdateBlock,
-            game.UpdateType.VALUES: ValuesUpdateBlock,
+            enums.UpdateType.OUT_OF_RANGE_OBJECTS: OutOfRangeUpdateBlock,
+            enums.UpdateType.VALUES: ValuesUpdateBlock,
         },
         default=FullUpdateBlock,
     ),

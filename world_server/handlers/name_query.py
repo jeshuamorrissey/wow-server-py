@@ -19,8 +19,8 @@ def handle_name_query(pkt: name_query.ClientNameQuery, session: session.Session)
                 guid=player.guid,
                 name=player.name,
                 realm_name=player.realm.name,
-                race=player.race,
+                race=player.race.id,
                 gender=player.gender,
-                class_=player.class_,
+                class_=player.class_.id,
             )),
     )]

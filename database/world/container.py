@@ -2,7 +2,7 @@ from typing import Any, Dict, Tuple
 
 from pony import orm
 
-from database import game
+from database import enums, game
 from database.db import db
 
 from . import item
@@ -52,28 +52,28 @@ class Container(item.Item):
             **kwargs,
         )
 
-    def type_id(self) -> game.TypeID:
-        return game.TypeID.CONTAINER
+    def type_id(self) -> enums.TypeID:
+        return enums.TypeID.CONTAINER
 
-    def type_mask(self) -> game.TypeMask:
-        return super(Container, self).type_mask() | game.TypeMask.CONTAINER
+    def type_mask(self) -> enums.TypeMask:
+        return super(Container, self).type_mask() | enums.TypeMask.CONTAINER
 
-    def update_flags(self) -> game.UpdateFlags:
-        return game.UpdateFlags.ALL
+    def update_flags(self) -> enums.UpdateFlags:
+        return enums.UpdateFlags.ALL
 
-    def high_guid(self) -> game.HighGUID:
-        return game.HighGUID.CONTAINER
+    def high_guid(self) -> enums.HighGUID:
+        return enums.HighGUID.CONTAINER
 
     def num_fields(self) -> int:
         return 0x06 + 0x2A + 0x3A
 
-    def update_fields(self) -> Dict[game.UpdateField, Any]:
+    def update_fields(self) -> Dict[enums.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         fields = {
-            game.ContainerFields.NUM_SLOTS: self.slots,
+            enums.ContainerFields.NUM_SLOTS: self.slots,
         }
 
         for item in self.items:
-            fields[game.ContainerFields.SLOT_1 + (item.slot * 2)] = item.item.guid
+            fields[enums.ContainerFields.SLOT_1 + (item.slot * 2)] = item.item.guid
 
         return {**super(Container, self).update_fields(), **fields}
