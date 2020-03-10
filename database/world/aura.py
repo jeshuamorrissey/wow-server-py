@@ -9,7 +9,7 @@ class Aura(db.Entity):
     applied_to = orm.Required('Unit')
     slot = orm.Required(int)
 
-    base_spell = orm.Required('Spell')  # TODO: this is in the DBC proper!
+    base_spell = orm.Required('Spell')
     expiry_time = orm.Required(int)
 
     orm.PrimaryKey(applied_to, slot)

@@ -110,7 +110,7 @@ class Player(unit.Unit):
     rested_xp = orm.Required(int, default=0)  # amount of rested XP bonus
     money = orm.Required(int, default=0)
 
-    watched_faction = orm.Required(int, default=-1)  # TODO: factions
+    watched_faction = orm.Optional('Faction')  # TODO: factions
 
     # professions = orm.Set(PlayerProfession)
     explored_zones = orm.Required(orm.IntArray)
@@ -287,6 +287,9 @@ class Player(unit.Unit):
         if race.id in (enums.EChrRaces.ORC, enums.EChrRaces.UNDEAD, enums.EChrRaces.TAUREN, enums.EChrRaces.TROLL):
             team = enums.Team.HORDE
 
+        # Get starting stats.
+        starting_stats = game.StartingStats.get(race=race, class_=class_)
+
         player = Player(
             account=account,
             realm=realm,
@@ -302,6 +305,13 @@ class Player(unit.Unit):
             o=starting_location.o,
             zone=starting_location.zone,
             map=starting_location.map,
+            base_health=starting_stats.base_health,
+            base_power=starting_stats.base_power,
+            strength=starting_stats.strength,
+            agility=starting_stats.agility,
+            stamina=starting_stats.stamina,
+            intellect=starting_stats.intellect,
+            spirit=starting_stats.spirit,
             **kwargs,
         )
 
@@ -669,7 +679,7 @@ class Player(unit.Unit):
             f.BYTES_4: self.bytes_4(),
             f.AMMO_ID: self.get_ammo(),
             f.BYTES2: self.bytes_5(),
-            f.WATCHED_FACTION_INDEX: self.watched_faction,
+            f.WATCHED_FACTION_INDEX: self.watched_faction.reputation_index if self.watched_faction else -1,
             f.TRACK_CREATURES: 0,  # TODO: spells
             f.TRACK_RESOURCES: 0,  # TODO: spells
             f.SELF_RES_SPELL: 0,  # TODO: spell ID of self resurrecting spell

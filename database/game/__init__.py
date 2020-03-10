@@ -8,4 +8,5 @@ from .quest_objective_template import *
 from .quest_template import *
 from .starting_items import *
 from .starting_locations import *
+from .starting_stats import *
 from .unit_template import *

@@ -28,3 +28,4 @@ class ChrRaces(db.Entity):
     hair_customization = orm.Required(common.SingleString)
 
     unit_backlink = orm.Set('Unit')
+    starting_stats_backlink = orm.Set('StartingStats')

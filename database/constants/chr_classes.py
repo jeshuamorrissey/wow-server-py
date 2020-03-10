@@ -17,3 +17,4 @@ class ChrClasses(db.Entity):
     flags = orm.Required(int)
 
     unit_backlink = orm.Set('Unit')
+    starting_stats_backlink = orm.Set('StartingStats')

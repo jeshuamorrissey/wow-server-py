@@ -1,7 +1,7 @@
 from pony import orm
 
-from database.db import db
 from database.constants import common
+from database.db import db
 
 
 class Faction(db.Entity):
@@ -30,3 +30,4 @@ class Faction(db.Entity):
     parent_faction_backlink = orm.Set('Faction', reverse='parent_faction')
     auction_house_backlink = orm.Set('AuctionHouse', reverse='faction')
     chr_races_backlink = orm.Set('ChrRaces', reverse='faction')
+    player_backlink = orm.Set('Player')
