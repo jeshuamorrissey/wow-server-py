@@ -1,13 +1,25 @@
+from typing import Any, Dict, Tuple
+
 from pony import orm
 
-from typing import Tuple, Dict, Any
+from database.db import db
 
 from database.dbc import constants as c
 from database.world.game_object.item import Item
+from database.dbc.item_template import ItemTemplate
+
+
+class ContainerItem(db.Entity):
+    container = orm.Required('Container')
+    slot = orm.Required(int)
+    item = orm.Required('Item')
+
+    orm.PrimaryKey(container, slot)
 
 
 class Container(Item):
-    items = orm.Set('Item')
+    items = orm.Set('ContainerItem')
+    slots = orm.Required(int)
 
     # Reverse mappings.
     on_slot = orm.Optional('EquippedBag')
@@ -29,6 +41,16 @@ class Container(Item):
     #
     # Class Methods (should be overwritten in children).
     #
+    @classmethod
+    def New(cls, base_item: ItemTemplate, **kwargs) -> 'Container':
+        return Container(
+            base_item=base_item,
+            durability=base_item.MaxDurability,
+            stack_count=base_item.stackable,
+            slots=base_item.ContainerSlots,
+            **kwargs,
+        )
+
     def type_id(self) -> c.TypeID:
         return c.TypeID.CONTAINER
 
@@ -47,11 +69,10 @@ class Container(Item):
     def update_fields(self) -> Dict[c.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         fields = {
-            c.ContainerFields.NUM_SLOTS: 0,
+            c.ContainerFields.NUM_SLOTS: self.slots,
         }
 
-        for slot_f in range(c.ContainerFields.SLOT_1, c.ContainerFields.SLOT_LAST + 1, 2):
-            fields[slot_f] = 0
-            fields[slot_f + 1] = 0
+        for item in self.items:
+            fields[c.ContainerFields.SLOT_1 + (item.slot * 2)] = item.item.guid
 
         return {**super(Container, self).update_fields(), **fields}

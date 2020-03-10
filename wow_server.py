@@ -17,7 +17,7 @@ import world_server.packets  # register packet formats
 import world_server.systems  # register systems
 from common import server
 from database import common
-from database.db import db
+from database import db
 from database.dbc import constants as c
 from database.dbc import data
 from database.dbc.chr_start_locations import ChrStartLocation
@@ -31,6 +31,7 @@ from database.dbc.dbc import AnimationData
 from database.world.aura import Aura
 from database.world.game_object.container import Container
 from database.world.game_object.game_object import GameObject
+from database.world.game_object.container import Container, ContainerItem
 from database.world.game_object.item import Item
 from database.world.game_object.pet import Pet
 from database.world.game_object.player import (BackpackItem, EquippedBag, EquippedItem, BankBag, BankItem, KeyringItem,
@@ -46,39 +47,7 @@ from world_server import session as world_session
 
 
 def setup_db(args: argparse.Namespace):
-    # TODO(jeshua): make the DB persistant.
-    # Clear the DB for testing.
-    reset_database = args.reset_database or not os.path.exists(args.db_file)
-    if reset_database and os.path.exists(args.db_file):
-        os.remove(args.db_file)
-
-    # Connect to SQLite in memory.
-    db.bind(provider='sqlite', filename=args.db_file, create_db=True)
-    db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
-    db.generate_mapping(check_tables=False)
-
-    Account.drop_table(with_all_data=True)
-    BackpackItem.drop_table(with_all_data=True)
-    EquippedBag.drop_table(with_all_data=True)
-    EquippedItem.drop_table(with_all_data=True)
-    BankBag.drop_table(with_all_data=True)
-    BankItem.drop_table(with_all_data=True)
-    KeyringItem.drop_table(with_all_data=True)
-    VendorBuybackItem.drop_table(with_all_data=True)
-    GameObject.drop_table(with_all_data=True)
-    Guild.drop_table(with_all_data=True)
-    Realm.drop_table(with_all_data=True)
-    Aura.drop_table(with_all_data=True)
-    GuildMembership.drop_table(with_all_data=True)
-    Quest.drop_table(with_all_data=True)
-    ObjectiveProgress.drop_table(with_all_data=True)
-    PlayerProfession.drop_table(with_all_data=True)
-    PlayerSkill.drop_table(with_all_data=True)
-
-    db.create_tables()
-
-    # Load DBC data.
-    data.LoadDBC()
+    db.SetupDatabase(args.db_file, clear_database=args.reset_database)
 
     # Generate some test data.
     # Clear the world database tables so they can be created again.
@@ -107,6 +76,12 @@ def setup_db(args: argparse.Namespace):
                 rested_xp=5000,
                 money=10000,
                 explored_zones=range(c.MAX_EXPLORED_ZONES),
+            )
+
+            ContainerItem(
+                container=Container.New(base_item=ItemTemplate.get(name='Travellers Backpack')),
+                item=Item.New(base_item=ItemTemplate.get('Travellers Backpack')),
+                slot=0,
             )
 
             PlayerProfession(

@@ -1,12 +1,11 @@
-from typing import Any, Dict, Tuple, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from pony import orm
 
-from database.dbc.dbc import ChrRaces
+from database import constants
 from database.dbc import constants as c
-from database.world.game_object import game_object
-from database.dbc import unit_template, item_template
-from database.world.game_object import item
+from database.dbc import item_template, unit_template
+from database.world.game_object import game_object, item
 
 
 class Unit(game_object.GameObject):
@@ -234,7 +233,7 @@ class Unit(game_object.GameObject):
             return self.base_unit.ModelId1
 
         # For players, read from the DBC.
-        race_info = ChrRaces[self.race]
+        race_info = constants.ChrRaces[self.race]
         if self.gender == c.Gender.MALE:
             return race_info.male_display_id
         return race_info.female_display_id
@@ -245,7 +244,7 @@ class Unit(game_object.GameObject):
                 return self.base_unit.FactionAlliance
             return self.base_unit.FactionHorde
 
-        return ChrRaces[self.race].faction_template_id
+        return constants.ChrRaces[self.race].faction_template_id
 
     def health(self) -> int:
         return self.max_health() * self.health_percent

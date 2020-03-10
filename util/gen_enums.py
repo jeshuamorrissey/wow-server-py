@@ -1,6 +1,7 @@
 import argparse
 import logging
 import re
+import string
 from typing import Text
 
 import coloredlogs
@@ -8,7 +9,7 @@ import stringcase
 from pony import orm
 
 from database import db
-from database.dbc import dbc
+from database.constants import common
 
 
 def main(output_file: Text):
@@ -23,10 +24,10 @@ def main(output_file: Text):
         secondary_enum_field = None
 
         for attr in cls._attrs_:
-            if attr.py_type in (dbc.SingleEnumString, dbc.MultiEnumString):
-                enum_name = cls.__name__
+            if attr.py_type in (common.SingleEnumString, common.MultiEnumString):
+                enum_name = 'E' + cls.__name__
                 enum_field = attr.name
-            elif attr.py_type in (dbc.MultiEnumSecondaryString,):
+            elif attr.py_type in (common.MultiEnumSecondaryString,):
                 secondary_enum_field = attr.name
 
         if not enum_name or not enum_field:
@@ -37,7 +38,6 @@ def main(output_file: Text):
         else:
             logging.info(f'Processing {cls.__name__} (enum field "{enum_field}")')
 
-        import string
         SPECIAL_CHARS = string.punctuation.replace('%', '').replace('_', '')
 
         enums = {}

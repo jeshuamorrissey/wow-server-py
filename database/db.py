@@ -4,7 +4,7 @@ from typing import Text
 
 from pony import orm
 
-from database import common
+from database import common, data
 
 # The main, single database used by this application.
 #
@@ -13,11 +13,12 @@ db = orm.Database()
 
 
 def SetupDatabase(db_file: Text, clear_database: bool = False):
+    # Import client constants.
+    from database import constants
+
     # Import all of the DBC entities.
     from database.dbc.char_start_outfit import CharStartOutfit
     from database.dbc.chr_start_locations import ChrStartLocation
-    from database.dbc.data import LoadDBC
-    from database.dbc.dbc import AnimationData, AreaPOI, AreaTrigger, AttackAnimKits, AttackAnimTypes, AuctionHouse, BankBagSlotPrices, Faction, Languages, CreatureType, Spell, CinematicCamera, CinematicSequences, ChrRaces
     from database.dbc.item_template import ItemTemplate
     from database.dbc.profession import Profession
     from database.dbc.quest_template import QuestTemplate, Objective
@@ -73,4 +74,4 @@ def SetupDatabase(db_file: Text, clear_database: bool = False):
     db.create_tables()
 
     # Setup the DBC.
-    LoadDBC()
+    data.LoadDBC(db)

@@ -1,6 +1,5 @@
 import enum
 
-
 class AnimationData(enum.IntEnum):
     ARROW = 166
     ARROW_BIRTH = 204
@@ -211,7 +210,6 @@ class AnimationData(enum.IntEnum):
     WALKBACKWARDS = 13
     WHIRLWIND = 126
 
-
 class AuctionHouse(enum.IntEnum):
     ALLIANCE_AUCTION_HOUSE = 2
     BLACKWATER_AUCTION_HOUSE = 7
@@ -220,7 +218,6 @@ class AuctionHouse(enum.IntEnum):
     STORMWIND_AUCTION_HOUSE = 1
     THUNDER_BLUFF_AUCTION_HOUSE = 5
     UNDERCITY_AUCTION_HOUSE = 4
-
 
 class ChrClasses(enum.IntEnum):
     DRUID = 11
@@ -233,7 +230,6 @@ class ChrClasses(enum.IntEnum):
     WARLOCK = 9
     WARRIOR = 1
 
-
 class ChrRaces(enum.IntEnum):
     DWARF = 3
     GNOME = 7
@@ -244,7 +240,6 @@ class ChrRaces(enum.IntEnum):
     TAUREN = 6
     TROLL = 8
     UNDEAD = 5
-
 
 class CreatureType(enum.IntEnum):
     BEAST = 1
@@ -258,7 +253,6 @@ class CreatureType(enum.IntEnum):
     NOT_SPECIFIED = 10
     TOTEM = 11
     UNDEAD = 6
-
 
 class Faction(enum.IntEnum):
     ALLIANCE = 469
@@ -452,7 +446,6 @@ class Faction(enum.IntEnum):
     WORGEN = 24
     ZANDALAR_TRIBE = 270
 
-
 class ItemClass(enum.IntEnum):
     ARMOR = 4
     CONSUMABLE = 0
@@ -471,7 +464,6 @@ class ItemClass(enum.IntEnum):
     TRADE_GOODS = 7
     WEAPON = 2
 
-
 class Languages(enum.IntEnum):
     COMMON = 7
     DARNASSIAN = 2
@@ -487,7 +479,6 @@ class Languages(enum.IntEnum):
     TITAN = 9
     TROLL = 14
 
-
 class Resistances(enum.IntEnum):
     ARCANE = 6
     FIRE = 2
@@ -496,7 +487,6 @@ class Resistances(enum.IntEnum):
     NATURE = 3
     PHYSICAL = 0
     SHADOW = 5
-
 
 class Spell(enum.IntEnum):
     ABOLISH_DISEASE = 1269

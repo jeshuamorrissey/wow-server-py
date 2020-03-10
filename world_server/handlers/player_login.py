@@ -4,14 +4,16 @@ from typing import List, Tuple
 
 from pony import orm
 
+from database import constants
 from database.dbc import constants as c
-from database.dbc.dbc import ChrRaces
 from database.world.account import Account
 from database.world.game_object.player import Player
 from database.world.realm import Realm
 from world_server import op_code, router, session, system
-from world_server.packets import (account_data_times, init_world_states, login_verify_world, player_login,
-                                  trigger_cinematic, tutorial_flags, update_aura_duration)
+from world_server.packets import (account_data_times, init_world_states,
+                                  login_verify_world, player_login,
+                                  trigger_cinematic, tutorial_flags,
+                                  update_aura_duration)
 
 
 class ResponseCode(enum.IntEnum):
@@ -79,7 +81,7 @@ def handle_player_login(pkt: player_login.ClientPlayerLogin,
 
     # Trigger a cinematic if this is their first login.
     if is_first_login:
-        cinematic = ChrRaces[player.race].cinematic_sequence_id
+        cinematic = constants.ChrRaces[player.race].cinematic_sequence_id
         packets.append((
             op_code.Server.TRIGGER_CINEMATIC,
             trigger_cinematic.ServerTriggerCinematic.build(dict(sequence_id=cinematic)),

@@ -1,16 +1,22 @@
 # type: ignore[operator]
 
-import os
 import argparse
 import gzip
-from typing import List, Text, Set
-from mpyq import MPQArchive
-from database.dbc.dbc import *
 import json
-from construct import Struct, Const, Int32ul, Array, Bytes, Computed, Adapter, Float32l, Int64ul
+import logging
+import os
+from typing import Any, Dict, List, Set, Text, Type
+
+import coloredlogs
+from construct import (Adapter, Array, Bytes, Computed, Const, Float32l, Int32ul, Int64ul, Struct)
+from mpyq import MPQArchive
+
+from database import constants, db
+from database.constants import common
 
 
 class StringRefAdapater(Adapter):
+    """Adapter which will map the given string index to the actual string."""
 
     def _decode(self, obj, context, path):
         if 'strings' in context['_']:
@@ -28,7 +34,6 @@ class StringRefAdapater(Adapter):
 
 
 StringRef = StringRefAdapater(Int32ul)
-
 LangStringRef = Struct(
     'en_us' / StringRef,
     'ko_kr' / StringRef,
@@ -42,7 +47,15 @@ LangStringRef = Struct(
 )
 
 
-def GenerateStruct(cls) -> Struct:
+def generate_struct(cls: Type) -> Struct:
+    """Generate the construct.Struct object for a given entity class.
+
+    Args:
+        cls: The entity class to generate a struct from.
+
+    Returns:
+        A struct which can be used to load records matching the database type.
+    """
     struct_fields = []
     for attr in cls._attrs_:
         if attr.name.endswith('_backlink'):
@@ -50,14 +63,12 @@ def GenerateStruct(cls) -> Struct:
 
         if attr.py_type == int:
             struct_fields.append(attr.name / Int32ul)
-        elif attr.py_type in (SingleString, SingleEnumString):
+        elif attr.py_type in (common.SingleString, common.SingleEnumString):
             struct_fields.append(attr.name / StringRef)
-        elif attr.py_type in (MultiString, MultiEnumString, MultiEnumSecondaryString):
+        elif attr.py_type in (common.MultiString, common.MultiEnumString, common.MultiEnumSecondaryString):
             struct_fields.append(attr.name / LangStringRef)
         elif attr.py_type == float:
             struct_fields.append(attr.name / Float32l)
-        elif attr.py_type == FixedIntArray:
-            struct_fields.append(attr.name / Array(attr.size, Int32ul))
         else:
             if attr.py_type == cls.__name__:
                 struct_fields.append((attr.name + '_fk') / Int32ul)
@@ -67,7 +78,8 @@ def GenerateStruct(cls) -> Struct:
     return Struct(*struct_fields)
 
 
-def LoadStringBlock(c):
+def _load_string_block(c):
+    """Load a string block from the construct.Struct context."""
     strings = {}
     index = 0
     for string in [s.decode('utf-8') for s in c.string_block.split(b'\x00')]:
@@ -75,26 +87,6 @@ def LoadStringBlock(c):
         index += len(string) + 1
 
     return strings
-
-
-def NumFieldsInStruct(struct: Struct):
-    n = len(struct.subcons or struct.count)
-    for subcon in struct.subcons:
-        if hasattr(subcon, 'subcons'):
-            n -= 1
-            n += NumFieldsInStruct(subcon)
-    return n
-
-
-def StructToDict(record):
-    d = {k: v for k, v in record.items() if not k.startswith('_')}
-    for k, v in d.items():
-        if hasattr(v, 'items'):
-            if 'en_us' in d[k]:
-                d[k] = d[k]['en_us']
-            else:
-                d[k] = StructToDict(v)
-    return d
 
 
 DBCFile = Struct(
@@ -110,17 +102,29 @@ DBCFile = Struct(
         Bytes(lambda c: c.header.record_size),
     ),
     'string_block' / Bytes(lambda c: c.header.string_block_size),
-    'strings' / Computed(LoadStringBlock),
+    'strings' / Computed(_load_string_block),
 )
 
 
 class MPQMultiArchive:
+    """Wrapper around MPQArchive which allows patching multiple archives.
+
+    This will load each archive in sequence and, when retreiving files, return the value
+    from the latest archive first.
+    """
 
     def __init__(self, base_path: Text, *archives: Text):
+        """Create a new multi-archive.
+
+        Args:
+            base_path: The path to the WoW client.
+            *archives: A list of MPQ archive names to load from the client.
+        """
         self.archives = [MPQArchive(os.path.join(base_path, 'Data', a)) for a in archives]
 
     @property
     def files(self) -> Set[Text]:
+        """Get a list of files over all archives."""
         files = set()
         for a in self.archives:
             files.update([f for f in a.files if f.endswith(b'dbc')])
@@ -128,32 +132,79 @@ class MPQMultiArchive:
         return files
 
     def read_file(self, fname: Text) -> bytes:
+        """Get a single file out from the archives.
+        
+        Raises:
+            KeyError: raised if the file could not be found in any archives.
+        """
         for a in self.archives[::-1]:
             contents = a.read_file(fname)
             if contents:
                 return contents
 
-        raise RuntimeError(f'Unknown file {fname}')
+        raise KeyError(f'Unknown file {fname}')
+
+
+def num_fields_in_struct(struct: Struct) -> int:
+    """Calculate the number of fields within a construct.Struct struct.
+
+    This is a little tricky because we could have recursive structs.
+
+    Args:
+        struct: The struct definition.
+
+    Returns:
+        The number of concrete fields in the struct.
+    """
+    n = len(struct.subcons or struct.count)
+    for subcon in struct.subcons:
+        if hasattr(subcon, 'subcons'):
+            n += num_fields_in_struct(subcon) - 1
+    return n
+
+
+def struct_to_dict(record: Struct) -> Dict[Text, Any]:
+    """Convert the given loaded struct into a simple dictionary.
+
+    Args:
+        record: A loaded struct instance.
+    
+    Returns:
+        A dictionary version of the struct (which can be put into the database).
+    """
+    d = {k: v for k, v in record.items() if not k.startswith('_')}
+    for k, v in d.items():
+        if hasattr(v, 'items'):
+            # For LangStringRef's, just keep the en_us version.
+            if 'en_us' in d[k]:
+                d[k] = d[k]['en_us']
+            else:
+                d[k] = struct_to_dict(v)
+    return d
 
 
 def main(wow_dir: Text, output_dir: Text):
+    coloredlogs.install()
+
+    dbc_classes = {c.__name__: c for c in db.db.Entity.__subclasses__()}
+
     multi_archive = MPQMultiArchive(wow_dir, 'dbc.MPQ', 'patch.MPQ', 'patch-2.MPQ')
     for fname in multi_archive.files:
         record_name = fname.decode('utf-8').split('\\')[1].split('.')[0]
-        cls = globals().get(record_name, None)
+        cls = dbc_classes.get(record_name, None)
         if not cls:
-            # print(f'Warning: no record format found for {record_name}!')
+            logging.debug(f'Warning: no record format found for {record_name}!')
             continue
 
         # Make a struct from this class.
-        print(f'Loading {record_name}... ')
+        logging.info(f'Loading {record_name}... ')
         dbc_file = DBCFile.parse(multi_archive.read_file(fname))
-        record_struct = GenerateStruct(cls)
+        record_struct = generate_struct(cls)
 
-        if record_struct.sizeof() != dbc_file.header.record_size or NumFieldsInStruct(
+        if record_struct.sizeof() != dbc_file.header.record_size or num_fields_in_struct(
                 record_struct) != dbc_file.header.field_count:
-            print(
-                f'{record_name} is not a valid size (size is "{record_struct.sizeof()}", should be "{dbc_file.header.record_size}") (field count is "{NumFieldsInStruct(record_struct)}", should be "{dbc_file.header.field_count}")!'
+            logging.info(
+                f'{record_name} is not a valid size (size is "{record_struct.sizeof()}", should be "{dbc_file.header.record_size}") (field count is "{num_fields_in_struct(record_struct)}", should be "{dbc_file.header.field_count}")!'
             )
             continue
 
@@ -163,7 +214,7 @@ def main(wow_dir: Text, output_dir: Text):
 
             # HACK: APPLY TRANSFORMATIONS TO OBVIOUSLY WRONG DBC ENTRIES
             # For some reason, Gnomes and Troll have the wrong faction ID.
-            if cls == ChrRaces:
+            if cls == constants.ChrRaces:
                 if record['id'] == 7:
                     record['faction'] = 54
                 elif record['id'] == 8:
@@ -171,14 +222,14 @@ def main(wow_dir: Text, output_dir: Text):
                 elif record['id'] == 9:
                     record['cinematic_sequence'] = None
 
-            # Foreign keys use 0 == None.
-            if cls == CinematicSequences:
+            # Foreign keys use 0 but should use None.
+            if cls == constants.CinematicSequences:
                 for i in range(1, 8 + 1):
                     if getattr(record, f'camera{i}') == 0:
                         delattr(record, f'camera{i}')
             # END HACK
 
-            records.append(StructToDict(record))
+            records.append(struct_to_dict(record))
 
         output = json.dumps(records)
         with gzip.GzipFile(filename=os.path.join(output_dir, f'{record_name}.json.gz'), mode='wb') as f:

@@ -5,10 +5,10 @@ py_binary(
     name = "dbc_loader",
     srcs = ["dbc_loader.py"],
     deps = [
-        requirement("mpyq"),
+        "//database/constants",
+        requirement("coloredlogs"),
         requirement("construct"),
-        "//database:common",
-        "//database/dbc",
+        requirement("mpyq"),
     ],
 )
 
@@ -16,9 +16,8 @@ py_binary(
     name = "gen_enums",
     srcs = ["gen_enums.py"],
     deps = [
-        "//database:common",
-        "//database/dbc",
-        "//database/world",
+        "//database",
+        requirement("coloredlogs"),
         requirement("stringcase"),
     ],
 )

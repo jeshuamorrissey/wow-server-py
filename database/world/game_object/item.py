@@ -32,7 +32,7 @@ class Item(GameObject):
     is_readable = orm.Required(bool, default=False)
 
     # Reverse mappings.
-    container = orm.Optional('Container')
+    container = orm.Optional('ContainerItem')
     equipped_by = orm.Optional('EquippedItem')
     in_backpack = orm.Optional('BackpackItem')
     in_bank = orm.Optional('BankItem')
@@ -104,8 +104,8 @@ class Item(GameObject):
             })
         elif self.container:
             fields.update({
-                f.OWNER: self.container.on_slot.owner.guid,
-                f.CONTAINED: self.container.guid,
+                f.OWNER: self.container.container.on_slot.owner.guid,
+                f.CONTAINED: self.container.container.guid,
             })
 
         # Encode the flags.
