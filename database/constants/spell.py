@@ -151,3 +151,6 @@ class Spell(db.Entity):
     chr_races_combat_stun_backlink = orm.Set('ChrRaces', reverse='combat_stun')
     chr_races_res_sickness_backlink = orm.Set('ChrRaces', reverse='res_sickness')
     aura_base_spell_backlink = orm.Set('Aura', reverse='base_spell')
+    unit_created_by_backlink = orm.Set('Unit', reverse='created_by_spell')
+    unit_channeling_backlink = orm.Set('Unit', reverse='channeling_spell')
+    player_spells_backlink = orm.Set('PlayerSpell')

@@ -31,7 +31,7 @@ def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) ->
         pet = dict(display_id=0, level=0, family=0)
         if character.summon:
             pet = dict(
-                display_id=character.summon.base_unit.ModelId1,
+                display_id=character.summon.base_unit.ModelId1.id,
                 level=character.summon.level,
                 family=character.summon.base_unit.Family,
             )

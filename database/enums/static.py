@@ -645,3 +645,11 @@ class PlayerByte2Flags(enum.IntFlag):
     DETECT_AMORE_3 = 0x10
     STEALTH = 0x20
     INVISIBILITY_GLOW = 0x40
+
+
+class ActionButtonType(enum.IntEnum):
+    SPELL = 0x00
+    C = 0x01
+    MACRO = 0x40
+    CMACRO = C | MACRO,
+    ITEM = 0x80

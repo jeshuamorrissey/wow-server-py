@@ -34,19 +34,33 @@ def setup_db(args: argparse.Namespace):
             account = world.Account.New(username='jeshua', password='jeshua')
             realm = world.Realm(name='Brisbane', hostport=f'{args.host}:{args.world_port}')
             guild = world.Guild()
-            jeshua = world.Player.New(id=10,
-                                      account=account,
-                                      realm=realm,
-                                      name='Jeshua',
-                                      race=constants.ChrRaces[enums.EChrRaces.HUMAN],
-                                      class_=constants.ChrClasses[enums.EChrClasses.WARRIOR],
-                                      gender=enums.Gender.MALE,
-                                      last_login=datetime.datetime.now(),
-                                      level=20,
-                                      rested_xp=5000,
-                                      money=10000,
-                                      explored_zones=range(enums.MAX_EXPLORED_ZONES),
-                                      watched_faction=constants.Faction[enums.EFaction.STORMWIND])
+            jeshua = world.Player.New(
+                id=10,
+                account=account,
+                realm=realm,
+                name='Jeshua',
+                race=constants.ChrRaces[enums.EChrRaces.HUMAN],
+                class_=constants.ChrClasses[enums.EChrClasses.WARRIOR],
+                gender=enums.Gender.MALE,
+                last_login=datetime.datetime.now(),
+                level=20,
+                rested_xp=5000,
+                money=10000,
+                explored_zones=range(enums.MAX_EXPLORED_ZONES),
+                watched_faction=constants.Faction[enums.EFaction.STORMWIND],
+            )
+
+            world.PlayerSpell(
+                player=jeshua,
+                spell=constants.Spell[1472],
+            )
+
+            world.PlayerActionButton(
+                player=jeshua,
+                slot=0,
+                type=enums.ActionButtonType.SPELL,
+                action=1472,
+            )
 
             bag = world.Container.New(base_item=game.ItemTemplate[14156])
             world.EquippedBag(
@@ -80,6 +94,7 @@ def setup_db(args: argparse.Namespace):
             world.Aura(
                 slot=0,
                 applied_to=jeshua,
+                applied_by=jeshua,
                 base_spell=constants.Spell[1459],
                 expiry_time=int(time.time()) + 6000,
             )

@@ -18,11 +18,11 @@ class Unit(game_object.GameObject):
     emote_state = orm.Optional(int)
 
     # Stats.
-    strength = orm.Required(int, default=0)  # TODO: make this not have a default
-    agility = orm.Required(int, default=0)  # TODO: make this not have a default
-    stamina = orm.Required(int, default=0)  # TODO: make this not have a default
-    intellect = orm.Required(int, default=0)  # TODO: make this not have a default
-    spirit = orm.Required(int, default=0)  # TODO: make this not have a default
+    strength = orm.Required(int, default=0)
+    agility = orm.Required(int, default=0)
+    stamina = orm.Required(int, default=0)
+    intellect = orm.Required(int, default=0)
+    spirit = orm.Required(int, default=0)
 
     # The current team.
     team = orm.Required(enums.Team)
@@ -36,7 +36,8 @@ class Unit(game_object.GameObject):
     npc_off_hand = orm.Optional(game.ItemTemplate, reverse='npc_off_hands_backlink')
     npc_ranged = orm.Optional(game.ItemTemplate, reverse='npc_rangeds_backlink')
 
-    auras = orm.Set('Aura')
+    auras = orm.Set('Aura', reverse='applied_to')
+    applied_auras = orm.Set('Aura', reverse='applied_by')
 
     # Unit stats.
     base_health = orm.Required(int)
@@ -95,6 +96,8 @@ class Unit(game_object.GameObject):
     channeled_by = orm.Set('Unit', reverse='channeling')
     mount = orm.Optional('Unit', reverse='mounted_by')
     mounted_by = orm.Optional('Unit', reverse='mount')
+    created_by_spell = orm.Optional('Spell', reverse='unit_created_by_backlink')
+    channeling_spell = orm.Optional('Spell', reverse='unit_channeling_backlink')
 
     # Unit location information.
     x = orm.Required(float)
@@ -227,13 +230,13 @@ class Unit(game_object.GameObject):
     def calculate_cast_speed_mod(self) -> float:
         return 1.0
 
-    def display_id(self) -> int:
+    def display_info(self) -> game.UnitModelInfo:
         if self.base_unit:
             return self.base_unit.ModelId1
 
         if self.gender == enums.Gender.MALE:
-            return self.race.male_display_id
-        return self.race.female_display_id
+            return self.race.male_display_info
+        return self.race.female_display_info
 
     def faction_template(self) -> int:
         if self.base_unit:
@@ -354,8 +357,13 @@ class Unit(game_object.GameObject):
                 f.ARCANE_RESISTANCE: self.base_unit.ResistanceArcane,
                 f.ATTACK_POWER: self.base_unit.MeleeAttackPower,
                 f.RANGED_ATTACK_POWER: self.base_unit.RangedAttackPower,
-                f.COMBATREACH: 1.0,  # TODO: ObjectScale * ModelInfo.combat_reach
             })
+
+        model_info = self.display_info()
+        fields.update({
+            f.COMBATREACH: self.scale * model_info.combat_reach,
+            f.BOUNDINGRADIUS: self.scale * model_info.bounding_radius,
+        })
 
         aura_flags = [0] * 48  # 6 fields => 24 bytes => 48 nibbles, one per aura
         aura_levels = [0] * 48  # 12 fields => 48 bytes, one per aura
@@ -363,9 +371,9 @@ class Unit(game_object.GameObject):
         aura_state = enums.AuraState.NONE
         for aura in self.auras:
             aura_flags[aura.slot] = 0x09
-            aura_levels[aura.slot] = 1  # TODO: aura caster levels?
-            aura_applications[aura.slot] = 255 - 1  # TODO: aura stack count?
-            # aura_state |= aura.base_spell.aura_state_modifier  # TODO: use proper spell
+            aura_levels[aura.slot] = aura.applied_by.level
+            aura_applications[aura.slot] = aura.applications - 1
+            aura_state |= aura.base_spell.target_aura_state
 
             fields[f.AURA + aura.slot] = aura.base_spell.id
 
@@ -417,15 +425,14 @@ class Unit(game_object.GameObject):
             f.FACTIONTEMPLATE: self.faction_template(),
             f.BYTES_0: self.bytes_0(),
             f.FLAGS: self.flags(),
-            f.BOUNDINGRADIUS: 1.0,  # TODO: ObjectScale * ModelInfo.bounding_radius
-            f.DISPLAYID: self.display_id(),
-            f.NATIVEDISPLAYID: self.display_id(),
-            f.MOUNTDISPLAYID: self.mount.display_id() if self.mount else 0,
+            f.DISPLAYID: self.display_info().id,
+            f.NATIVEDISPLAYID: self.display_info().id,
+            f.MOUNTDISPLAYID: self.mount.display_info().id if self.mount else 0,
             f.BYTES_1: self.bytes_1(),
             f.DYNAMIC_FLAGS: self.dynamic_flags(),
-            f.CHANNEL_SPELL: 0,  # TODO: spell ID of the spell being channelled
+            f.CHANNEL_SPELL: self.channeling_spell.id if self.channeling_spell else 0,
             f.MOD_CAST_SPEED: self.calculate_cast_speed_mod(),
-            f.CREATED_BY_SPELL: 0,  # TODO: spell ID of the spell which created this unit
+            f.CREATED_BY_SPELL: self.created_by_spell.id if self.created_by_spell else 0,
             f.NPC_EMOTESTATE: self.emote_state,
             f.STRENGTH: self.calculate_strength(),
             f.AGILITY: self.calculate_agility(),

@@ -100,6 +100,22 @@ class PlayerSkill(db.Entity):
     orm.PrimaryKey(player, skill)
 
 
+class PlayerSpell(db.Entity):
+    player = orm.Required('Player')
+    spell = orm.Required(constants.Spell)
+
+    orm.PrimaryKey(player, spell)
+
+
+class PlayerActionButton(db.Entity):
+    player = orm.Required('Player')
+    slot = orm.Required(int)
+    type = orm.Required(enums.ActionButtonType)
+    action = orm.Required(int)
+
+    orm.PrimaryKey(player, slot)
+
+
 class Player(unit.Unit):
     # General character information.
     account = orm.Required('Account')
@@ -110,12 +126,14 @@ class Player(unit.Unit):
     rested_xp = orm.Required(int, default=0)  # amount of rested XP bonus
     money = orm.Required(int, default=0)
 
-    watched_faction = orm.Optional('Faction')  # TODO: factions
+    watched_faction = orm.Optional('Faction')
 
     # professions = orm.Set(PlayerProfession)
     explored_zones = orm.Required(orm.IntArray)
 
     skills = orm.Set(PlayerSkill)
+    spells = orm.Set(PlayerSpell)
+    action_buttons = orm.Set(PlayerActionButton)
 
     # Relationships.
     guild_membership = orm.Optional('GuildMembership')
@@ -360,7 +378,7 @@ class Player(unit.Unit):
 
         base = 1.0, 1.0
         if slot in equipment:
-            base = equipment[slot].base_item.dmg(0)  # TODO: #define this?
+            base = equipment[slot].base_item.dmg(enums.SpellSchool.NORMAL)
 
         return base
 

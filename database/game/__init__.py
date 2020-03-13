@@ -9,4 +9,5 @@ from .quest_template import *
 from .starting_items import *
 from .starting_locations import *
 from .starting_stats import *
+from .unit_model_info import *
 from .unit_template import *

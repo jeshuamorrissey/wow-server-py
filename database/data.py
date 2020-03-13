@@ -7,10 +7,11 @@ from typing import Dict, List, Set, Text, Type
 from pony import orm
 
 
-def _load(cls_name: Text, cls: Type, module: Text):
+def _load(db: orm.Database, cls_name: Text, cls: Type, module: Text):
     """Load the given class' data file.
 
     Args:
+        db: The database we are loading into.
         cls_name: The name of the class to load.
         cls: The type of the class to load.
         module: The module the class is in (either "constants" or "game")
@@ -52,6 +53,10 @@ def _load(cls_name: Text, cls: Type, module: Text):
 
             # Load the non-FK components.
             for r in records:
+                for attr in cls._attrs_:
+                    if issubclass(attr.py_type, db.Entity) and r.get(attr.name, None) == '0':
+                        del r[attr.name]
+
                 cls(**{k: r.get(k, None) for k in keys})
 
             # Load the FK components.
@@ -187,4 +192,4 @@ def load_constants(db: orm.Database):
         logging.debug(f'Loading, phase {i}...')
         for entity_name in sorted(phase):
             module = classes[entity_name].__module__.split('.')[1]
-            _load(entity_name, classes[entity_name], module)
+            _load(db, entity_name, classes[entity_name], module)

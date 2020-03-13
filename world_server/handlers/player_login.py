@@ -6,8 +6,9 @@ from pony import orm
 
 from database import world
 from world_server import op_code, router, session, system
-from world_server.packets import (account_data_times, init_world_states, login_verify_world, player_login,
-                                  trigger_cinematic, tutorial_flags, update_aura_duration)
+from world_server.packets import (account_data_times, action_buttons, init_world_states, initial_spells,
+                                  login_verify_world, player_login, set_action_button, trigger_cinematic,
+                                  tutorial_flags, update_aura_duration)
 
 
 class ResponseCode(enum.IntEnum):
@@ -28,6 +29,30 @@ def handle_player_login(pkt: player_login.ClientPlayerLogin,
     # appropriate cinematic.
     is_first_login = player.last_login is None
     player.last_login = datetime.datetime.utcnow()
+
+    # Build up the INITIAL_SPELLS packet.
+    initial_spells_pkt = initial_spells.ServerInitialSpells.build(
+        dict(
+            spells=[dict(id=ps.spell.id) for ps in player.spells],
+            spell_cooldowns=[
+                dict(
+                    id=ps.spell.id,
+                    cast_item_id=0,
+                    category=ps.spell.category,
+                    cooldown=ps.spell.recovery_time,
+                    category_cooldown=ps.spell.category_recovery_time,
+                ) for ps in player.spells
+            ],
+        ))
+
+    actions = [dict(action=0, type=0)] * 120
+    for pa in player.action_buttons:
+        actions[pa.slot] = dict(
+            action=pa.action,
+            type=pa.type,
+        )
+
+    action_buttons_pkt = action_buttons.ServerActionButtons.build(dict(actions=actions))
 
     # Add the player to the map.
     update_op, update_pkt = system.Register.Get(system.System.ID.UPDATER).login(player, session)
@@ -54,16 +79,24 @@ def handle_player_login(pkt: player_login.ClientPlayerLogin,
             account_data_times.ServerAccountDataTimes.build(dict(data_times=[0] * 32)),
         ),
         (
-            op_code.Server.TUTORIAL_FLAGS,
-            tutorial_flags.ServerTutorialFlags.build(dict(tutorials=[0] * 8)),
-        ),
-        (
             op_code.Server.INIT_WORLD_STATES,
             init_world_states.ServerInitWorldStates.build(dict(
                 map=player.map,
                 zone=player.zone,
                 blocks=[],
             )),
+        ),
+        (
+            op_code.Server.TUTORIAL_FLAGS,
+            tutorial_flags.ServerTutorialFlags.build(dict(tutorials=[0] * 8)),
+        ),
+        (
+            op_code.Server.INITIAL_SPELLS,
+            initial_spells_pkt,
+        ),
+        (
+            op_code.Server.ACTION_BUTTONS,
+            action_buttons_pkt,
         ),
         (
             update_op,
