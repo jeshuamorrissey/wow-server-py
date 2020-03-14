@@ -13,6 +13,14 @@ py_binary(
 )
 
 py_binary(
+    name = "make_world_handler",
+    srcs = ["make_world_handler.py"],
+    deps = [
+        "//world_server:op_code",
+    ],
+)
+
+py_binary(
     name = "gen_enums",
     srcs = ["gen_enums.py"],
     deps = [

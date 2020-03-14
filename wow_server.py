@@ -33,7 +33,27 @@ def setup_db(args: argparse.Namespace):
         with orm.db_session:
             account = world.Account.New(username='jeshua', password='jeshua')
             realm = world.Realm(name='Brisbane', hostport=f'{args.host}:{args.world_port}')
-            guild = world.Guild()
+            guild = world.Guild(
+                name='Shadow Warriors',
+                emblem_style=1,
+                emblem_color=1,
+                border_style=1,
+                border_color=1,
+                background_color=1,
+            )
+
+            world.GuildRank(
+                guild=guild,
+                slot=0,
+                name='Guild Master',
+            )
+
+            world.GuildRank(
+                guild=guild,
+                slot=1,
+                name='Second in Charge',
+            )
+
             jeshua = world.Player.New(
                 id=10,
                 account=account,
@@ -48,6 +68,12 @@ def setup_db(args: argparse.Namespace):
                 money=10000,
                 explored_zones=range(enums.MAX_EXPLORED_ZONES),
                 watched_faction=constants.Faction[enums.EFaction.STORMWIND],
+            )
+
+            world.PlayerMail(
+                from_player=jeshua,
+                to_player=jeshua,
+                content='Hello there!',
             )
 
             world.PlayerSpell(
@@ -85,7 +111,7 @@ def setup_db(args: argparse.Namespace):
             world.GuildMembership(
                 player=jeshua,
                 guild=guild,
-                rank=1,
+                rank=world.GuildRank.get(guild=guild, slot=0),
             )
 
             world.Quest.New(jeshua, game.QuestTemplate.get(title='With Duration'))

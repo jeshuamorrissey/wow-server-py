@@ -651,5 +651,43 @@ class ActionButtonType(enum.IntEnum):
     SPELL = 0x00
     C = 0x01
     MACRO = 0x40
-    CMACRO = C | MACRO,
+    CMACRO = C | MACRO
     ITEM = 0x80
+
+
+class GuildCommandType(enum.IntEnum):
+    CREATE = 0x00
+    INVITE = 0x01
+    QUIT = 0x03
+    FOUNDER = 0x0E
+
+
+class GuildCommandError(enum.IntEnum):
+    PLAYER_NO_MORE_IN_GUILD = 0x00
+    GUILD_INTERNAL = 0x01
+    ALREADY_IN_GUILD = 0x02
+    ALREADY_IN_GUILD_S = 0x03
+    INVITED_TO_GUILD = 0x04
+    ALREADY_INVITED_TO_GUILD_S = 0x05
+    NAME_INVALID = 0x06
+    NAME_EXISTS_S = 0x07
+    LEADER_LEAVE = 0x08
+    PERMISSIONS = 0x08
+    PLAYER_NOT_IN_GUILD = 0x09
+    PLAYER_NOT_IN_GUILD_S = 0x0A
+    PLAYER_NOT_FOUND_S = 0x0B
+    NOT_ALLIED = 0x0C
+    RANK_TOO_HIGH_S = 0x0D
+    RANK_TOO_LOW_S = 0x0E
+    RANKS_LOCKED = 0x11
+    RANK_IN_USE = 0x12
+    IGNORING_YOU_S = 0x13
+    UNK20 = 0x14
+
+
+class BattlegroundStatus(enum.IntEnum):
+    NONE = 0
+    WAIT_QUEUE = 1
+    WAIT_JOIN = 2
+    IN_PROGRESS = 3
+    WAIT_LEAVE = 4

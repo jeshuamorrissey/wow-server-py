@@ -116,6 +116,14 @@ class PlayerActionButton(db.Entity):
     orm.PrimaryKey(player, slot)
 
 
+class PlayerMail(db.Entity):
+    id = orm.PrimaryKey(int, auto=True)
+    from_player = orm.Required('Player', reverse='received_mail')
+    to_player = orm.Required('Player', reverse='sent_mail')
+
+    content = orm.Required(str)
+
+
 class Player(unit.Unit):
     # General character information.
     account = orm.Required('Account')
@@ -134,6 +142,9 @@ class Player(unit.Unit):
     skills = orm.Set(PlayerSkill)
     spells = orm.Set(PlayerSpell)
     action_buttons = orm.Set(PlayerActionButton)
+
+    received_mail = orm.Set(PlayerMail, reverse='from_player')
+    sent_mail = orm.Set(PlayerMail, reverse='to_player')
 
     # Relationships.
     guild_membership = orm.Optional('GuildMembership')
@@ -579,7 +590,7 @@ class Player(unit.Unit):
         if self.guild_membership:
             fields.update({
                 f.GUILDID: self.guild_membership.guild.id,
-                f.GUILDRANK: self.guild_membership.rank,
+                f.GUILDRANK: self.guild_membership.rank.slot,
                 f.GUILD_TIMESTAMP: 0,
             })
         else:
