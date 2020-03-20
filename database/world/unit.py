@@ -8,6 +8,7 @@ from . import game_object
 
 
 class Unit(game_object.GameObject):
+    name = orm.Optional(str)
     level = orm.Required(int, min=1)
     race = orm.Required(constants.ChrRaces)
     class_ = orm.Required(constants.ChrClasses)

@@ -1,14 +1,14 @@
 import datetime
 import time
 from collections import defaultdict
-from typing import Any, Dict, Optional, Text, Tuple
+from typing import Any, Dict, List, Optional, Text, Tuple
 
 from pony import orm
 
 from database import constants, enums, game
 from database.db import db
 
-from . import item, unit
+from . import container, item, unit
 from .account import Account
 from .realm import Realm
 
@@ -70,7 +70,7 @@ class VendorBuybackItem(db.Entity):
 
 class KeyringItem(db.Entity):
     owner = orm.Required('Player')
-    slot = orm.Required(int, min=0, max=31)
+    slot = orm.Required(int, min=0, max=15)
     item = orm.Required(item.Item)
 
     orm.PrimaryKey(owner, slot)
@@ -128,13 +128,14 @@ class Player(unit.Unit):
     # General character information.
     account = orm.Required('Account')
     realm = orm.Required('Realm')
-    name = orm.Required(str, unique=True)
     last_login = orm.Optional(datetime.datetime)
     xp = orm.Required(int, default=0)
     rested_xp = orm.Required(int, default=0)  # amount of rested XP bonus
     money = orm.Required(int, default=0)
 
     watched_faction = orm.Optional('Faction')
+
+    tutorials = orm.Required(orm.Json, default=[False] * 256)
 
     # professions = orm.Set(PlayerProfession)
     explored_zones = orm.Required(orm.IntArray)
@@ -205,6 +206,45 @@ class Player(unit.Unit):
     # Reverse mappings.
     created_items = orm.Set('Item')
     dual_arbiter = orm.Optional('Player', reverse='dual_arbiter')
+
+    def tutorial_flags(self) -> List[int]:
+        """Convert the tutorial flag list into a list of bytes."""
+        result = [0] * 8
+        for i in range(len(result)):
+            for flag_idx, flag_val in enumerate(self.tutorials[i * 32:i * 32 + 32]):
+                if flag_val:
+                    result[i] |= (1 << (flag_idx % 32))
+
+        return result
+
+    def get_item(self, bag_slot: int, slot: int) -> Optional[item.Item]:
+        """Get an item from a given slot within some bag.
+
+        The bag is an absolute value which corresponds to one of the
+        many bag slots. The slot is the position of the item within
+        that bag.
+        """
+        player_item = None
+        if bag_slot == 255:
+            if slot >= 23 and slot < 39:
+                player_item = BackpackItem.get(owner=self, slot=slot - 23)
+            elif slot >= 39 and slot < 63:
+                player_item = BankItem.get(owner=self, slot=slot - 39)
+            elif slot >= 81 and slot < 97:
+                player_item = KeyringItem.get(owner=self, slot=slot - 81)
+        else:
+            bag = None
+            if bag_slot >= 19 and bag_slot < 23:
+                bag = EquippedBag.get(owner=self, slot=bag_slot - 19)
+            elif bag_slot >= 63 and bag_slot < 69:
+                bag = BankBag.get(owner=self, slot=bag_slot - 63)
+
+            if bag:
+                player_item = container.ContainerItem.get(container=bag.container, slot=slot)
+
+        if player_item:
+            return player_item.item
+        return None
 
     def equipment_map(self) -> Dict[enums.EquipmentSlot, item.Item]:
         """Return a mapping of equipment slot --> equipped item.

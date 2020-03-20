@@ -1,3 +1,4 @@
+import datetime
 from typing import Any, Dict
 
 from pony import orm
@@ -8,6 +9,7 @@ from . import unit
 
 
 class Pet(unit.Unit):
+    name_timestamp = orm.Required(datetime.datetime, default=lambda: datetime.datetime.now())
     talent_points = orm.Required(int, default=0)
 
     def bytes_1(self) -> int:
@@ -23,7 +25,7 @@ class Pet(unit.Unit):
         f = enums.UnitFields
         fields = {
             f.PETNUMBER: self.entry(),
-            f.PET_NAME_TIMESTAMP: 0,
+            f.PET_NAME_TIMESTAMP: int(self.name_timestamp.timestamp()),
             f.PETEXPERIENCE: 0,
             f.PETNEXTLEVELEXP: 1000,
             f.TRAINING_POINTS: 10,

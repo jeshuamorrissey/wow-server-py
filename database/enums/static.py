@@ -691,3 +691,12 @@ class BattlegroundStatus(enum.IntEnum):
     WAIT_JOIN = 2
     IN_PROGRESS = 3
     WAIT_LEAVE = 4
+
+
+class MeetingStoneQueueStatus(enum.IntEnum):
+    LEAVE_QUEUE = 0
+    JOINED_QUEUE = 1
+    PARTY_MEMBER_LEFT_LFG = 2
+    PARTY_MEMBER_REMOVED_PARTY_REMOVED = 3
+    LOOKING_FOR_NEW_PARTY_IN_QUEUE = 4
+    NONE = 5

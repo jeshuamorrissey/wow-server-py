@@ -182,6 +182,9 @@ class Updater(system.System):
                     ),
                 ))
 
+        if not update_blocks:
+            return (None, None)
+
         update_data = dict(
             n_blocks=len(update_blocks),
             is_transport=0,  # TODO
@@ -244,4 +247,5 @@ class Updater(system.System):
         """
         for player_id, session in self.players.items():
             op, update_object_pkt = self._make_update_object(world.GameObject[player_id], [game_object])
-            session.send_packet(op, update_object_pkt)
+            if op and update_object_pkt:
+                session.send_packet(op, update_object_pkt)

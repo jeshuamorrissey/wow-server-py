@@ -128,6 +128,7 @@ def setup_db(args: argparse.Namespace):
             base_unit = game.UnitTemplate.get(Name='Young Nightsaber')
             world.Pet(
                 base_unit=base_unit,
+                name='Kiko',
                 level=1,
                 race=constants.ChrRaces[1],
                 class_=constants.ChrClasses[base_unit.UnitClass],

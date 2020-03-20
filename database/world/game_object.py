@@ -5,6 +5,7 @@ from pony import orm
 
 from database import enums, game
 from database.db import db
+from world_server import system
 
 
 class GUID(int):
@@ -78,6 +79,9 @@ class GameObject(db.Entity):
 
     def num_fields(self) -> int:
         return 0x06
+
+    def after_update(self):
+        system.Register.Get(system.System.ID.UPDATER).update_object(self)
 
     def update_fields(self) -> Dict[enums.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""

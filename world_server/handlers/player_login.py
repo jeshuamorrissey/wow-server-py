@@ -88,7 +88,7 @@ def handle_player_login(pkt: player_login.ClientPlayerLogin,
         ),
         (
             op_code.Server.TUTORIAL_FLAGS,
-            tutorial_flags.ServerTutorialFlags.build(dict(tutorials=[0] * 8)),
+            tutorial_flags.ServerTutorialFlags.build(dict(tutorials=player.tutorial_flags())),
         ),
         (
             op_code.Server.INITIAL_SPELLS,
