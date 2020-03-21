@@ -97,7 +97,7 @@ def setup_db(args: argparse.Namespace):
 
             world.ContainerItem(
                 container=bag,
-                item=world.Item.New(base_item=game.ItemTemplate[14156]),
+                item=world.Container.New(base_item=game.ItemTemplate[14156]),
                 slot=0,
             )
 

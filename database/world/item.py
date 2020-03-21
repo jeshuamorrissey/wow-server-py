@@ -39,6 +39,20 @@ class Item(game_object.GameObject):
     in_vendor_buyback = orm.Optional('VendorBuybackItem')
     in_keyring = orm.Optional('KeyringItem')
 
+    def remove_from_slot(self):
+        if self.container:
+            self.container.delete()
+        elif self.equipped_by:
+            self.equipped_by.delete()
+        elif self.in_backpack:
+            self.in_backpack.delete()
+        elif self.in_bank:
+            self.in_bank.delete()
+        elif self.in_vendor_buyback:
+            self.in_vendor_buyback.delete()
+        elif self.in_keyring:
+            self.in_keyring.delete()
+
     def position(self) -> Tuple[float, float, float]:
         """Get the current position of the object.
 
