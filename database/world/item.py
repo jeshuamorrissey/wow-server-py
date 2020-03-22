@@ -33,25 +33,57 @@ class Item(game_object.GameObject):
 
     # Reverse mappings.
     container = orm.Optional('ContainerItem')
-    equipped_by = orm.Optional('EquippedItem')
-    in_backpack = orm.Optional('BackpackItem')
-    in_bank = orm.Optional('BankItem')
-    in_vendor_buyback = orm.Optional('VendorBuybackItem')
-    in_keyring = orm.Optional('KeyringItem')
+    in_inventory = orm.Optional('InventoryItem')
 
-    def remove_from_slot(self):
-        if self.container:
-            self.container.delete()
-        elif self.equipped_by:
-            self.equipped_by.delete()
-        elif self.in_backpack:
-            self.in_backpack.delete()
-        elif self.in_bank:
-            self.in_bank.delete()
-        elif self.in_vendor_buyback:
-            self.in_vendor_buyback.delete()
-        elif self.in_keyring:
-            self.in_keyring.delete()
+    # equipped_by = orm.Optional('EquippedItem')
+    # in_backpack = orm.Optional('BackpackItem')
+    # in_bank = orm.Optional('BankItem')
+    # in_vendor_buyback = orm.Optional('VendorBuybackItem')
+    # in_keyring = orm.Optional('KeyringItem')
+
+    def can_equip_to_slot(self, slot: enums.EquipmentSlot):
+        self_it = self.base_item.InventoryType
+        it = enums.InventoryType
+        es = enums.EquipmentSlot
+        if slot == es.HEAD:
+            return self_it in {it.HEAD}
+        elif slot == es.NECK:
+            return self_it in {it.NECK}
+        elif slot == es.SHOULDERS:
+            return self_it in {it.SHOULDERS}
+        elif slot == es.BODY:
+            return self_it in {it.BODY, it.ROBE}
+        elif slot == es.CHEST:
+            return self_it in {it.CHEST}
+        elif slot == es.WAIST:
+            return self_it in {it.WAIST}
+        elif slot == es.LEGS:
+            return self_it in {it.LEGS}
+        elif slot == es.FEET:
+            return self_it in {it.FEET}
+        elif slot == es.WRISTS:
+            return self_it in {it.WRISTS}
+        elif slot == es.HANDS:
+            return self_it in {it.HANDS}
+        elif slot == es.FINGER1:
+            return self_it in {it.FINGER}
+        elif slot == es.FINGER2:
+            return self_it in {it.FINGER}
+        elif slot == es.TRINKET1:
+            return self_it in {it.TRINKET}
+        elif slot == es.TRINKET2:
+            return self_it in {it.TRINKET}
+        elif slot == es.BACK:
+            return self_it in {it.CLOAK}
+        elif slot == es.MAIN_HAND:
+            return self_it in {it._2HWEAPON, it.WEAPONMAINHAND, it.WEAPON}
+        elif slot == es.OFF_HAND:
+            return self_it in {it.SHIELD, it.WEAPONOFFHAND, it.HOLDABLE, it.RELIC}
+        elif slot == es.RANGED:
+            return self_it in {it.THROWN, it.RANGEDRIGHT, it.RANGED}
+        elif slot == es.TABARD:
+            return self_it in {it.TABARD}
+        return False
 
     def position(self) -> Tuple[float, float, float]:
         """Get the current position of the object.
@@ -64,16 +96,8 @@ class Item(game_object.GameObject):
         """
         if self.container:
             return self.container.container.position()
-        elif self.equipped_by:
-            return self.equipped_by.owner.position()
-        elif self.in_backpack:
-            return self.in_backpack.owner.position()
-        elif self.in_bank:
-            return self.in_bank.owner.position()
-        elif self.in_vendor_buyback:
-            return self.in_vendor_buyback.owner.position()
-        elif self.in_keyring:
-            return self.in_keyring.owner.position()
+        elif self.in_inventory:
+            return self.in_inventory.owner.position()
         raise RuntimeError(f'item {self.id} ({self.base_item.name}) does not have an owner!')
 
     def enchantment_map(self) -> Dict[enums.EnchantmentSlot, enchantment.Enchantment]:
@@ -114,19 +138,14 @@ class Item(game_object.GameObject):
         f = enums.ItemFields
         fields: Dict[enums.UpdateField, Any] = {}
 
-        if self.equipped_by:
+        if self.in_inventory:
             fields.update({
-                f.OWNER: self.equipped_by.owner.guid,
-                f.CONTAINED: self.equipped_by.owner.guid,
-            })
-        elif self.in_backpack:
-            fields.update({
-                f.OWNER: self.in_backpack.owner.guid,
-                f.CONTAINED: self.in_backpack.owner.guid,
+                f.OWNER: self.in_inventory.owner.guid,
+                f.CONTAINED: self.in_inventory.owner.guid,
             })
         elif self.container:
             fields.update({
-                f.OWNER: self.container.container.equipped_bag_backlink.owner.guid,
+                f.OWNER: self.container.container.in_inventory.owner.guid,
                 f.CONTAINED: self.container.container.guid,
             })
 

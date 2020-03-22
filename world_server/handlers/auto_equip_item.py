@@ -23,25 +23,21 @@ def handler(pkt: auto_equip_item.ClientAutoEquipItem, session: session.Session) 
     player = world.Player[session.player_id]
 
     # Find the item we want to equip.
-    item = player.get_item(pkt.container_slot, pkt.item_slot)
-    if not item:
+    slot = player.get_item(pkt.container_slot, pkt.item_slot)
+    if not slot.item:
         return []
 
-    ## Now, figure out how to equip the item.
-    # For containers, find the next free slot.
-    if isinstance(item, world.Container):
-        # TODO: if the bank pane is open, add it to a bank slot instead.
-        used_slots = {eb.slot for eb in world.EquippedBag.select() if eb.owner == player}
-        for slot in range(4):
-            if slot not in used_slots:
-                item.remove_from_slot()
-                world.EquippedBag(owner=player, slot=slot, container=item)
+    if isinstance(slot.item, world.Container):
+        for _, bag in sorted(player.bags().items()):
+            if not bag.item:
+                bag.item = slot.item
+                slot.item = None
                 return []
 
-        # Error: cannot equip.
         return _error(
-            code=inventory_change_failure.ErrorCode.ITEM_CANT_BE_EQUIPPED,
-            item1_guid=item.guid,
+            code=inventory_change_failure.ErrorCode.BAG_FULL,
+            item1_guid=slot.item.guid,
+            required_level=None,
         )
 
     return []

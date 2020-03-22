@@ -31,6 +31,7 @@ from .cinematic_sequences import *
 from .creature_type import *
 from .faction import *
 from .item_class import *
+from .item_sub_class import *
 from .languages import *
 from .resistances import *
 from .skill_line import *

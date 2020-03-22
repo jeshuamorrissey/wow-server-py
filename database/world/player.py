@@ -1,80 +1,103 @@
 import datetime
 import time
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Text, Tuple
+from typing import Any, Dict, List, Optional, Text, Tuple, Union
 
 from pony import orm
 
 from database import constants, enums, game
 from database.db import db
 
-from . import container, item, unit
+from . import container, game_object, item, unit
 from .account import Account
 from .realm import Realm
 
 
-class EquippedItem(db.Entity):
-    """Mapping table to store details about which items are equipped."""
+class InventoryItem(db.Entity):
     owner = orm.Required('Player')
-    slot = orm.Required(enums.EquipmentSlot)
-    item = orm.Required(item.Item)
+    slot = orm.Required(int, min=enums.InventorySlots.EQUIPMENT_START, max=enums.InventorySlots.KEYRING_END - 1)
+    item = orm.Optional(item.Item)
+
+    def after_update(self):
+        self.owner.after_update()
+        if self.item:
+            self.item.after_update()
+
+    def can_contain(self, item: Optional['item.Item']) -> bool:
+        """Return true iff this slot can contain the given item."""
+        if not item:
+            return True
+
+        s = enums.InventorySlots
+        if s.EQUIPMENT_START <= self.slot < s.EQUIPMENT_END:
+            equipment_slot = enums.EquipmentSlot(self.slot)
+            if not item.can_equip_to_slot(equipment_slot):
+                return False
+
+        if (s.BAG_START <= self.slot < s.BAG_END or s.BANK_BAG_START <= self.slot < s.BANK_BAG_END):
+            if not isinstance(item, container.Container):
+                return False
+
+        return True
 
     orm.PrimaryKey(owner, slot)
 
 
-class BackpackItem(db.Entity):
-    """Mapping table to store details about which items are in the backpack.
+# class EquippedItem(db.Entity):
+#     """Mapping table to store details about which items are equipped."""
+#     owner = orm.Required('Player')
+#     slot = orm.Required(enums.EquipmentSlot)
+#     item = orm.Required(item.Item)
 
-    The backpack is the default bag you always have available.
-    """
-    owner = orm.Required('Player')
-    slot = orm.Required(int, min=0, max=15)
-    item = orm.Required(item.Item)
+#     orm.PrimaryKey(owner, slot)
 
-    orm.PrimaryKey(owner, slot)
+# class BackpackItem(db.Entity):
+#     """Mapping table to store details about which items are in the backpack.
 
+#     The backpack is the default bag you always have available.
+#     """
+#     owner = orm.Required('Player')
+#     slot = orm.Required(int, min=0, max=15)
+#     item = orm.Required(item.Item)
 
-class EquippedBag(db.Entity):
-    """Mapping table to store details about which bags are equipped."""
-    owner = orm.Required('Player')
-    slot = orm.Required(int, min=0, max=3)
-    container = orm.Required('Container')
+#     orm.PrimaryKey(owner, slot)
 
-    orm.PrimaryKey(owner, slot)
+# class EquippedBag(db.Entity):
+#     """Mapping table to store details about which bags are equipped."""
+#     owner = orm.Required('Player')
+#     slot = orm.Required(int, min=0, max=3)
+#     container = orm.Required('Container')
 
+#     orm.PrimaryKey(owner, slot)
 
-class BankItem(db.Entity):
-    owner = orm.Required('Player')
-    slot = orm.Required(int, min=0, max=23)
-    item = orm.Required(item.Item)
+# class BankItem(db.Entity):
+#     owner = orm.Required('Player')
+#     slot = orm.Required(int, min=0, max=23)
+#     item = orm.Required(item.Item)
 
-    orm.PrimaryKey(owner, slot)
+#     orm.PrimaryKey(owner, slot)
 
+# class BankBag(db.Entity):
+#     owner = orm.Required('Player')
+#     slot = orm.Required(int, min=0, max=5)
+#     container = orm.Required('Container')
 
-class BankBag(db.Entity):
-    owner = orm.Required('Player')
-    slot = orm.Required(int, min=0, max=5)
-    container = orm.Required('Container')
+#     orm.PrimaryKey(owner, slot)
 
-    orm.PrimaryKey(owner, slot)
+# class VendorBuybackItem(db.Entity):
+#     owner = orm.Required('Player')
+#     slot = orm.Required(int, min=0, max=11)
+#     item = orm.Required(item.Item)
+#     expiry = orm.Required(int)
 
+#     orm.PrimaryKey(owner, slot)
 
-class VendorBuybackItem(db.Entity):
-    owner = orm.Required('Player')
-    slot = orm.Required(int, min=0, max=11)
-    item = orm.Required(item.Item)
-    expiry = orm.Required(int)
+# class KeyringItem(db.Entity):
+#     owner = orm.Required('Player')
+#     slot = orm.Required(int, min=0, max=15)
+#     item = orm.Required(item.Item)
 
-    orm.PrimaryKey(owner, slot)
-
-
-class KeyringItem(db.Entity):
-    owner = orm.Required('Player')
-    slot = orm.Required(int, min=0, max=15)
-    item = orm.Required(item.Item)
-
-    orm.PrimaryKey(owner, slot)
-
+#     orm.PrimaryKey(owner, slot)
 
 # class PlayerProfession(db.Entity):
 #     player = orm.Required('Player')
@@ -158,13 +181,16 @@ class Player(unit.Unit):
     map = orm.Required(int)
 
     # Inventory.
-    equipment = orm.Set(EquippedItem)
-    backpack = orm.Set(BackpackItem)
-    bags = orm.Set(EquippedBag)
-    bank = orm.Set(BankItem)
-    bank_bags = orm.Set(BankBag)
-    vendor_buyback = orm.Set(VendorBuybackItem)
-    keyring = orm.Set(KeyringItem)
+    inventory = orm.Set(InventoryItem)
+    # inventory = orm.Required(orm.Json)
+
+    # equipment = orm.Set(EquippedItem)
+    # backpack = orm.Set(BackpackItem)
+    # bags = orm.Set(EquippedBag)
+    # bank = orm.Set(BankItem)
+    # bank_bags = orm.Set(BankBag)
+    # vendor_buyback = orm.Set(VendorBuybackItem)
+    # keyring = orm.Set(KeyringItem)
 
     quests = orm.Set('Quest')
 
@@ -207,6 +233,33 @@ class Player(unit.Unit):
     created_items = orm.Set('Item')
     dual_arbiter = orm.Optional('Player', reverse='dual_arbiter')
 
+    def _inv_slice(self, start: int, end: int) -> Dict[int, InventoryItem]:
+        return {pi.slot - start: pi for pi in self.inventory if pi.slot >= start and pi.slot < end}
+
+    def equipment(self) -> Dict[enums.EquipmentSlot, InventoryItem]:
+        return {
+            enums.EquipmentSlot(s): i for s, i in self._inv_slice(enums.InventorySlots.EQUIPMENT_START,
+                                                                  enums.InventorySlots.EQUIPMENT_END).items()
+        }
+
+    def bags(self) -> Dict[int, InventoryItem]:
+        return self._inv_slice(enums.InventorySlots.BAG_START, enums.InventorySlots.BAG_END)
+
+    def backpack(self) -> Dict[int, InventoryItem]:
+        return self._inv_slice(enums.InventorySlots.BACKPACK_START, enums.InventorySlots.BACKPACK_END)
+
+    def bank(self) -> Dict[int, InventoryItem]:
+        return self._inv_slice(enums.InventorySlots.BANK_START, enums.InventorySlots.BANK_END)
+
+    def bank_bags(self) -> Dict[int, InventoryItem]:
+        return self._inv_slice(enums.InventorySlots.BANK_BAG_START, enums.InventorySlots.BANK_BAG_END)
+
+    def buyback_items(self) -> Dict[int, item.Item]:
+        return self._inv_slice(enums.InventorySlots.BUYBACK_START, enums.InventorySlots.BUYBACK_END)
+
+    def keyring(self) -> Dict[int, item.Item]:
+        return self._inv_slice(enums.InventorySlots.KEYRING_START, enums.InventorySlots.KEYRING_END)
+
     def tutorial_flags(self) -> List[int]:
         """Convert the tutorial flag list into a list of bytes."""
         result = [0] * 8
@@ -217,45 +270,57 @@ class Player(unit.Unit):
 
         return result
 
-    def get_item(self, bag_slot: int, slot: int) -> Optional[item.Item]:
-        """Get an item from a given slot within some bag.
-
-        The bag is an absolute value which corresponds to one of the
-        many bag slots. The slot is the position of the item within
-        that bag.
-        """
-        player_item = None
+    def set_item(self, bag_slot: int, slot: int, item: Optional[item.Item]):
+        """Set the item in a specific slot to some value."""
+        item_slot = None
+        bag = None
         if bag_slot == 255:
+            if slot >= 0 and slot < 19:
+                item_slot = EquippedItem.get(owner=self, slot=enums.EquipmentSlot(slot))
+                if not item_slot:
+                    item_slot = EquippedItem(owner=self, slot=enums.EquipmentSlot(slot), item=item)
             if slot >= 23 and slot < 39:
-                player_item = BackpackItem.get(owner=self, slot=slot - 23)
+                item_slot = BackpackItem.get(owner=self, slot=slot - 23)
+                if not item_slot:
+                    item_slot = BackpackItem(owner=self, slot=slot - 23, item=item)
             elif slot >= 39 and slot < 63:
-                player_item = BankItem.get(owner=self, slot=slot - 39)
+                item_slot = BankItem.get(owner=self, slot=slot - 39)
+                if not item_slot:
+                    item_slot = BankItem(owner=self, slot=slot - 39, item=item)
             elif slot >= 81 and slot < 97:
-                player_item = KeyringItem.get(owner=self, slot=slot - 81)
+                item_slot = KeyringItem.get(owner=self, slot=slot - 81)
+                if not item_slot:
+                    item_slot = KeyringItem(owner=self, slot=slot - 81, item=item)
         else:
-            bag = None
             if bag_slot >= 19 and bag_slot < 23:
                 bag = EquippedBag.get(owner=self, slot=bag_slot - 19)
             elif bag_slot >= 63 and bag_slot < 69:
                 bag = BankBag.get(owner=self, slot=bag_slot - 63)
 
             if bag:
-                player_item = container.ContainerItem.get(container=bag.container, slot=slot)
+                item_slot = container.ContainerItem.get(container=bag.container, slot=slot)
 
-        if player_item:
-            return player_item.item
-        return None
+        assert item_slot is not None
 
-    def equipment_map(self) -> Dict[enums.EquipmentSlot, item.Item]:
-        """Return a mapping of equipment slot --> equipped item.
-        
-        This is useful in situations where we have to fully specify the
-        equipment (even if there is no equipment).
+        if item:
+            item_slot.item = item
+            item.after_update()
+        else:
+            item_slot.delete()
 
-        Returns:
-            A mapping from equipment slot --> item equipped in that slot.
+        if bag:
+            bag.after_update()
+
+    def get_item(self, bag_slot: int, slot: int):
+        """Get an item from a given slot within some bag.
+
+        The bag is an absolute value which corresponds to one of the
+        many bag slots. The slot is the position of the item within
+        that bag.
         """
-        return {eq.slot: eq.item for eq in self.equipment}
+        if bag_slot == 255:
+            return InventoryItem.get(owner=self, slot=slot)
+        return InventoryItem.get(owner=self, slot=bag_slot).item.contents()[slot]
 
     def player_flags(self) -> enums.PlayerFlags:
         f = enums.PlayerFlags.NONE
@@ -384,19 +449,20 @@ class Player(unit.Unit):
             **kwargs,
         )
 
-        for equipment in starting_items.equipment:
-            EquippedItem(
+        for slot in range(enums.InventorySlots.EQUIPMENT_START, enums.InventorySlots.KEYRING_END):
+            InventoryItem(
                 owner=player,
-                slot=enums.EquipmentSlot[equipment['equipment_slot']],
-                item=item.Item.New(game.ItemTemplate[equipment['entry']]),
+                slot=slot,
             )
 
+        equipment = player.equipment()
+        for equipment_dict in starting_items.equipment:
+            slot = enums.EquipmentSlot[equipment_dict['equipment_slot']]
+            equipment[slot].item = item.Item.New(game.ItemTemplate[equipment_dict['entry']])
+
+        backpack = player.backpack()
         for i, entry in enumerate(starting_items.items):
-            BackpackItem(
-                owner=player,
-                slot=i,
-                item=item.Item.New(game.ItemTemplate[entry]),
-            )
+            backpack[i].item = item.Item.New(game.ItemTemplate[entry])
 
         return player
 
@@ -416,20 +482,20 @@ class Player(unit.Unit):
         return 0x06 + 0xB6 + 0x446
 
     def calculate_attack_time(self, slot: enums.EquipmentSlot) -> int:
-        equipment = self.equipment_map()
+        equipment = self.equipment()
 
         base = 1000 if slot == enums.EquipmentSlot.MAIN_HAND else 0
-        if slot in equipment:
-            base = equipment[slot].base_item.delay
+        if equipment[slot].item:
+            base = equipment[slot].item.base_item.delay
 
         return base
 
     def calculate_damage(self, slot: enums.EquipmentSlot) -> Tuple[float, float]:
-        equipment = self.equipment_map()
+        equipment = self.equipment()
 
         base = 1.0, 1.0
-        if slot in equipment:
-            base = equipment[slot].base_item.dmg(enums.SpellSchool.NORMAL)
+        if equipment[slot].item:
+            base = equipment[slot].item.base_item.dmg(enums.SpellSchool.NORMAL)
 
         return base
 
@@ -506,6 +572,10 @@ class Player(unit.Unit):
     def calculate_ranged_crit_percent(self) -> float:
         return 25.0
 
+    def equip_bag(self, slot: int, container: container.Container):
+        container.remove_from_slot()
+        EquippedBag(owner=self, slot=slot, container=container)
+
     def bytes_4(self) -> int:
         b = 0
         if self.is_tracking_stealth:
@@ -551,7 +621,7 @@ class Player(unit.Unit):
         uf = enums.UnitFields
         fields: Dict[enums.UpdateField, Any] = defaultdict(lambda: 0)
 
-        equipment = self.equipment_map()
+        equipment = self.equipment()
 
         # Populate fields for virtual items (i.e. how sheathed items should
         # be displayed).
@@ -560,14 +630,14 @@ class Player(unit.Unit):
                 fields.update(
                     self.virtual_item_fields(
                         enums.EquipmentSlot.MAIN_HAND,
-                        equipment[enums.EquipmentSlot.MAIN_HAND].base_item,
+                        equipment[enums.EquipmentSlot.MAIN_HAND].item.base_item,
                     ))
 
             if enums.EquipmentSlot.OFF_HAND in equipment:
                 fields.update(
                     self.virtual_item_fields(
                         enums.EquipmentSlot.OFF_HAND,
-                        equipment[enums.EquipmentSlot.OFF_HAND].base_item,
+                        equipment[enums.EquipmentSlot.OFF_HAND].item.base_item,
                     ))
 
         elif self.sheathed_state == enums.SheathedState.RANGED:
@@ -575,35 +645,22 @@ class Player(unit.Unit):
                 fields.update(
                     self.virtual_item_fields(
                         enums.EquipmentSlot.RANGED,
-                        equipment[enums.EquipmentSlot.RANGED].base_item,
+                        equipment[enums.EquipmentSlot.RANGED].item.base_item,
                     ))
 
         # Populate equipment fields.
         for equipment_slot in enums.EquipmentSlot:
             item = equipment.get(equipment_slot)
-            fields.update(self.visible_item_fields(equipment_slot, item))
-            fields.update(self.inventory_fields(equipment_slot, item))
+            if item:
+                fields.update(self.visible_item_fields(equipment_slot, item.item))
+                fields.update(self.inventory_fields(equipment_slot, item.item))
 
         # Populate backpack fields.
-        for backpack_item in self.backpack:
-            fields[f.PACK_SLOT_1 + (backpack_item.slot * 2)] = backpack_item.item.guid
-
-        for bag in self.bags:
-            fields[f.BAG_SLOT_1 + (bag.slot * 2)] = bag.container.guid
-
-        for bank_item in self.bank:
-            fields[f.BANK_SLOT_1 + (bank_item.slot * 2)] = bank_item.item.guid
-
-        for bank_bag in self.bank_bags:
-            fields[f.BANKBAG_SLOT_1 + (bank_bag.slot * 2)] = bank_bag.container.guid
-
-        for vendor_buyback_item in self.vendor_buyback:
-            fields[f.VENDORBUYBACK_SLOT_1 + (vendor_buyback_item.slot * 2)] = vendor_buyback_item.item.guid
-            fields[f.BUYBACK_PRICE_1 + (vendor_buyback_item.slot * 2)] = vendor_buyback_item.item.base_item.SellPrice
-            fields[f.BUYBACK_TIMESTAMP_1 + (vendor_buyback_item.slot * 2)] = vendor_buyback_item.expiry
-
-        for keyring_item in self.keyring:
-            fields[f.KEYRING_SLOT_1 + (keyring_item.slot * 2)] = keyring_item.item.guid
+        for ii in self.inventory:
+            if ii.item:
+                fields[f.INVENTORY_START + (ii.slot * 2)] = ii.item.guid
+            else:
+                fields[f.INVENTORY_START + (ii.slot * 2)] = game_object.GUID(0)
 
         fields.update({
             uf.BASEATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.MAIN_HAND),

@@ -52,7 +52,10 @@ def main(output_file: Text):
                 if name[0].isnumeric():
                     name = '_' + name
                 name = re.sub('_+', '_', name)
-                enums[name] = r.id
+                if cls.__name__ == 'ItemSubClass':
+                    enums[name] = r.sub_class
+                else:
+                    enums[name] = r.id
 
         enum_lines[enum_name] = [f'class {enum_name}(enum.IntEnum):']
         for k, v in sorted(enums.items()):

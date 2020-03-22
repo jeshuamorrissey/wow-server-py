@@ -16,7 +16,25 @@ def MaxNumberOfProfessions() -> int:
     return 10  # TODO: make this config
 
 
+class InventorySlots(enum.IntEnum):
+    EQUIPMENT_START = 0
+    EQUIPMENT_END = 19
+    BAG_START = 19
+    BAG_END = 23
+    BACKPACK_START = 23
+    BACKPACK_END = 39
+    BANK_START = 39
+    BANK_END = 63
+    BANK_BAG_START = 63
+    BANK_BAG_END = 69
+    BUYBACK_START = 69
+    BUYBACK_END = 81
+    KEYRING_START = 81
+    KEYRING_END = 97
+
+
 MAX_EXPLORED_ZONES = 2048
+INVENTORY_SIZE = InventorySlots.KEYRING_END
 
 
 class Team(enum.IntEnum):
@@ -700,3 +718,42 @@ class MeetingStoneQueueStatus(enum.IntEnum):
     PARTY_MEMBER_REMOVED_PARTY_REMOVED = 3
     LOOKING_FOR_NEW_PARTY_IN_QUEUE = 4
     NONE = 5
+
+
+class PlayerBagType(enum.IntEnum):
+    EQUIPMENT = enum.auto()
+    BACKPACK = enum.auto()
+    BANK = enum.auto()
+    KEYRING = enum.auto()
+
+
+class InventoryType(enum.IntEnum):
+    NON_EQUIP = 0
+    HEAD = 1
+    NECK = 2
+    SHOULDERS = 3
+    BODY = 4
+    CHEST = 5
+    WAIST = 6
+    LEGS = 7
+    FEET = 8
+    WRISTS = 9
+    HANDS = 10
+    FINGER = 11
+    TRINKET = 12
+    WEAPON = 13
+    SHIELD = 14
+    RANGED = 15
+    CLOAK = 16
+    _2HWEAPON = 17
+    BAG = 18
+    TABARD = 19
+    ROBE = 20
+    WEAPONMAINHAND = 21
+    WEAPONOFFHAND = 22
+    HOLDABLE = 23
+    AMMO = 24
+    THROWN = 25
+    RANGEDRIGHT = 26
+    QUIVER = 27
+    RELIC = 28

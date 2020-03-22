@@ -19,10 +19,9 @@ def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) ->
 
         # Build up the equipment list. This list has to be in order, even if
         # the items aren't actually in order.
-        equipment_map = character.equipment_map()
         equipment = []
-        for slot in enums.EquipmentSlot:
-            item = equipment_map.get(slot, None)
+        for _, ei in sorted(character.equipment().items()):
+            item = ei.item
             if item:
                 equipment.append(dict(display_id=item.base_item.displayid, inventory_type=item.base_item.InventoryType))
             else:

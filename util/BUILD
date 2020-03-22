@@ -25,6 +25,7 @@ py_binary(
     srcs = ["gen_enums.py"],
     deps = [
         "//database",
+        "//world_server",
         requirement("coloredlogs"),
         requirement("stringcase"),
     ],

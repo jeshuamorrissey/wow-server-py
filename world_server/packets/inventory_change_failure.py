@@ -1,6 +1,9 @@
 import enum
+from typing import List, Tuple
 
 from construct import Default, Enum, If, Int8ul, Int32ul, Int64ul, Struct
+
+from world_server import op_code
 
 
 class ErrorCode(enum.IntEnum):
@@ -78,10 +81,20 @@ ServerInventoryChangeFailure = Struct(
     'result' / If(
         lambda c: c.code != ErrorCode.OK,
         Struct(
-            'required_level' / If(lambda c: c.code == ErrorCode.CANT_EQUIP_LEVEL_I, Int32ul),
+            'required_level' / If(lambda c: c._.code == ErrorCode.CANT_EQUIP_LEVEL_I, Int32ul),
             'item1_guid' / Default(Int64ul, 0),
             'item2_guid' / Default(Int64ul, 0),
             'bag_subclass' / Default(Int8ul, 0),
         ),
     ),
 )
+
+
+def error(code: ErrorCode, **kwargs) -> List[Tuple[op_code.Server, bytes]]:
+    return [(
+        op_code.Server.INVENTORY_CHANGE_FAILURE,
+        ServerInventoryChangeFailure.build(dict(
+            code=code,
+            result=dict(**kwargs),
+        )),
+    )]

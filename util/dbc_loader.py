@@ -227,6 +227,12 @@ def main(wow_dir: Text, output_dir: Text):
                 for i in range(1, 8 + 1):
                     if getattr(record, f'camera{i}') == 0:
                         delattr(record, f'camera{i}')
+
+            if cls == constants.ItemSubClass:
+                if record['class_'] == 4294967295:
+                    continue
+                if record['sub_class'] == 4294967295:
+                    continue
             # END HACK
 
             records.append(struct_to_dict(record))

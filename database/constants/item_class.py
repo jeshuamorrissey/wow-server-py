@@ -1,7 +1,7 @@
 from pony import orm
 
-from database.db import db
 from database.constants import common
+from database.db import db
 
 
 class ItemClass(db.Entity):
@@ -9,3 +9,5 @@ class ItemClass(db.Entity):
     subclass_map = orm.Required(int)
     flags = orm.Required(int)
     name = orm.Required(common.MultiEnumString)
+
+    item_sub_class_backlink = orm.Set('ItemSubClass', reverse='class_')

@@ -1,17 +1,26 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from pony import orm
 
-from database import enums, game
+from database import common, enums, game
 from database.db import db
 
-from . import item
+from . import game_object, item
 
 
-class ContainerItem(db.Entity):
+class ContainerItem(db.Entity, common.SlottedEntityMixin):
     container = orm.Required('Container')
     slot = orm.Required(int)
-    item = orm.Required('Item')
+    item = orm.Optional('Item')
+
+    def after_update(self):
+        self.container.after_update()
+        if self.item:
+            self.item.after_update()
+
+    def can_contain(self, item: Optional['item.Item']) -> bool:
+        """Return true iff this slot can contain the given item."""
+        return True
 
     orm.PrimaryKey(container, slot)
 
@@ -20,37 +29,26 @@ class Container(item.Item):
     items = orm.Set('ContainerItem')
     slots = orm.Required(int)
 
-    # Reverse mappings.
-    equipped_bag_backlink = orm.Optional('EquippedBag')
-    bank_bag_backlink = orm.Optional('BankBag')
-
-    def position(self) -> Tuple[float, float, float]:
-        """Get the current position of the object.
-
-        All objects either have a position, or have a parent who has a 
-        position, so a result from this should always be possible.
-
-        Returns:
-            A 3-tuple of floats (x, y, z).
-        """
-        if self.equipped_bag_backlink:
-            return self.equipped_bag_backlink.owner.position()
-        elif self.bank_bag_backlink:
-            return self.bank_bag_backlink.owner.position()
-        return super(Container, self).position()
+    def contents(self) -> Dict[int, ContainerItem]:
+        return {ci.slot: ci for ci in self.items}
 
     #
     # Class Methods (should be overwritten in children).
     #
     @classmethod
     def New(cls, base_item: game.ItemTemplate, **kwargs) -> 'Container':
-        return Container(
+        container = Container(
             base_item=base_item,
             durability=base_item.MaxDurability,
             stack_count=base_item.stackable,
             slots=base_item.ContainerSlots,
             **kwargs,
         )
+
+        for slot in range(container.slots):
+            ContainerItem(container=container, slot=slot)
+
+        return container
 
     def type_id(self) -> enums.TypeID:
         return enums.TypeID.CONTAINER
@@ -73,7 +71,10 @@ class Container(item.Item):
             enums.ContainerFields.NUM_SLOTS: self.slots,
         }
 
-        for item in self.items:
-            fields[enums.ContainerFields.SLOT_1 + (item.slot * 2)] = item.item.guid
+        for slot, ci in self.contents().items():
+            if ci.item:
+                fields[enums.ContainerFields.SLOT_1 + (slot * 2)] = ci.item.guid
+            else:
+                fields[enums.ContainerFields.SLOT_1 + (slot * 2)] = game_object.GUID(0)
 
         return {**super(Container, self).update_fields(), **fields}
