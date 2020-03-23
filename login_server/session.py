@@ -13,6 +13,7 @@ _OP_PACKET_SIZE = {
 
 
 class Session(session.Session):
+
     def setup(self):
         super(Session, self).setup()
 

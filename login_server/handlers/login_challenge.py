@@ -11,18 +11,16 @@ from login_server.packets import login_challenge
 
 @router.Handler(op_code.Client.LOGIN_CHALLENGE)
 @orm.db_session
-def handle_login_challenge(
-        pkt: login_challenge.ClientLoginChallenge,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
-    account = Account[pkt.account_name]
+def handle_login_challenge(pkt: login_challenge.ClientLoginChallenge,
+                           session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+    account = Account.get(name=pkt.account_name)
     if not account:
         return [(
             op_code.Server.LOGIN_CHALLENGE,
-            login_challenge.ServerLoginChallenge.build(
-                dict(
-                    error=c.LoginErrorCode.UNKNOWN_ACCOUNT,
-                    challenge=None,
-                )),
+            login_challenge.ServerLoginChallenge.build(dict(
+                error=c.LoginErrorCode.UNKNOWN_ACCOUNT,
+                challenge=None,
+            )),
         )]
 
     b, B = srp.GenerateEphemeral(account.verifier)

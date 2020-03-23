@@ -46,7 +46,7 @@ py_library(
 py_library(
     name = "system",
     srcs = ["system.py"],
-    visibility = ["//world_server:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
 
 py_library(
