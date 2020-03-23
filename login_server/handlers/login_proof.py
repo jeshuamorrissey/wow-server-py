@@ -3,28 +3,25 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.world.account import Account
+from database import enums, world
 from login_server import op_code, router, session
-from login_server.handlers import constants as c
 from login_server.packets import login_proof
 
 
 @router.Handler(op_code.Client.LOGIN_PROOF)
 @orm.db_session
-def handle_login_proof(
-        pkt: login_proof.ClientLoginProof,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_login_proof(pkt: login_proof.ClientLoginProof,
+                       session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     if not all((session.account_name, session.b, session.B)):
         return [(
             op_code.Server.LOGIN_PROOF,
-            login_proof.ServerLoginProof.build(
-                dict(
-                    error=c.LoginErrorCode.FAILED,
-                    proof=None,
-                )),
+            login_proof.ServerLoginProof.build(dict(
+                error=enums.LoginErrorCode.FAILED,
+                proof=None,
+            )),
         )]
 
-    account = Account[session.account_name]
+    account = world.Account[session.account_name]
 
     # Calculate our K and re-calculate M (to confirm client).
     K, M = srp.CalculateSessionKey(
@@ -39,11 +36,10 @@ def handle_login_proof(
     if M != pkt.M:
         return [(
             op_code.Server.LOGIN_PROOF,
-            login_proof.ServerLoginProof.build(
-                dict(
-                    error=c.LoginErrorCode.UNKNOWN_ACCOUNT,
-                    proof=None,
-                )),
+            login_proof.ServerLoginProof.build(dict(
+                error=enums.LoginErrorCode.UNKNOWN_ACCOUNT,
+                proof=None,
+            )),
         )]
 
     # Authenticated! Save the session key...
@@ -59,10 +55,9 @@ def handle_login_proof(
     return [
         (
             op_code.Server.LOGIN_PROOF,
-            login_proof.ServerLoginProof.build(
-                dict(
-                    error=c.LoginErrorCode.OK,
-                    proof=dict(proof=proof),
-                )),
+            login_proof.ServerLoginProof.build(dict(
+                error=enums.LoginErrorCode.OK,
+                proof=dict(proof=proof),
+            )),
         ),
     ]

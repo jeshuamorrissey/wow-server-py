@@ -1,3 +1,4 @@
+load("@requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_library")
 
 py_library(
@@ -9,5 +10,6 @@ py_library(
         "//database/constants",
         "//database/game",
         "//database/world",
+        requirement("parameterized"),
     ],
 )

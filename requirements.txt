@@ -4,3 +4,4 @@ cryptography==2.6.1
 pony==0.7.11
 mpyq==0.2.5
 stringcase==1.2.0
+parameterized==0.7.1

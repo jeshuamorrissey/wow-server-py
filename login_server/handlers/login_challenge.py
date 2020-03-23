@@ -3,9 +3,8 @@ from typing import List, Tuple
 from pony import orm
 
 from common import srp
-from database.world.account import Account
+from database import enums, world
 from login_server import op_code, router, session
-from login_server.handlers import constants as c
 from login_server.packets import login_challenge
 
 
@@ -13,12 +12,12 @@ from login_server.packets import login_challenge
 @orm.db_session
 def handle_login_challenge(pkt: login_challenge.ClientLoginChallenge,
                            session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
-    account = Account.get(name=pkt.account_name)
+    account = world.Account.get(name=pkt.account_name)
     if not account:
         return [(
             op_code.Server.LOGIN_CHALLENGE,
             login_challenge.ServerLoginChallenge.build(dict(
-                error=c.LoginErrorCode.UNKNOWN_ACCOUNT,
+                error=enums.LoginErrorCode.UNKNOWN_ACCOUNT,
                 challenge=None,
             )),
         )]
@@ -33,7 +32,7 @@ def handle_login_challenge(pkt: login_challenge.ClientLoginChallenge,
             op_code.Server.LOGIN_CHALLENGE,
             login_challenge.ServerLoginChallenge.build(
                 dict(
-                    error=c.LoginErrorCode.OK,
+                    error=enums.LoginErrorCode.OK,
                     challenge=dict(
                         B=B,
                         salt=account.salt,
