@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from pony import orm
 
@@ -6,7 +6,7 @@ from database import enums, game
 from database.db import db
 from database.world import enchantment
 
-from . import game_object
+from . import container, game_object
 
 
 class ItemEnchantment(db.Entity):
@@ -32,58 +32,50 @@ class Item(game_object.GameObject):
     is_readable = orm.Required(bool, default=False)
 
     # Reverse mappings.
-    container = orm.Optional('ContainerItem')
-    in_inventory = orm.Optional('InventoryItem')
+    in_inventory = orm.Optional('PlayerInventorySlot')
+    in_container = orm.Optional('ContainerSlot')
 
-    # equipped_by = orm.Optional('EquippedItem')
-    # in_backpack = orm.Optional('BackpackItem')
-    # in_bank = orm.Optional('BankItem')
-    # in_vendor_buyback = orm.Optional('VendorBuybackItem')
-    # in_keyring = orm.Optional('KeyringItem')
+    def equipment_slot(self) -> List[enums.EquipmentSlot]:
+        it = enums.InventoryType
+        inventory_type = self.base_item.InventoryType
+        if inventory_type in {it.HEAD}:
+            return [enums.EquipmentSlot.HEAD]
+        if inventory_type in {it.NECK}:
+            return [enums.EquipmentSlot.NECK]
+        if inventory_type in {it.SHOULDERS}:
+            return [enums.EquipmentSlot.SHOULDERS]
+        if inventory_type in {it.BODY, it.ROBE}:
+            return [enums.EquipmentSlot.BODY]
+        if inventory_type in {it.CHEST}:
+            return [enums.EquipmentSlot.CHEST]
+        if inventory_type in {it.WAIST}:
+            return [enums.EquipmentSlot.WAIST]
+        if inventory_type in {it.LEGS}:
+            return [enums.EquipmentSlot.LEGS]
+        if inventory_type in {it.FEET}:
+            return [enums.EquipmentSlot.FEET]
+        if inventory_type in {it.WRISTS}:
+            return [enums.EquipmentSlot.WRISTS]
+        if inventory_type in {it.HANDS}:
+            return [enums.EquipmentSlot.HANDS]
+        if inventory_type in {it.FINGER}:
+            return [enums.EquipmentSlot.FINGER1, enums.EquipmentSlot.FINGER2]
+        if inventory_type in {it.TRINKET}:
+            return [enums.EquipmentSlot.TRINKET1, enums.EquipmentSlot.TRINKET2]
+        if inventory_type in {it.CLOAK}:
+            return [enums.EquipmentSlot.BACK]
+        if inventory_type in {it._2HWEAPON, it.WEAPONMAINHAND, it.WEAPON}:
+            return [enums.EquipmentSlot.MAIN_HAND]
+        if inventory_type in {it.SHIELD, it.WEAPONOFFHAND, it.HOLDABLE, it.RELIC}:
+            return [enums.EquipmentSlot.OFF_HAND]
+        if inventory_type in {it.THROWN, it.RANGEDRIGHT, it.RANGED}:
+            return [enums.EquipmentSlot.RANGED]
+        if inventory_type in {it.TABARD}:
+            return [enums.EquipmentSlot.TABARD]
+        return []
 
     def can_equip_to_slot(self, slot: enums.EquipmentSlot):
-        self_it = self.base_item.InventoryType
-        it = enums.InventoryType
-        es = enums.EquipmentSlot
-        if slot == es.HEAD:
-            return self_it in {it.HEAD}
-        elif slot == es.NECK:
-            return self_it in {it.NECK}
-        elif slot == es.SHOULDERS:
-            return self_it in {it.SHOULDERS}
-        elif slot == es.BODY:
-            return self_it in {it.BODY, it.ROBE}
-        elif slot == es.CHEST:
-            return self_it in {it.CHEST}
-        elif slot == es.WAIST:
-            return self_it in {it.WAIST}
-        elif slot == es.LEGS:
-            return self_it in {it.LEGS}
-        elif slot == es.FEET:
-            return self_it in {it.FEET}
-        elif slot == es.WRISTS:
-            return self_it in {it.WRISTS}
-        elif slot == es.HANDS:
-            return self_it in {it.HANDS}
-        elif slot == es.FINGER1:
-            return self_it in {it.FINGER}
-        elif slot == es.FINGER2:
-            return self_it in {it.FINGER}
-        elif slot == es.TRINKET1:
-            return self_it in {it.TRINKET}
-        elif slot == es.TRINKET2:
-            return self_it in {it.TRINKET}
-        elif slot == es.BACK:
-            return self_it in {it.CLOAK}
-        elif slot == es.MAIN_HAND:
-            return self_it in {it._2HWEAPON, it.WEAPONMAINHAND, it.WEAPON}
-        elif slot == es.OFF_HAND:
-            return self_it in {it.SHIELD, it.WEAPONOFFHAND, it.HOLDABLE, it.RELIC}
-        elif slot == es.RANGED:
-            return self_it in {it.THROWN, it.RANGEDRIGHT, it.RANGED}
-        elif slot == es.TABARD:
-            return self_it in {it.TABARD}
-        return False
+        return slot in self.equipment_slot()
 
     def position(self) -> Tuple[float, float, float]:
         """Get the current position of the object.
@@ -94,10 +86,10 @@ class Item(game_object.GameObject):
         Returns:
             A 3-tuple of floats (x, y, z).
         """
-        if self.container:
-            return self.container.container.position()
-        elif self.in_inventory:
-            return self.in_inventory.owner.position()
+        if self.in_inventory:
+            return self.in_inventory.player.position()
+        if self.in_container:
+            return self.in_container.container.position()
         raise RuntimeError(f'item {self.id} ({self.base_item.name}) does not have an owner!')
 
     def enchantment_map(self) -> Dict[enums.EnchantmentSlot, enchantment.Enchantment]:
@@ -138,15 +130,15 @@ class Item(game_object.GameObject):
         f = enums.ItemFields
         fields: Dict[enums.UpdateField, Any] = {}
 
-        if self.in_inventory:
+        if self.in_container:
             fields.update({
-                f.OWNER: self.in_inventory.owner.guid,
-                f.CONTAINED: self.in_inventory.owner.guid,
+                f.OWNER: self.in_container.container.in_inventory.player.guid,
+                f.CONTAINED: self.in_container.container.guid,
             })
-        elif self.container:
+        elif self.in_inventory:
             fields.update({
-                f.OWNER: self.container.container.in_inventory.owner.guid,
-                f.CONTAINED: self.container.container.guid,
+                f.OWNER: self.in_inventory.player.guid,
+                f.CONTAINED: self.in_inventory.player.guid,
             })
 
         # Encode the flags.

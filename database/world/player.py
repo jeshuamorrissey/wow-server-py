@@ -8,23 +8,26 @@ from pony import orm
 from database import constants, enums, game
 from database.db import db
 
-from . import container, game_object, item, unit
+from . import container, game_object, unit
 from .account import Account
+from .item import Item
 from .realm import Realm
 
 
-class InventoryItem(db.Entity):
-    owner = orm.Required('Player')
-    slot = orm.Required(int, min=enums.InventorySlots.EQUIPMENT_START, max=enums.InventorySlots.KEYRING_END - 1)
-    item = orm.Optional(item.Item)
+class PlayerInventorySlot(db.Entity):
+    player = orm.Required('Player')
+    slot = orm.Required(int, min=enums.InventorySlots.EQUIPMENT_START, max=enums.InventorySlots.KEYRING_END)
+    item = orm.Optional('Item')
+
+    orm.PrimaryKey(player, slot)
 
     def after_update(self):
-        self.owner.after_update()
+        print('PlayerInventorySlot', self.player, self.item)
+        self.player.after_update()
         if self.item:
             self.item.after_update()
 
-    def can_contain(self, item: Optional['item.Item']) -> bool:
-        """Return true iff this slot can contain the given item."""
+    def can_contain(self, item: Optional[Item]) -> bool:
         if not item:
             return True
 
@@ -39,72 +42,6 @@ class InventoryItem(db.Entity):
                 return False
 
         return True
-
-    orm.PrimaryKey(owner, slot)
-
-
-# class EquippedItem(db.Entity):
-#     """Mapping table to store details about which items are equipped."""
-#     owner = orm.Required('Player')
-#     slot = orm.Required(enums.EquipmentSlot)
-#     item = orm.Required(item.Item)
-
-#     orm.PrimaryKey(owner, slot)
-
-# class BackpackItem(db.Entity):
-#     """Mapping table to store details about which items are in the backpack.
-
-#     The backpack is the default bag you always have available.
-#     """
-#     owner = orm.Required('Player')
-#     slot = orm.Required(int, min=0, max=15)
-#     item = orm.Required(item.Item)
-
-#     orm.PrimaryKey(owner, slot)
-
-# class EquippedBag(db.Entity):
-#     """Mapping table to store details about which bags are equipped."""
-#     owner = orm.Required('Player')
-#     slot = orm.Required(int, min=0, max=3)
-#     container = orm.Required('Container')
-
-#     orm.PrimaryKey(owner, slot)
-
-# class BankItem(db.Entity):
-#     owner = orm.Required('Player')
-#     slot = orm.Required(int, min=0, max=23)
-#     item = orm.Required(item.Item)
-
-#     orm.PrimaryKey(owner, slot)
-
-# class BankBag(db.Entity):
-#     owner = orm.Required('Player')
-#     slot = orm.Required(int, min=0, max=5)
-#     container = orm.Required('Container')
-
-#     orm.PrimaryKey(owner, slot)
-
-# class VendorBuybackItem(db.Entity):
-#     owner = orm.Required('Player')
-#     slot = orm.Required(int, min=0, max=11)
-#     item = orm.Required(item.Item)
-#     expiry = orm.Required(int)
-
-#     orm.PrimaryKey(owner, slot)
-
-# class KeyringItem(db.Entity):
-#     owner = orm.Required('Player')
-#     slot = orm.Required(int, min=0, max=15)
-#     item = orm.Required(item.Item)
-
-#     orm.PrimaryKey(owner, slot)
-
-# class PlayerProfession(db.Entity):
-#     player = orm.Required('Player')
-#     profession = orm.Required('Profession')
-
-#     level = orm.Required(int, default=0)
-#     orm.PrimaryKey(player, profession)
 
 
 class PlayerSkill(db.Entity):
@@ -160,6 +97,7 @@ class Player(unit.Unit):
 
     tutorials = orm.Required(orm.Json, default=[False] * 256)
 
+    inventory = orm.Set('PlayerInventorySlot')
     # professions = orm.Set(PlayerProfession)
     explored_zones = orm.Required(orm.IntArray)
 
@@ -179,19 +117,6 @@ class Player(unit.Unit):
     # Player location information.
     zone = orm.Required(int)
     map = orm.Required(int)
-
-    # Inventory.
-    inventory = orm.Set(InventoryItem)
-    # inventory = orm.Required(orm.Json)
-
-    # equipment = orm.Set(EquippedItem)
-    # backpack = orm.Set(BackpackItem)
-    # bags = orm.Set(EquippedBag)
-    # bank = orm.Set(BankItem)
-    # bank_bags = orm.Set(BankBag)
-    # vendor_buyback = orm.Set(VendorBuybackItem)
-    # keyring = orm.Set(KeyringItem)
-
     quests = orm.Set('Quest')
 
     # Game-object specific information.
@@ -233,31 +158,34 @@ class Player(unit.Unit):
     created_items = orm.Set('Item')
     dual_arbiter = orm.Optional('Player', reverse='dual_arbiter')
 
-    def _inv_slice(self, start: int, end: int) -> Dict[int, InventoryItem]:
+    def swap_items(self, src_slot, dst_slot) -> enums.InventoryChangeError:
+        pass
+
+    def _inv_slice(self, start: int, end: int) -> Dict[int, PlayerInventorySlot]:
         return {pi.slot - start: pi for pi in self.inventory if pi.slot >= start and pi.slot < end}
 
-    def equipment(self) -> Dict[enums.EquipmentSlot, InventoryItem]:
+    def equipment(self) -> Dict[enums.EquipmentSlot, PlayerInventorySlot]:
         return {
             enums.EquipmentSlot(s): i for s, i in self._inv_slice(enums.InventorySlots.EQUIPMENT_START,
                                                                   enums.InventorySlots.EQUIPMENT_END).items()
         }
 
-    def bags(self) -> Dict[int, InventoryItem]:
+    def bags(self) -> Dict[int, PlayerInventorySlot]:
         return self._inv_slice(enums.InventorySlots.BAG_START, enums.InventorySlots.BAG_END)
 
-    def backpack(self) -> Dict[int, InventoryItem]:
+    def backpack(self) -> Dict[int, PlayerInventorySlot]:
         return self._inv_slice(enums.InventorySlots.BACKPACK_START, enums.InventorySlots.BACKPACK_END)
 
-    def bank(self) -> Dict[int, InventoryItem]:
+    def bank(self) -> Dict[int, PlayerInventorySlot]:
         return self._inv_slice(enums.InventorySlots.BANK_START, enums.InventorySlots.BANK_END)
 
-    def bank_bags(self) -> Dict[int, InventoryItem]:
+    def bank_bags(self) -> Dict[int, PlayerInventorySlot]:
         return self._inv_slice(enums.InventorySlots.BANK_BAG_START, enums.InventorySlots.BANK_BAG_END)
 
-    def buyback_items(self) -> Dict[int, item.Item]:
+    def buyback_items(self) -> Dict[int, Item]:
         return self._inv_slice(enums.InventorySlots.BUYBACK_START, enums.InventorySlots.BUYBACK_END)
 
-    def keyring(self) -> Dict[int, item.Item]:
+    def keyring(self) -> Dict[int, Item]:
         return self._inv_slice(enums.InventorySlots.KEYRING_START, enums.InventorySlots.KEYRING_END)
 
     def tutorial_flags(self) -> List[int]:
@@ -270,47 +198,6 @@ class Player(unit.Unit):
 
         return result
 
-    def set_item(self, bag_slot: int, slot: int, item: Optional[item.Item]):
-        """Set the item in a specific slot to some value."""
-        item_slot = None
-        bag = None
-        if bag_slot == 255:
-            if slot >= 0 and slot < 19:
-                item_slot = EquippedItem.get(owner=self, slot=enums.EquipmentSlot(slot))
-                if not item_slot:
-                    item_slot = EquippedItem(owner=self, slot=enums.EquipmentSlot(slot), item=item)
-            if slot >= 23 and slot < 39:
-                item_slot = BackpackItem.get(owner=self, slot=slot - 23)
-                if not item_slot:
-                    item_slot = BackpackItem(owner=self, slot=slot - 23, item=item)
-            elif slot >= 39 and slot < 63:
-                item_slot = BankItem.get(owner=self, slot=slot - 39)
-                if not item_slot:
-                    item_slot = BankItem(owner=self, slot=slot - 39, item=item)
-            elif slot >= 81 and slot < 97:
-                item_slot = KeyringItem.get(owner=self, slot=slot - 81)
-                if not item_slot:
-                    item_slot = KeyringItem(owner=self, slot=slot - 81, item=item)
-        else:
-            if bag_slot >= 19 and bag_slot < 23:
-                bag = EquippedBag.get(owner=self, slot=bag_slot - 19)
-            elif bag_slot >= 63 and bag_slot < 69:
-                bag = BankBag.get(owner=self, slot=bag_slot - 63)
-
-            if bag:
-                item_slot = container.ContainerItem.get(container=bag.container, slot=slot)
-
-        assert item_slot is not None
-
-        if item:
-            item_slot.item = item
-            item.after_update()
-        else:
-            item_slot.delete()
-
-        if bag:
-            bag.after_update()
-
     def get_item(self, bag_slot: int, slot: int):
         """Get an item from a given slot within some bag.
 
@@ -319,8 +206,8 @@ class Player(unit.Unit):
         that bag.
         """
         if bag_slot == 255:
-            return InventoryItem.get(owner=self, slot=slot)
-        return InventoryItem.get(owner=self, slot=bag_slot).item.contents()[slot]
+            return PlayerInventorySlot.get(player=self, slot=slot)
+        return PlayerInventorySlot.get(player=self, slot=bag_slot).item.items()[slot]
 
     def player_flags(self) -> enums.PlayerFlags:
         f = enums.PlayerFlags.NONE
@@ -359,7 +246,7 @@ class Player(unit.Unit):
 
         return f
 
-    def visible_item_fields(self, slot: enums.EquipmentSlot, item: Optional[item.Item]) -> Dict[enums.UpdateField, Any]:
+    def visible_item_fields(self, slot: enums.EquipmentSlot, item: Optional[Item]) -> Dict[enums.UpdateField, Any]:
         fields_start = enums.PlayerFields.VISIBLE_ITEM_START + (slot * 12)
         if item:
             enchantments = item.enchantment_map()
@@ -383,7 +270,7 @@ class Player(unit.Unit):
 
         return {f: 0 for f in range(fields_start, fields_start + 11 + 1)}
 
-    def inventory_fields(self, slot: enums.EquipmentSlot, item: Optional[item.Item]) -> Dict[enums.UpdateField, Any]:
+    def inventory_fields(self, slot: enums.EquipmentSlot, item: Optional[Item]) -> Dict[enums.UpdateField, Any]:
         field = enums.PlayerFields.INVENTORY_START + (slot * 2)
         if item:
             return {field: item.guid}
@@ -450,19 +337,19 @@ class Player(unit.Unit):
         )
 
         for slot in range(enums.InventorySlots.EQUIPMENT_START, enums.InventorySlots.KEYRING_END):
-            InventoryItem(
-                owner=player,
+            PlayerInventorySlot(
+                player=player,
                 slot=slot,
             )
 
         equipment = player.equipment()
         for equipment_dict in starting_items.equipment:
             slot = enums.EquipmentSlot[equipment_dict['equipment_slot']]
-            equipment[slot].item = item.Item.New(game.ItemTemplate[equipment_dict['entry']])
+            equipment[slot].item = Item.New(game.ItemTemplate[equipment_dict['entry']])
 
         backpack = player.backpack()
         for i, entry in enumerate(starting_items.items):
-            backpack[i].item = item.Item.New(game.ItemTemplate[entry])
+            backpack[i].item = Item.New(game.ItemTemplate[entry])
 
         return player
 
@@ -572,10 +459,6 @@ class Player(unit.Unit):
     def calculate_ranged_crit_percent(self) -> float:
         return 25.0
 
-    def equip_bag(self, slot: int, container: container.Container):
-        container.remove_from_slot()
-        EquippedBag(owner=self, slot=slot, container=container)
-
     def bytes_4(self) -> int:
         b = 0
         if self.is_tracking_stealth:
@@ -650,17 +533,17 @@ class Player(unit.Unit):
 
         # Populate equipment fields.
         for equipment_slot in enums.EquipmentSlot:
-            item = equipment.get(equipment_slot)
-            if item:
-                fields.update(self.visible_item_fields(equipment_slot, item.item))
-                fields.update(self.inventory_fields(equipment_slot, item.item))
+            slot = equipment[equipment_slot]
+            if slot.item:
+                fields.update(self.visible_item_fields(equipment_slot, slot.item))
+                fields.update(self.inventory_fields(equipment_slot, slot.item))
 
         # Populate backpack fields.
-        for ii in self.inventory:
-            if ii.item:
-                fields[f.INVENTORY_START + (ii.slot * 2)] = ii.item.guid
+        for slot in self.inventory:
+            if slot.item:
+                fields[f.INVENTORY_START + (slot.slot * 2)] = slot.item.guid
             else:
-                fields[f.INVENTORY_START + (ii.slot * 2)] = game_object.GUID(0)
+                fields[f.INVENTORY_START + (slot.slot * 2)] = game_object.GUID(0)
 
         fields.update({
             uf.BASEATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.MAIN_HAND),

@@ -5,32 +5,36 @@ from pony import orm
 from database import common, enums, game
 from database.db import db
 
-from . import game_object, item
+from . import game_object
+from .item import Item
 
 
-class ContainerItem(db.Entity, common.SlottedEntityMixin):
+class ContainerSlot(db.Entity):
     container = orm.Required('Container')
     slot = orm.Required(int)
     item = orm.Optional('Item')
 
+    orm.PrimaryKey(container, slot)
+
     def after_update(self):
+        print('ContainerSlot', self.container, self.item)
         self.container.after_update()
         if self.item:
             self.item.after_update()
 
-    def can_contain(self, item: Optional['item.Item']) -> bool:
-        """Return true iff this slot can contain the given item."""
+    def can_contain(self, item: Optional[Item]) -> bool:
+        if not item:
+            return True
+
+        # TODO: containers which can only hold certain items
         return True
 
-    orm.PrimaryKey(container, slot)
 
+class Container(Item):
+    slots = orm.Set(ContainerSlot)
 
-class Container(item.Item):
-    items = orm.Set('ContainerItem')
-    slots = orm.Required(int)
-
-    def contents(self) -> Dict[int, ContainerItem]:
-        return {ci.slot: ci for ci in self.items}
+    def items(self) -> Dict[int, ContainerSlot]:
+        return {slot.slot: slot for slot in self.slots}
 
     #
     # Class Methods (should be overwritten in children).
@@ -41,12 +45,11 @@ class Container(item.Item):
             base_item=base_item,
             durability=base_item.MaxDurability,
             stack_count=base_item.stackable,
-            slots=base_item.ContainerSlots,
             **kwargs,
         )
 
-        for slot in range(container.slots):
-            ContainerItem(container=container, slot=slot)
+        for slot in range(base_item.ContainerSlots):
+            ContainerSlot(container=container, slot=slot)
 
         return container
 
@@ -68,10 +71,10 @@ class Container(item.Item):
     def update_fields(self) -> Dict[enums.UpdateField, Any]:
         """Return a mapping of UpdateField --> Value."""
         fields = {
-            enums.ContainerFields.NUM_SLOTS: self.slots,
+            enums.ContainerFields.NUM_SLOTS: len(self.slots),
         }
 
-        for slot, ci in self.contents().items():
+        for slot, ci in self.items().items():
             if ci.item:
                 fields[enums.ContainerFields.SLOT_1 + (slot * 2)] = ci.item.guid
             else:

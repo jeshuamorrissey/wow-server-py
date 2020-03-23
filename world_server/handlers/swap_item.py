@@ -15,19 +15,15 @@ def handler(pkt: swap_item.ClientSwapItem, session: session.Session) -> List[Tup
     src_slot = player.get_item(pkt.source_bag, pkt.source_slot)
     dst_slot = player.get_item(pkt.dest_bag, pkt.dest_slot)
 
-    # if not src_slot.item:
-    #     return inventory_change_failure.error(inventory_change_failure.ErrorCode.ITEM_NOT_FOUND)
+    if not src_slot.item:
+        return inventory_change_failure.error(enums.InventoryChangeError.ITEM_NOT_FOUND)
 
-    # ## Validation
-    # # Source is from EQUIPMENT, dst_item can't be moved there.
-    # if not src_slot.can_contain(dst_slot.item) or dst_slot.can_contain(src_slot.item):
-    #     return inventory_change_failure.error(code=inventory_change_failure.ErrorCode.ITEM_DOESNT_GO_TO_SLOT)
+    ## Validation
+    # If neither slot can contain the other, then don't do anything.
+    if not src_slot.can_contain(dst_slot.item) or not dst_slot.can_contain(src_slot.item):
+        return inventory_change_failure.error(code=enums.InventoryChangeError.ITEM_DOESNT_GO_TO_SLOT)
 
     ## Do the swap.
-    src_item = src_slot.item
-    dst_item = dst_slot.item
-
-    src_slot.item = dst_item
-    dst_slot.item = src_item
+    src_slot.item, dst_slot.item = dst_slot.item, src_slot.item
 
     return []

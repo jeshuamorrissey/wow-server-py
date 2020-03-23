@@ -90,7 +90,7 @@ def setup_db(args: argparse.Namespace):
 
             bag = world.Container.New(base_item=game.ItemTemplate[14156])
             jeshua.bags()[0].item = bag
-            bag.contents()[0].item = world.Container.New(base_item=game.ItemTemplate[14156])
+            bag.items()[0].item = world.Container.New(base_item=game.ItemTemplate[14156])
 
             world.PlayerSkill(
                 player=jeshua,
