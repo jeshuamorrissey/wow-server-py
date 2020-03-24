@@ -99,7 +99,7 @@ class Player(unit.Unit):
 
     inventory = orm.Set('PlayerInventorySlot')
     # professions = orm.Set(PlayerProfession)
-    explored_zones = orm.Required(orm.IntArray)
+    explored_zones = orm.Required(orm.IntArray, default=[])
 
     skills = orm.Set(PlayerSkill)
     spells = orm.Set(PlayerSpell)
