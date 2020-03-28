@@ -75,3 +75,9 @@ py_test(
     srcs = ["test_world_server_auto_equip_item.py"],
     deps = [":world_server_test"],
 )
+
+py_test(
+    name = "test_world_server_char_create",
+    srcs = ["test_world_server_char_create.py"],
+    deps = [":world_server_test"],
+)
