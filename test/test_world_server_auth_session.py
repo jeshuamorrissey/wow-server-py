@@ -12,70 +12,101 @@ import pytest
 from database import data, enums
 from world_server import op_code
 from world_server.handlers import auth_session as handler
+from world_server.packets import auth_response
 from world_server.packets import auth_session as packet
 
 
 def test_handle_auth_session(mocker, fake_db):
     # Setup database.
-    account = fake_db.Account(name='account', salt_str='11', verifier_str='22')
-    account2 = fake_db.Account(name='account2', salt_str='11', verifier_str='22')
-    r1 = fake_db.Realm(name='r1', hostport='r1')
-    r2 = fake_db.Realm(name='r2', hostport='r2')
-    fake_db.Player.New(
-        account,
-        r1,
-        'c1',
-        race=fake_db.ChrRaces[enums.EChrRaces.HUMAN],
-        class_=fake_db.ChrClasses[enums.EChrClasses.WARRIOR],
-        gender=enums.Gender.MALE,
-    )
+    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
 
-    fake_db.Player.New(
-        account,
-        r1,
-        'c2',
-        race=fake_db.ChrRaces[enums.EChrRaces.HUMAN],
-        class_=fake_db.ChrClasses[enums.EChrClasses.WARRIOR],
-        gender=enums.Gender.MALE,
-    )
+    client_pkt = packet.ClientAuthSession.parse(
+        packet.ClientAuthSession.build(
+            dict(
+                build_number=1234,
+                account_name='account',
+                client_seed=1000,
+                client_proof=2000,
+                addon_size=0,
+                addons=b'',
+            )))
 
-    fake_db.Player.New(
-        account,
-        r2,
-        'c3',
-        race=fake_db.ChrRaces[enums.EChrRaces.HUMAN],
-        class_=fake_db.ChrClasses[enums.EChrClasses.WARRIOR],
-        gender=enums.Gender.MALE,
-    )
-
-    fake_db.Player.New(
-        account2,
-        r1,
-        'c4',
-        race=fake_db.ChrRaces[enums.EChrRaces.HUMAN],
-        class_=fake_db.ChrClasses[enums.EChrClasses.WARRIOR],
-        gender=enums.Gender.MALE,
-    )
-
-    client_pkt = packet.ClientRealmlist.parse(packet.ClientRealmlist.build(dict()))
+    mock_srp = mocker.patch.object(handler, 'srp')
+    mock_srp.CalculateAuthSessionProof.return_value = 2000
 
     mock_session = mock.MagicMock()
-    mock_session.account_name = 'account'
-    mock_session.b = 1
-    mock_session.B = 2
+    mock_session.auth_challenge_seed = 1
 
-    response_pkts = handler.handle_realmlist(client_pkt, mock_session)
+    response_pkts = handler.handle_auth_session(client_pkt, mock_session)
 
     assert len(response_pkts) == 1
 
     response_op, response_bytes = response_pkts[0]
-    response_pkt = packet.ServerRealmlist.parse(response_bytes)
-    assert response_op == op_code.Server.REALMLIST
-    assert response_pkt.n_realms == 2
-    assert response_pkt.realms[0].name == 'r1'
-    assert response_pkt.realms[0].n_characters == 2
-    assert response_pkt.realms[1].name == 'r2'
-    assert response_pkt.realms[1].n_characters == 1
+    response_pkt = auth_response.ServerAuthResponse.parse(response_bytes)
+    assert response_op == op_code.Server.AUTH_RESPONSE
+    assert auth_response.ErrorCode.OK == auth_response.ErrorCode(response_pkt.error)
+
+
+def test_handle_auth_session_invalid_proof(mocker, fake_db):
+    # Setup database.
+    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
+
+    client_pkt = packet.ClientAuthSession.parse(
+        packet.ClientAuthSession.build(
+            dict(
+                build_number=1234,
+                account_name='account',
+                client_seed=1000,
+                client_proof=2000,
+                addon_size=0,
+                addons=b'',
+            )))
+
+    mock_srp = mocker.patch.object(handler, 'srp')
+    mock_srp.CalculateAuthSessionProof.return_value = 2001
+
+    mock_session = mock.MagicMock()
+    mock_session.auth_challenge_seed = 1
+
+    response_pkts = handler.handle_auth_session(client_pkt, mock_session)
+
+    assert len(response_pkts) == 1
+
+    response_op, response_bytes = response_pkts[0]
+    response_pkt = auth_response.ServerAuthResponse.parse(response_bytes)
+    assert response_op == op_code.Server.AUTH_RESPONSE
+    assert auth_response.ErrorCode.FAILED == auth_response.ErrorCode(response_pkt.error)
+
+
+def test_handle_auth_session_unknown_account(mocker, fake_db):
+    # Setup database.
+    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
+
+    client_pkt = packet.ClientAuthSession.parse(
+        packet.ClientAuthSession.build(
+            dict(
+                build_number=1234,
+                account_name='invalid',
+                client_seed=1000,
+                client_proof=2000,
+                addon_size=0,
+                addons=b'',
+            )))
+
+    mock_srp = mocker.patch.object(handler, 'srp')
+    mock_srp.CalculateAuthSessionProof.return_value = 2001
+
+    mock_session = mock.MagicMock()
+    mock_session.auth_challenge_seed = 1
+
+    response_pkts = handler.handle_auth_session(client_pkt, mock_session)
+
+    assert len(response_pkts) == 1
+
+    response_op, response_bytes = response_pkts[0]
+    response_pkt = auth_response.ServerAuthResponse.parse(response_bytes)
+    assert response_op == op_code.Server.AUTH_RESPONSE
+    assert auth_response.ErrorCode.UNKNOWN_ACCOUNT == auth_response.ErrorCode(response_pkt.error)
 
 
 if __name__ == '__main__':

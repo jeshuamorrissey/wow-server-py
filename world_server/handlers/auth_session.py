@@ -13,7 +13,7 @@ from world_server.packets import auth_response, auth_session
 def handle_auth_session(pkt: auth_session.ClientAuthSession,
                         session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     # Retreive account from database and save session key.
-    account = world.Account[pkt.account_name]
+    account = world.Account.get(name=pkt.account_name)
     if not account:
         return [(
             op_code.Server.AUTH_RESPONSE,
