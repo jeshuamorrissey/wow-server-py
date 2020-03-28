@@ -23,8 +23,6 @@ def handler(pkt: auto_equip_item.ClientAutoEquipItem, session: session.Session) 
         for _, bag in sorted(player.bags().items()):
             if not bag.item:
                 dst_slot = bag
-                print('found bag slot')
-                print(dst_slot)
                 break
 
         if not dst_slot:
@@ -52,16 +50,7 @@ def handler(pkt: auto_equip_item.ClientAutoEquipItem, session: session.Session) 
             if not slot.item:
                 dst_slot = slot
 
-    # Validate that the swap can be made.
-    if not src_slot.can_contain(dst_slot.item) or not dst_slot.can_contain(src_slot.item):
-        return inventory_change_failure.error(code=ec.ITEM_DOESNT_GO_TO_SLOT)
-
     # Make the swap.
-    print('a', src_slot, src_slot.item, src_slot.container)
-    print('a', dst_slot, dst_slot.item, dst_slot.player)
     src_slot.item, dst_slot.item = dst_slot.item, src_slot.item
-    orm.flush()
-    print('b', src_slot, src_slot.item, src_slot.container)
-    print('b', dst_slot, dst_slot.item, dst_slot.player)
 
     return []

@@ -20,10 +20,6 @@ def pytest_configure(config):
     db.SetupDatabase(db_file=_db_tempfile.name)
 
 
-def pytest_unconfigure(config):
-    os.remove(_db_tempfile.name)
-
-
 def pytest_runtest_setup(item):
     data.clear_world_database(db.db)
     db.db.create_tables()
@@ -31,6 +27,7 @@ def pytest_runtest_setup(item):
 
 
 def pytest_runtest_teardown(item, nextitem):
+    orm.flush()
     orm.db_session.__exit__()
 
 

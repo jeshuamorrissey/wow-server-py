@@ -60,11 +60,18 @@ py_library(
         "//world_server:system",
         "//world_server/handlers",
         "//world_server/packets",
+        "//world_server/systems",
     ],
 )
 
 py_test(
     name = "test_world_server_auth_session",
     srcs = ["test_world_server_auth_session.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_auto_equip_item",
+    srcs = ["test_world_server_auto_equip_item.py"],
     deps = [":world_server_test"],
 )

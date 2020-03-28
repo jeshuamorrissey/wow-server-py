@@ -7,11 +7,12 @@ from database import enums
 from world_server import op_code
 
 ServerInventoryChangeFailure = Struct(
-    'code' / Enum(Int8ul, enums.InventoryChangeError),
+    'code' / Int8ul,
     'result' / If(
         lambda c: c.code != enums.InventoryChangeError.OK,
         Struct(
-            'required_level' / If(lambda c: c._.code == enums.InventoryChangeError.CANT_EQUIP_LEVEL_I, Default(Int32ul, 0)),
+            'required_level' /
+            If(lambda c: c._.code == enums.InventoryChangeError.CANT_EQUIP_LEVEL_I, Default(Int32ul, 0)),
             'item1_guid' / Default(Int64ul, 0),
             'item2_guid' / Default(Int64ul, 0),
             'bag_subclass' / Default(Int8ul, 0),
