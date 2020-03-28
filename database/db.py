@@ -23,7 +23,7 @@ def SetupDatabase(db_file: Text, clear_database: bool = False, clear_dynamic_dat
         os.remove(db_file)
 
     # Connect to the SQLite database.
-    db.bind(provider='sqlite', filename=db_file, create_db=True)
+    db.bind(provider='sqlite', filename=db_file, create_db=not os.path.exists(db_file))
     db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
     db.generate_mapping(check_tables=False)
 

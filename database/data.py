@@ -2,7 +2,9 @@ import gzip
 import json
 import logging
 import os
-from typing import Dict, List, Set, Text, Type
+import string
+import time
+from typing import IO, Dict, List, Optional, Set, Text, Type, Union
 
 from pony import orm
 
@@ -27,8 +29,9 @@ def _load(db: orm.Database, cls_name: Text, cls: Type, module: Text):
 
     with orm.db_session:
         if orm.count(r for r in cls) == 0:
-            logging.info(f'Loading {cls_name}...')
+            logging.info(f'Loading {cls_name} from {data_file}...')
 
+            f: Optional[Union[IO, gzip.GzipFile]] = None
             if data_file.endswith('.gz'):
                 f = gzip.GzipFile(data_file)
             else:
@@ -187,9 +190,20 @@ def load_constants(db: orm.Database):
     """
     classes = _find_subclasses(db.Entity, include_prefix=('database.constants', 'database.game'))
     load_order = _sorted_by_dependencies(classes)
+    _profile: Dict[Text, float] = {}
+    _longest_name_len = 0
 
     for i, phase in enumerate(load_order):
         logging.debug(f'Loading, phase {i}...')
         for entity_name in sorted(phase):
             module = classes[entity_name].__module__.split('.')[1]
+
+            start_time = time.time()
             _load(db, entity_name, classes[entity_name], module)
+            _profile[entity_name] = time.time() - start_time
+
+    logging.debug('Profile information for database loading: ')
+    _longest_name_len = max(len(name) for name in _profile.keys())
+    for name, process_time in sorted(_profile.items(), key=lambda i: i[1], reverse=True):
+        display_name = (' ' * (_longest_name_len - len(name))) + name
+        logging.debug('{}: {:.4f}s'.format(display_name, process_time))

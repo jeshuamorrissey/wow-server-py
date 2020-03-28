@@ -1,6 +1,7 @@
 import enum
 import io
 import logging
+import sys
 import unittest
 from typing import Text
 from unittest import mock
@@ -75,3 +76,7 @@ def test_handle_realmlist(mocker, fake_db):
     assert response_pkt.realms[0].n_characters == 2
     assert response_pkt.realms[1].name == 'r2'
     assert response_pkt.realms[1].n_characters == 1
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main([__file__]))

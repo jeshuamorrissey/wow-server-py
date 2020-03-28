@@ -5,7 +5,7 @@ py_library(
     srcs = glob([
         "*.py",
     ]),
-    visibility = ["//world_server:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
         "//database",
     ],

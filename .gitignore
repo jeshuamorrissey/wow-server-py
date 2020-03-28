@@ -1,6 +1,7 @@
 __pycache__
 .coverage
 .mypy*
+.pytest_cache
 .venv
 .vscode
 bazel-*

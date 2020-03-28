@@ -1,6 +1,7 @@
 import enum
 import io
 import logging
+import sys
 import unittest
 from typing import Text
 from unittest import mock
@@ -100,3 +101,7 @@ def test_handler_login_proof(mocker, fake_db):
     assert response_pkt.error == enums.LoginErrorCode.OK
     assert response_pkt.proof.proof == 1
     assert fake_db.Account.get(name='account').session_key_str == '1'
+
+
+if __name__ == '__main__':
+    sys.exit(pytest.main([__file__]))

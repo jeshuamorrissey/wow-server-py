@@ -16,7 +16,7 @@ py_library(
 py_library(
     name = "session",
     srcs = ["session.py"],
-    visibility = ["//login_server:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
         ":op_code",
         "//common:session",
@@ -26,13 +26,13 @@ py_library(
 py_library(
     name = "op_code",
     srcs = ["op_code.py"],
-    visibility = ["//login_server:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
 
 py_library(
     name = "router",
     srcs = ["router.py"],
-    visibility = ["//login_server:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
         ":op_code",
         "//common:router",

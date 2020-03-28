@@ -30,3 +30,13 @@ py_binary(
         requirement("stringcase"),
     ],
 )
+
+py_binary(
+    name = "gen_test_db",
+    srcs = ["gen_test_db.py"],
+    deps = [
+        "//database",
+        "//world_server",
+        requirement("coloredlogs"),
+    ],
+)

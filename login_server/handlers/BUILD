@@ -4,9 +4,9 @@ load("@rules_python//python:defs.bzl", "py_library", "py_test")
 py_library(
     name = "handlers",
     srcs = glob(["*.py"]),
-    visibility = ["//login_server:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
-        ":constants",
+        "//database/enums",
         "//database/game",
         "//database/world",
         "//login_server:op_code",
@@ -16,11 +16,6 @@ py_library(
         "//world_server:system",
         requirement("pony"),
     ],
-)
-
-py_library(
-    name = "constants",
-    srcs = ["constants.py"],
 )
 
 py_test(

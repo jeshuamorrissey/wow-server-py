@@ -18,6 +18,7 @@ py_library(
 py_library(
     name = "session",
     srcs = ["session.py"],
+    visibility = ["//visibility:public"],
     deps = [
         ":op_code",
         "//common:session",
@@ -35,7 +36,7 @@ py_library(
 py_library(
     name = "router",
     srcs = ["router.py"],
-    visibility = ["//world_server:__subpackages__"],
+    visibility = ["//visibility:public"],
     deps = [
         ":op_code",
         "//common:router",
@@ -52,5 +53,5 @@ py_library(
 py_library(
     name = "config",
     srcs = ["config.py"],
-    visibility = ["//world_server:__subpackages__"],
+    visibility = ["//visibility:public"],
 )
