@@ -81,3 +81,15 @@ py_test(
     srcs = ["test_world_server_char_create.py"],
     deps = [":world_server_test"],
 )
+
+py_test(
+    name = "test_world_server_char_delete",
+    srcs = ["test_world_server_char_delete.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_char_enum",
+    srcs = ["test_world_server_char_enum.py"],
+    deps = [":world_server_test"],
+)
