@@ -6,7 +6,7 @@ import unittest
 from typing import Text
 from unittest import mock
 
-import parameterized
+
 import pytest
 from pony import orm
 

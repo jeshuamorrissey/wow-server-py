@@ -16,6 +16,7 @@ _db_tempfile = tempfile.NamedTemporaryFile()
 
 
 def pytest_configure(config):
+    _db_tempfile.close()
     shutil.copy(os.path.join(os.getcwd(), 'test/base.db'), _db_tempfile.name)
     db.SetupDatabase(db_file=_db_tempfile.name)
 

@@ -17,13 +17,3 @@ py_library(
         requirement("pony"),
     ],
 )
-
-py_test(
-    name = "test_login_challenge",
-    srcs = ["test_login_challenge.py"],
-    deps = [
-        ":handlers",
-        "//common:server",
-        "//test:fake_db",
-    ],
-)

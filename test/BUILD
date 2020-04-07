@@ -17,6 +17,8 @@ py_library(
         requirement("pony"),
         requirement("pytest-mock"),
         requirement("pytest"),
+        requirement("six"),
+        requirement("atomicwrites"),
     ],
 )
 
