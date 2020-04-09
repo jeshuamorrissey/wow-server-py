@@ -95,3 +95,33 @@ py_test(
     srcs = ["test_world_server_char_enum.py"],
     deps = [":world_server_test"],
 )
+
+py_test(
+    name = "test_world_server_battlefield_status",
+    srcs = ["test_world_server_battlefield_status.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_gm_get_ticket",
+    srcs = ["test_world_server_gm_get_ticket.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_guild_query",
+    srcs = ["test_world_server_guild_query.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_move_time_skipped",
+    srcs = ["test_world_server_move_time_skipped.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_ping",
+    srcs = ["test_world_server_ping.py"],
+    deps = [":world_server_test"],
+)

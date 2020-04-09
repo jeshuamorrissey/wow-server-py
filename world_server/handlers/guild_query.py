@@ -9,13 +9,15 @@ from world_server.packets import guild_command_result, guild_query
 
 @router.Handler(op_code.Client.GUILD_QUERY)
 @orm.db_session
-def handle_guild_query(pkt: guild_query.ClientGuildQuery,
-                       session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_guild_query(
+        pkt: guild_query.ClientGuildQuery,
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     try:
         guild = world.Guild[pkt.id]
 
-        rank_names = [gr.name for gr in guild.ranks]
-        rank_names += [''] * (10 - len(rank_names))
+        rank_names = []
+        for _, rank in sorted(guild.get_ranks().items()):
+            rank_names.append(rank.name if rank else '')
 
         return [(
             op_code.Server.GUILD_QUERY_RESPONSE,

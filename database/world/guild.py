@@ -1,4 +1,5 @@
 import enum
+from typing import Dict, Optional
 
 from pony import orm
 
@@ -32,5 +33,12 @@ class Guild(db.Entity):
     border_style = orm.Required(int)
     border_color = orm.Required(int)
     background_color = orm.Required(int)
+
+    def get_ranks(self) -> Dict[int, Optional[GuildRank]]:
+        rank_map = {i: None for i in range(10)}
+        for rank in self.ranks:
+            rank_map[rank.slot] = rank
+
+        return rank_map
 
     members = orm.Set('GuildMembership')
