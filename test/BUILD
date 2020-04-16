@@ -115,6 +115,12 @@ py_test(
 )
 
 py_test(
+    name = "test_world_server_item_query_single",
+    srcs = ["test_world_server_item_query_single.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
     name = "test_world_server_move_time_skipped",
     srcs = ["test_world_server_move_time_skipped.py"],
     deps = [":world_server_test"],
@@ -123,5 +129,23 @@ py_test(
 py_test(
     name = "test_world_server_ping",
     srcs = ["test_world_server_ping.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_meetingstone_info",
+    srcs = ["test_world_server_meetingstone_info.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_name_query",
+    srcs = ["test_world_server_name_query.py"],
+    deps = [":world_server_test"],
+)
+
+py_test(
+    name = "test_world_server_pet_name_query",
+    srcs = ["test_world_server_pet_name_query.py"],
     deps = [":world_server_test"],
 )

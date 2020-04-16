@@ -4,5 +4,5 @@ from database import enums
 
 ServerMeetingstoneSetqueue = Struct(
     'area_id' / Int32ul,
-    'status' / Enum(Int8ul, enums.MeetingStoneQueueStatus),
+    'status' / Int8ul,
 )

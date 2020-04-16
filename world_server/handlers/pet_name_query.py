@@ -9,7 +9,9 @@ from world_server.packets import pet_name_query
 
 @router.Handler(op_code.Client.PET_NAME_QUERY)
 @orm.db_session
-def handler(pkt: pet_name_query.ClientPetNameQuery, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_pet_name_query(
+        pkt: pet_name_query.ClientPetNameQuery,
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     pet = world.Pet.get(id=world.GUID(pkt.pet_guid).low)
     if not pet:
         return []
