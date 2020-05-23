@@ -7,29 +7,15 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        include:
-        - os: macos-latest
-          BAZEL_BIN: bazel
-        - os: ubuntu-latest
-          BAZEL_BIN: bazel
-        - os: windows-latest
-          BAZEL_BIN: bazel.exe
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - name: Setup Bazel
-        uses: abhinavsingh/setup-bazel@v3
-      - name: Mount bazel cache
-        uses: actions/cache@v1
-        with:
-          path: .cache/bazel
-          key: ${{ runner.os }}-bazel
       - name: Setup environment
-        run: pip install wheel
+        run: pip install wheel && pip install -r requirements.txt
       - name: Run Tests
-        run: ${{ matrix.BAZEL_BIN }} test --test_output=errors //...
+        run: python -m pytest test
   
   coverage:
     runs-on: ubuntu-latest
@@ -41,11 +27,7 @@ jobs:
       - name: Setup environment
         run: pip install wheel && pip install -r requirements.txt
       - name: Generate coverage report
-        run: |
-          cd "${{ github.workspace }}"
-          python -m pytest test --cov=.
-        env:
-          PYTHONPATH: ${{ github.workspace }}
+        run: python -m pytest test --cov=.
       - name: Upload coverage reports
         run: |
           pip install codecov
