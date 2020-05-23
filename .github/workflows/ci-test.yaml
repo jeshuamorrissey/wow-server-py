@@ -13,13 +13,17 @@ jobs:
         with:
           python-version: 3.x
       - name: Install pipenv
-        if: ${{ matrix.os }} == 'windows-latest'
-        run: |
-          pip install pipenv
-      - name: Install pipenv
-        if: ${{ matrix.os }} != 'windows-latest'
-        run: |
-          sudo pip install pipenv
+        run: pip install pipenv
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependecies
         run: pipenv install -d
       - name: Run test
@@ -34,6 +38,16 @@ jobs:
           python-version: 3.x
       - name: Install pipenv
         run: pip install pipenv
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependecies
         run: pipenv install -d
       - name: Run test
