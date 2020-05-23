@@ -3,7 +3,17 @@ on: push
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+        - os: macos-latest
+          BAZEL_BIN: bazel
+        - os: ubuntu-latest
+          BAZEL_BIN: bazel
+        - os: windows-latest
+          BAZEL_BIN: bazel.exe
     steps:
       - uses: actions/checkout@v2
       - name: Setup Bazel
@@ -13,9 +23,5 @@ jobs:
         with:
           path: ${{ github.workspace }}/.cache/bazel
           key: ${{ runner.os }}-bazel
-      - name: Run Tests (Windows)
-        if: matrix.os == 'windows'
-        run: ./bazel.exe test //...
       - name: Run Tests
-        if: matrix.os != 'windows'
-        run: bazel test --test_output=errors //...
+        run: ${{ github.workspace }}/${{ matrix.BAZEL_BIN }} --output_user_root="${{ github.workspace }}/.cache/bazel" test //...
