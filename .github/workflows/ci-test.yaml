@@ -38,6 +38,8 @@ jobs:
         run: |
           cd "${{ github.workspace }}"
           python -m pytest test --cov=.
+        env:
+          PYTHONPATH: ${{ github.workspace }}
       - name: Upload coverage reports
         run: |
           pip install codecov
