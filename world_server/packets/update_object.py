@@ -17,6 +17,7 @@ class PackedGUIDAdapter(Adapter):
         - mask (a single byte mask)
         - parts (a list of GUID bytes)
     """
+
     def _decode(self, obj, context, path):
         guid_bytes = iter(obj.parts)
 
@@ -58,6 +59,7 @@ class UpdateFieldsAdapter(Adapter):
     reasonable way to do this), but when encoding you can pass in either
     an int, float, bytes or enum.Enum.
     """
+
     def _decode(self, obj, context, path):
         result = {}
 
@@ -115,9 +117,8 @@ UpdateFields = UpdateFieldsAdapter(
     Struct(
         'blocks' / Int8ul,
         'masks' / Array(lambda this: this.blocks * 4, Byte),
-        'fields' /
-        Array(lambda this: sum(bin(m).count('1')
-                               for m in this.masks), Bytes(4)),
+        'fields' / Array(
+            lambda this: sum(bin(m).count('1') for m in this.masks), Bytes(4)),
     ))
 
 is_set = lambda enum: lambda this: enum & this.flags

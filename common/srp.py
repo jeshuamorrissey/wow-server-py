@@ -125,6 +125,7 @@ def CalculateSessionKey(A: int, B: int, b: int, v: int, s: int,
     Returns:
         The SRP session key + M validator.
     """
+
     def Interleave(S: int) -> int:
         """Apply the SHA_Interleave function on S."""
         T = IntToBytes(S)[::-1]

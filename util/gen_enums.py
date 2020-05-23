@@ -29,7 +29,7 @@ def main(output_file: Text):
                                 common.MultiEnumString):
                 enum_name = 'E' + cls.__name__
                 enum_field = attr.name
-            elif attr.py_type in (common.MultiEnumSecondaryString, ):
+            elif attr.py_type in (common.MultiEnumSecondaryString,):
                 secondary_enum_field = attr.name
 
         if not enum_name or not enum_field:
@@ -48,8 +48,8 @@ def main(output_file: Text):
         enums = {}
         with orm.db_session:
             for r in cls.select():
-                name = ''.join(c for c in getattr(r, enum_field)
-                               if c not in SPECIAL_CHARS)
+                name = ''.join(
+                    c for c in getattr(r, enum_field) if c not in SPECIAL_CHARS)
                 name = name.replace('%', '_percent')
                 if secondary_enum_field and getattr(r, secondary_enum_field):
                     name += '_' + getattr(r, secondary_enum_field)

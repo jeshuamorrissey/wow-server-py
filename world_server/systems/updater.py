@@ -17,6 +17,7 @@ class PlayerUpdateCache:
     Each cache contains a map for values & movement updates for each object
     (based on ID).
     """
+
     def __init__(self):
         self.values_updates: Dict[int, dict] = {}
         self.movement_updates: Dict[int, dict] = {}
@@ -24,6 +25,7 @@ class PlayerUpdateCache:
 
 @system.Register(system.System.ID.UPDATER)
 class Updater(system.System):
+
     def __init__(self):
         self.players: Dict[int, session.Session] = {}
 
@@ -98,8 +100,7 @@ class Updater(system.System):
         # Get the cached updates.
         last_movement_update = player_cache.movement_updates.get(
             game_object.id, None)
-        last_values_update = player_cache.values_updates.get(
-            game_object.id, {})
+        last_values_update = player_cache.values_updates.get(game_object.id, {})
 
         # Work out the delta in the values update.
         values_update_diff = {

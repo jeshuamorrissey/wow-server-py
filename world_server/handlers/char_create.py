@@ -53,8 +53,9 @@ def handle_char_create(
         )]
 
     # Server limit.
-    if orm.count(p for p in world.Player if p.account == account
-                 and p.realm == realm) >= config.MAX_CHARACTERS_PER_REALM:
+    if orm.count(
+            p for p in world.Player if p.account == account and p.realm == realm
+    ) >= config.MAX_CHARACTERS_PER_REALM:
         return [(
             op_code.Server.CHAR_CREATE,
             char_create.ServerCharCreate.build(

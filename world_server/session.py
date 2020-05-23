@@ -10,6 +10,7 @@ from world_server.packets import auth_challenge
 
 
 class Session(session.Session):
+
     def setup(self):
         super(Session, self).setup()
 

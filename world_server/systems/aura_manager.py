@@ -14,6 +14,7 @@ from world_server.session import Session
 @system.Register(system.System.ID.AURA_MANAGER)
 class AuraManager(system.System):
     """System which manages applied auras."""
+
     def __init__(self):
         self.aura_available_cond = threading.Condition()
         self._players: Dict[int, Session] = {}

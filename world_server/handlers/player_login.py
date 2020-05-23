@@ -59,8 +59,8 @@ def handle_player_login(
         dict(actions=actions))
 
     # Add the player to the map.
-    update_op, update_pkt = system.Register.Get(
-        system.System.ID.UPDATER).login(player, session)
+    update_op, update_pkt = system.Register.Get(system.System.ID.UPDATER).login(
+        player, session)
 
     # Send information about the player's auras.
     aura_packets = system.Register.Get(system.System.ID.AURA_MANAGER).login(

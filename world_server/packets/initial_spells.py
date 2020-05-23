@@ -8,8 +8,7 @@ ServerInitialSpells = Struct(
         'id' / Int16ul,
         Const(b'\x00\x00'),
     )),
-    'spell_cooldown_count' /
-    Rebuild(Int16ul, lambda c: len(c.spell_cooldowns)),
+    'spell_cooldown_count' / Rebuild(Int16ul, lambda c: len(c.spell_cooldowns)),
     'spell_cooldowns' / Array(
         lambda c: c.spell_cooldown_count,
         Struct(

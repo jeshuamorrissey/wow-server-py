@@ -74,11 +74,10 @@ def test_handle_char_delete_not_exists(mocker, fake_db):
     )
 
     client_pkt = packet.ClientCharDelete.parse(
-        packet.ClientCharDelete.build(
-            dict(
-                guid_low=player.id + 1,
-                guid_high=0,
-            )))
+        packet.ClientCharDelete.build(dict(
+            guid_low=player.id + 1,
+            guid_high=0,
+        )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = account.name

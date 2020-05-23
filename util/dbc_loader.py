@@ -18,6 +18,7 @@ from database.constants import common
 
 class StringRefAdapater(Adapter):
     """Adapter which will map the given string index to the actual string."""
+
     def _decode(self, obj, context, path):
         if 'strings' in context['_']:
             strings = context['_'].strings
@@ -113,6 +114,7 @@ class MPQMultiArchive:
     This will load each archive in sequence and, when retreiving files, return the value
     from the latest archive first.
     """
+
     def __init__(self, base_path: Text, *archives: Text):
         """Create a new multi-archive.
 
@@ -196,8 +198,7 @@ def main(wow_dir: Text, output_dir: Text):
         record_name = fname.decode('utf-8').split('\\')[1].split('.')[0]
         cls = dbc_classes.get(record_name, None)
         if not cls:
-            logging.debug(
-                f'Warning: no record format found for {record_name}!')
+            logging.debug(f'Warning: no record format found for {record_name}!')
             continue
 
         # Make a struct from this class.

@@ -75,8 +75,8 @@ def handle_item_query_single(
                         charges=getattr(item, f'spellcharges_{i}'),
                         cooldown=getattr(item, f'spellcooldown_{i}'),
                         category=getattr(item, f'spellcategory_{i}'),
-                        category_cooldown=getattr(
-                            item, f'spellcategorycooldown_{i}'),
+                        category_cooldown=getattr(item,
+                                                  f'spellcategorycooldown_{i}'),
                     ) for i in range(1, 5 + 1)
                 ],
                 bonding=item.bonding,

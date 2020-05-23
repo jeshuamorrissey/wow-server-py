@@ -93,8 +93,7 @@ def _sorted_by_dependencies(classes: Dict[Text, Type]) -> List[Set[Text]]:
     """
     # First, build up a simple dependency graph.
     dependencies: Dict[Text, Set[Text]] = {
-        entity_name: set()
-        for entity_name in classes
+        entity_name: set() for entity_name in classes
     }
     for entity_name, entity_type in classes.items():
         for attr in entity_type._attrs_:
@@ -178,7 +177,7 @@ def clear_world_database(db: orm.Database):
     Args:
         db: The database to clear the tables from.
     """
-    classes = _find_subclasses(db.Entity, include_prefix=('database.world', ))
+    classes = _find_subclasses(db.Entity, include_prefix=('database.world',))
 
     for cls_name, cls in classes.items():
         logging.debug(f'Dropping table world.{cls_name}')

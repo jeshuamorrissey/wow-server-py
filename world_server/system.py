@@ -4,6 +4,7 @@ from typing import Dict, Text, Type
 
 class System:
     """A system represents a long-running job which manages the background state of the game."""
+
     class ID(enum.Enum):
         UPDATER = enum.auto()
         AURA_MANAGER = enum.auto()

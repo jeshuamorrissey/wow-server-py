@@ -27,9 +27,11 @@ def handle_realmlist(
             hostport=realm.hostport,
             population=0,  # TODO: calculate relative population
             n_characters=orm.count(
-                p for p in world.Player
+                p
+                for p in world.Player
                 if p.realm == realm and p.account == account),
-        ) for realm in world.Realm.select()
+        )
+        for realm in world.Realm.select()
     ]
 
     return [(

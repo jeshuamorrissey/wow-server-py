@@ -62,8 +62,8 @@ def test_handle_char_enum(mocker, fake_db):
         gender=enums.Gender.FEMALE,
     )
 
-    client_pkt = packet.ClientCharEnum.parse(
-        packet.ClientCharEnum.build(dict()))
+    client_pkt = packet.ClientCharEnum.parse(packet.ClientCharEnum.build(
+        dict()))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'

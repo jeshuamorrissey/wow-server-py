@@ -9,9 +9,8 @@ from world_server.packets import set_action_button
 
 @router.Handler(op_code.Client.SET_ACTION_BUTTON)
 @orm.db_session
-def handle_ping(
-        pkt: set_action_button.ClientSetActionButton,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_ping(pkt: set_action_button.ClientSetActionButton,
+                session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     existing_button = world.PlayerActionButton.get(player=session.player_id,
                                                    slot=pkt.slot)
     if existing_button:

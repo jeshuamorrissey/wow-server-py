@@ -1,6 +1,6 @@
 from construct import (Array, BitStruct, Const, CString, Default, Flag,
-                       Float32l, GreedyRange, Int8ul, Int32ul, Int64ul,
-                       Padding, Rebuild, Struct)
+                       Float32l, GreedyRange, Int8ul, Int32ul, Int64ul, Padding,
+                       Rebuild, Struct)
 
 from world_server import op_code, router
 

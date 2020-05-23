@@ -136,10 +136,8 @@ class Item(game_object.GameObject):
 
         if self.in_container:
             fields.update({
-                f.OWNER:
-                self.in_container.container.in_inventory.player.guid,
-                f.CONTAINED:
-                self.in_container.container.guid,
+                f.OWNER: self.in_container.container.in_inventory.player.guid,
+                f.CONTAINED: self.in_container.container.guid,
             })
         elif self.in_inventory:
             fields.update({

@@ -9,4 +9,4 @@ ServerActionButtons = Struct(
         Struct(
             'action' / Int24ul,
             'type' / Enum(Int8ul, enums.ActionButtonType),
-        )), )
+        )),)

@@ -39,8 +39,8 @@ class PlayerInventorySlot(db.Entity):
             if not item.can_equip_to_slot(equipment_slot):
                 return False
 
-        if (s.BAG_START <= self.slot < s.BAG_END
-                or s.BANK_BAG_START <= self.slot < s.BANK_BAG_END):
+        if (s.BAG_START <= self.slot < s.BAG_END or
+                s.BANK_BAG_START <= self.slot < s.BANK_BAG_END):
             if not isinstance(item, container.Container):
                 return False
 
@@ -168,15 +168,15 @@ class Player(unit.Unit):
                    end: int) -> Dict[int, PlayerInventorySlot]:
         return {
             pi.slot - start: pi
-            for pi in self.inventory if pi.slot >= start and pi.slot < end
+            for pi in self.inventory
+            if pi.slot >= start and pi.slot < end
         }
 
     def equipment(self) -> Dict[enums.EquipmentSlot, PlayerInventorySlot]:
         return {
-            enums.EquipmentSlot(s): i
-            for s, i in
-            self._inv_slice(enums.InventorySlots.EQUIPMENT_START,
-                            enums.InventorySlots.EQUIPMENT_END).items()
+            enums.EquipmentSlot(s): i for s, i in self._inv_slice(
+                enums.InventorySlots.EQUIPMENT_START,
+                enums.InventorySlots.EQUIPMENT_END).items()
         }
 
     def bags(self) -> Dict[int, PlayerInventorySlot]:
@@ -540,8 +540,7 @@ class Player(unit.Unit):
                 fields.update(
                     self.virtual_item_fields(
                         enums.EquipmentSlot.MAIN_HAND,
-                        equipment[
-                            enums.EquipmentSlot.MAIN_HAND].item.base_item,
+                        equipment[enums.EquipmentSlot.MAIN_HAND].item.base_item,
                     ))
 
             if enums.EquipmentSlot.OFF_HAND in equipment:
@@ -577,43 +576,43 @@ class Player(unit.Unit):
 
         fields.update({
             uf.BASEATTACKTIME:
-            self.calculate_attack_time(enums.EquipmentSlot.MAIN_HAND),
+                self.calculate_attack_time(enums.EquipmentSlot.MAIN_HAND),
             uf.OFFHANDATTACKTIME:
-            self.calculate_attack_time(enums.EquipmentSlot.OFF_HAND),
+                self.calculate_attack_time(enums.EquipmentSlot.OFF_HAND),
             uf.RANGEDATTACKTIME:
-            self.calculate_attack_time(enums.EquipmentSlot.RANGED),
+                self.calculate_attack_time(enums.EquipmentSlot.RANGED),
             uf.MINDAMAGE:
-            self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[0],
+                self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[0],
             uf.MAXDAMAGE:
-            self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[1],
+                self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[1],
             uf.MINOFFHANDDAMAGE:
-            self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[0],
+                self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[0],
             uf.MAXOFFHANDDAMAGE:
-            self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[1],
+                self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[1],
             uf.MINRANGEDDAMAGE:
-            self.calculate_damage(enums.EquipmentSlot.RANGED)[0],
+                self.calculate_damage(enums.EquipmentSlot.RANGED)[0],
             uf.MAXRANGEDDAMAGE:
-            self.calculate_damage(enums.EquipmentSlot.RANGED)[1],
+                self.calculate_damage(enums.EquipmentSlot.RANGED)[1],
             uf.ATTACK_POWER:
-            self.calculate_melee_attack_power(),
+                self.calculate_melee_attack_power(),
             uf.RANGED_ATTACK_POWER:
-            self.calculate_ranged_attack_power(),
+                self.calculate_ranged_attack_power(),
             uf.COMBATREACH:
-            1.5,  # TODO: make this config
+                1.5,  # TODO: make this config
             uf.ARMOR:
-            self.calculate_armor(),
+                self.calculate_armor(),
             uf.HOLY_RESISTANCE:
-            self.calculate_holy_resistance(),
+                self.calculate_holy_resistance(),
             uf.FIRE_RESISTANCE:
-            self.calculate_fire_resistance(),
+                self.calculate_fire_resistance(),
             uf.NATURE_RESISTANCE:
-            self.calculate_nature_resistance(),
+                self.calculate_nature_resistance(),
             uf.FROST_RESISTANCE:
-            self.calculate_frost_resistance(),
+                self.calculate_frost_resistance(),
             uf.SHADOW_RESISTANCE:
-            self.calculate_shadow_resistance(),
+                self.calculate_shadow_resistance(),
             uf.ARCANE_RESISTANCE:
-            self.calculate_arcane_resistance(),
+                self.calculate_arcane_resistance(),
         })
 
         if self.guild_membership:
@@ -652,11 +651,11 @@ class Player(unit.Unit):
             start_field = f.QUEST_LOG_1_1 + (i * 3)
             fields.update({
                 start_field + 0:
-                quest.base_quest.id,
+                    quest.base_quest.id,
                 start_field + 1:
-                quest.flags(),
+                    quest.flags(),
                 start_field + 2:
-                quest.due - int(time.time()) if quest.due else 0,
+                    quest.due - int(time.time()) if quest.due else 0,
             })
 
         # Stat changes.
@@ -707,12 +706,9 @@ class Player(unit.Unit):
             base_field = f.SKILL_INFO_1_1 + (skill.skill.id * 3)
 
             fields.update({
-                base_field + 0:
-                skill.skill.id,  # upper 16 bits is "step"
-                base_field + 1:
-                skill.level | (skill.max_level() << 16),
-                base_field + 2:
-                skill.temp_bonus() | (skill.bonus << 16),
+                base_field + 0: skill.skill.id,  # upper 16 bits is "step"
+                base_field + 1: skill.level | (skill.max_level() << 16),
+                base_field + 2: skill.temp_bonus() | (skill.bonus << 16),
             })
 
         # 1 bit per zone
@@ -725,55 +721,55 @@ class Player(unit.Unit):
 
         fields.update({
             f.FLAGS:
-            self.player_flags(),
+                self.player_flags(),
             f.BYTES:
-            self.skin_color | self.face << 8 | self.hair_style << 16
-            | self.hair_color << 24,
+                self.skin_color | self.face << 8 | self.hair_style << 16 |
+                self.hair_color << 24,
             f.BYTES_2:
-            self.feature,
+                self.feature,
             f.BYTES_3:
-            self.gender,
+                self.gender,
             f.COMBO_TARGET:
-            self.combo_target.guid if self.combo_target else 0,
+                self.combo_target.guid if self.combo_target else 0,
             f.XP:
-            self.xp,
+                self.xp,
             f.NEXT_LEVEL_XP:
-            enums.NextLevelXP(self.level),
+                enums.NextLevelXP(self.level),
             f.CHARACTER_POINTS1:
-            self.level,  # TODO: talents
+                self.level,  # TODO: talents
             f.CHARACTER_POINTS2:
-            enums.MaxNumberOfProfessions(),  # TODO: professions are spells?
+                enums.MaxNumberOfProfessions(),  # TODO: professions are spells?
             f.BLOCK_PERCENTAGE:
-            self.calculate_block_percent(),
+                self.calculate_block_percent(),
             f.DODGE_PERCENTAGE:
-            self.calculate_dodge_percent(),
+                self.calculate_dodge_percent(),
             f.PARRY_PERCENTAGE:
-            self.calculate_parry_percent(),
+                self.calculate_parry_percent(),
             f.CRIT_PERCENTAGE:
-            self.calculate_melee_crit_percent(),
+                self.calculate_melee_crit_percent(),
             f.RANGED_CRIT_PERCENTAGE:
-            self.calculate_ranged_crit_percent(),
+                self.calculate_ranged_crit_percent(),
             f.REST_STATE_EXPERIENCE:
-            self.rested_xp,
+                self.rested_xp,
             f.COINAGE:
-            self.money,
+                self.money,
             f.BYTES_4:
-            self.bytes_4(),
+                self.bytes_4(),
             f.AMMO_ID:
-            self.get_ammo(),
+                self.get_ammo(),
             f.BYTES2:
-            self.bytes_5(),
+                self.bytes_5(),
             f.WATCHED_FACTION_INDEX:
-            self.watched_faction.reputation_index
-            if self.watched_faction else -1,
+                self.watched_faction.reputation_index
+                if self.watched_faction else -1,
             f.TRACK_CREATURES:
-            0,  # TODO: spells
+                0,  # TODO: spells
             f.TRACK_RESOURCES:
-            0,  # TODO: spells
+                0,  # TODO: spells
             f.SELF_RES_SPELL:
-            0,  # TODO: spell ID of self resurrecting spell
+                0,  # TODO: spell ID of self resurrecting spell
             f.FARSIGHT:
-            0,  # TODO: world objects
+                0,  # TODO: world objects
         })
 
         return {**super(Player, self).update_fields(), **fields}

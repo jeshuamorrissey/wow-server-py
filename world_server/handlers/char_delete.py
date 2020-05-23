@@ -30,8 +30,7 @@ def handle_char_delete(
             f'Tried to delete character {pkt.guid_low}, but it does not exist')
         return [(
             op_code.Server.CHAR_DELETE,
-            char_delete.ServerCharDelete.build(
-                dict(error=ResponseCode.FAILED)),
+            char_delete.ServerCharDelete.build(dict(error=ResponseCode.FAILED)),
         )]
 
     to_delete.delete()
