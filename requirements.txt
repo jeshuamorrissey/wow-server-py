@@ -9,4 +9,3 @@ pytest==4.6.9
 six==1.14.0
 stringcase==1.2.0
 wheel==0.34.2
-attr==0.3.1
