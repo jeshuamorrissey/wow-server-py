@@ -24,7 +24,6 @@ jobs:
           path: .cache/bazel
           key: ${{ runner.os }}-bazel
       - name: Setup environment
-        run: |
-          pip install wheel  # required for Windows
+        run: pip install wheel
       - name: Run Tests
         run: ${{ matrix.BAZEL_BIN }} test --test_output=errors //...
