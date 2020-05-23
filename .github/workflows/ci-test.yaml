@@ -52,7 +52,7 @@ jobs:
         run: pipenv install -d
       - name: Run test
         run:
-          pipenv run coverage-ci
+          pipenv run coverage
           pipenv run upload-coverage --token=${CODECOV_UPLOAD_TOKEN?}
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
