@@ -23,6 +23,7 @@ py_library(
         requirement("pluggy"),
         requirement("importlib_metadata"),
         requirement("zipp"),
+        requirement("packaging"),
     ],
 )
 
