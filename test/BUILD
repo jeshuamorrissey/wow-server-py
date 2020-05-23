@@ -17,8 +17,17 @@ py_library(
         requirement("pony"),
         requirement("pytest-mock"),
         requirement("pytest"),
+
+        # Bazel isn't auto-discovering requirements for some reason...
         requirement("six"),
         requirement("atomicwrites"),
+        requirement("py"),
+        requirement("pluggy"),
+        requirement("importlib_metadata"),
+        requirement("zipp"),
+        requirement("packaging"),
+        requirement("more_itertools"),
+        requirement("attrs"),
     ],
 )
 
