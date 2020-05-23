@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 from pony import orm
 
@@ -19,9 +18,12 @@ from world_server.packets import char_enum as packet
 
 def test_handle_char_enum(mocker, fake_db):
     # Setup database.
-    account = fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
+    account = fake_db.Account(name='account',
+                              salt_str='11',
+                              verifier_str='22',
+                              session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
-    fake_db.Player.New(
+    player = fake_db.Player.New(
         id=10,
         account=account,
         realm=realm,
@@ -29,6 +31,25 @@ def test_handle_char_enum(mocker, fake_db):
         race=fake_db.ChrRaces[enums.EChrRaces.HUMAN],
         class_=fake_db.ChrClasses[enums.EChrClasses.WARRIOR],
         gender=enums.Gender.MALE,
+    )
+
+    base_unit = fake_db.UnitTemplate.get(Name='Young Nightsaber')
+    fake_db.Pet(
+        base_unit=base_unit,
+        name='Kiko',
+        level=1,
+        race=constants.ChrRaces[1],
+        class_=constants.ChrClasses[base_unit.UnitClass],
+        gender=enums.Gender.FEMALE,
+        team=player.team,
+        x=player.x + 2,
+        y=player.y + 2,
+        z=player.z,
+        o=player.o,
+        summoner=player,
+        created_by=player,
+        base_health=100,
+        base_power=100,
     )
 
     fake_db.Player.New(
@@ -41,7 +62,8 @@ def test_handle_char_enum(mocker, fake_db):
         gender=enums.Gender.FEMALE,
     )
 
-    client_pkt = packet.ClientCharEnum.parse(packet.ClientCharEnum.build(dict()))
+    client_pkt = packet.ClientCharEnum.parse(
+        packet.ClientCharEnum.build(dict()))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'
