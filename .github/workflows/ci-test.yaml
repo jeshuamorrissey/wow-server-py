@@ -33,17 +33,13 @@ jobs:
         with:
           python-version: 3.x
       - name: Install pipenv
-        if: ${{ matrix.os }} == 'windows-latest'
-        run: |
-          pip install pipenv
-      - name: Install pipenv
-        if: ${{ matrix.os }} != 'windows-latest'
-        run: |
-          sudo pip install pipenv
+        run: pip install pipenv
       - name: Install dependecies
         run: pipenv install -d
       - name: Run test
-        run: pipenv run coverage-ci
+        run:
+          pipenv run coverage-ci
+          pipenv run upload-coverage --token=${CODECOV_UPLOAD_TOKEN?}
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
