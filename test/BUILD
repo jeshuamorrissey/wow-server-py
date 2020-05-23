@@ -19,6 +19,7 @@ py_library(
         requirement("pytest"),
         requirement("six"),
         requirement("atomicwrites"),
+        requirement("py"),
     ],
 )
 
