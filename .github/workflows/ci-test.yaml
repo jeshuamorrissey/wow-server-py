@@ -24,4 +24,6 @@ jobs:
           path: ${{ github.workspace }}/.cache/bazel
           key: ${{ runner.os }}-bazel
       - name: Run Tests
-        run: ${{ matrix.BAZEL_BIN }} --output_user_root="${{ github.workspace }}/.cache/bazel" test //...
+        run: ${{ matrix.BAZEL_BIN }} test //...
+        env:
+          TEST_TMPDIR: ${{ github.workspace }}/.cache/bazel
