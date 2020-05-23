@@ -27,7 +27,7 @@ py_library(
         requirement("zipp"),
         requirement("packaging"),
         requirement("more_itertools"),
-        requirement("wheel"),
+        requirement("attr"),
     ],
 )
 
