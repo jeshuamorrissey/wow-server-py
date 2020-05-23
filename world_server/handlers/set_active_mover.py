@@ -8,7 +8,8 @@ from world_server.packets import pong, set_active_mover
 
 @router.Handler(op_code.Client.SET_ACTIVE_MOVER)
 @orm.db_session
-def handle_set_active_mover(pkt: set_active_mover.ClientSetActiveMover,
-                            session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_set_active_mover(
+        pkt: set_active_mover.ClientSetActiveMover,
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     # TODO: implement this once you can move something else
     return []

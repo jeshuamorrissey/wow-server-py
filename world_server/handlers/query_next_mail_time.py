@@ -19,5 +19,6 @@ def handler(pkt: query_next_mail_time.ClientQueryNextMailTime,
 
     return [(
         op_code.Server.QUERY_NEXT_MAIL_TIME,
-        query_next_mail_time.ServerQueryNextMailTime.build(dict(next_mail_time=next_mail_time)),
+        query_next_mail_time.ServerQueryNextMailTime.build(
+            dict(next_mail_time=next_mail_time)),
     )]

@@ -17,7 +17,6 @@ class PackedGUIDAdapter(Adapter):
         - mask (a single byte mask)
         - parts (a list of GUID bytes)
     """
-
     def _decode(self, obj, context, path):
         guid_bytes = iter(obj.parts)
 
@@ -39,10 +38,11 @@ class PackedGUIDAdapter(Adapter):
         return dict(mask=mask, parts=parts)
 
 
-PackedGUID = PackedGUIDAdapter(Struct(
-    'mask' / Int8ul,
-    'parts' / Array(lambda this: bin(this.mask).count('1'), Byte),
-))
+PackedGUID = PackedGUIDAdapter(
+    Struct(
+        'mask' / Int8ul,
+        'parts' / Array(lambda this: bin(this.mask).count('1'), Byte),
+    ))
 
 
 class UpdateFieldsAdapter(Adapter):
@@ -58,7 +58,6 @@ class UpdateFieldsAdapter(Adapter):
     reasonable way to do this), but when encoding you can pass in either
     an int, float, bytes or enum.Enum.
     """
-
     def _decode(self, obj, context, path):
         result = {}
 
@@ -116,7 +115,9 @@ UpdateFields = UpdateFieldsAdapter(
     Struct(
         'blocks' / Int8ul,
         'masks' / Array(lambda this: this.blocks * 4, Byte),
-        'fields' / Array(lambda this: sum(bin(m).count('1') for m in this.masks), Bytes(4)),
+        'fields' /
+        Array(lambda this: sum(bin(m).count('1')
+                               for m in this.masks), Bytes(4)),
     ))
 
 is_set = lambda enum: lambda this: enum & this.flags
@@ -129,16 +130,16 @@ FullMovementUpdate = Struct(
     'y' / Float32l,
     'z' / Float32l,
     'o' / Float32l,
-    'transport' /
-    If(is_set(enums.MovementFlags.ONTRANSPORT),
-       Struct(
-           'guid' / Int64ul,
-           'x' / Float32l,
-           'y' / Float32l,
-           'z' / Float32l,
-           'o' / Float32l,
-           'time' / Int32ul,
-       )),
+    'transport' / If(
+        is_set(enums.MovementFlags.ONTRANSPORT),
+        Struct(
+            'guid' / Int64ul,
+            'x' / Float32l,
+            'y' / Float32l,
+            'z' / Float32l,
+            'o' / Float32l,
+            'time' / Int32ul,
+        )),
     'swimming' / If(
         is_set(enums.MovementFlags.SWIMMING),
         Struct('pitch' / Float32l),
@@ -181,24 +182,27 @@ FullMovementUpdate = Struct(
                 ),
             ),
             'target' / If(
-                lambda this: this.flags & enums.SplineFlags.Final_Point and not (this.flags & enums.SplineFlags.
-                                                                                Final_Target),
+                lambda this: this.flags & enums.SplineFlags.Final_Point and
+                not (this.flags & enums.SplineFlags.Final_Target),
                 Int64ul,
             ),
             'angle' / If(
-                lambda this: this.flags & enums.SplineFlags.Final_Angle and not (
-                    this.flags & enums.SplineFlags.Final_Point) and not (this.flags & enums.SplineFlags.Final_Target),
+                lambda this: this.flags & enums.SplineFlags.Final_Angle and
+                not (this.flags & enums.SplineFlags.Final_Point) and not (
+                    this.flags & enums.SplineFlags.Final_Target),
                 Float32l,
             ),
             'time_passed' / Int32ul,
             'duration' / Int32ul,
             'id' / Int32ul,
             'n_points' / Int32ul,
-            'points' / Array(lambda this: this.n_points, Struct(
-                'x' / Float32l,
-                'y' / Float32l,
-                'z' / Float32l,
-            )),
+            'points' /
+            Array(lambda this: this.n_points,
+                  Struct(
+                      'x' / Float32l,
+                      'y' / Float32l,
+                      'z' / Float32l,
+                  )),
             'final_point' / Struct(
                 'x' / Float32l,
                 'y' / Float32l,

@@ -5,7 +5,6 @@ from pony import orm
 
 class EnumConverter(orm.dbapiprovider.StrConverter):
     """Converter which can be used to store Enum values in the database."""
-
     def validate(self, val):
         if not isinstance(val, enum.Enum):
             raise ValueError('Must be an Enum.  Got {}'.format(type(val)))
@@ -21,7 +20,6 @@ class EnumConverter(orm.dbapiprovider.StrConverter):
 
 class SlottedEntityMixin:
     """Convnience mixin to update all related classes when updating this one."""
-
     def after_update(self):
         for attr in self._attrs_:
             print(attr)

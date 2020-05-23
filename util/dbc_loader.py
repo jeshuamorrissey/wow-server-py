@@ -8,7 +8,8 @@ import os
 from typing import Any, Dict, List, Set, Text, Type
 
 import coloredlogs
-from construct import (Adapter, Array, Bytes, Computed, Const, Float32l, Int32ul, Int64ul, Struct)
+from construct import (Adapter, Array, Bytes, Computed, Const, Float32l,
+                       Int32ul, Int64ul, Struct)
 from mpyq import MPQArchive
 
 from database import constants, db
@@ -17,7 +18,6 @@ from database.constants import common
 
 class StringRefAdapater(Adapter):
     """Adapter which will map the given string index to the actual string."""
-
     def _decode(self, obj, context, path):
         if 'strings' in context['_']:
             strings = context['_'].strings
@@ -65,7 +65,8 @@ def generate_struct(cls: Type) -> Struct:
             struct_fields.append(attr.name / Int32ul)
         elif attr.py_type in (common.SingleString, common.SingleEnumString):
             struct_fields.append(attr.name / StringRef)
-        elif attr.py_type in (common.MultiString, common.MultiEnumString, common.MultiEnumSecondaryString):
+        elif attr.py_type in (common.MultiString, common.MultiEnumString,
+                              common.MultiEnumSecondaryString):
             struct_fields.append(attr.name / LangStringRef)
         elif attr.py_type == float:
             struct_fields.append(attr.name / Float32l)
@@ -112,7 +113,6 @@ class MPQMultiArchive:
     This will load each archive in sequence and, when retreiving files, return the value
     from the latest archive first.
     """
-
     def __init__(self, base_path: Text, *archives: Text):
         """Create a new multi-archive.
 
@@ -120,7 +120,9 @@ class MPQMultiArchive:
             base_path: The path to the WoW client.
             *archives: A list of MPQ archive names to load from the client.
         """
-        self.archives = [MPQArchive(os.path.join(base_path, 'Data', a)) for a in archives]
+        self.archives = [
+            MPQArchive(os.path.join(base_path, 'Data', a)) for a in archives
+        ]
 
     @property
     def files(self) -> Set[Text]:
@@ -188,12 +190,14 @@ def main(wow_dir: Text, output_dir: Text):
 
     dbc_classes = {c.__name__: c for c in db.db.Entity.__subclasses__()}
 
-    multi_archive = MPQMultiArchive(wow_dir, 'dbc.MPQ', 'patch.MPQ', 'patch-2.MPQ')
+    multi_archive = MPQMultiArchive(wow_dir, 'dbc.MPQ', 'patch.MPQ',
+                                    'patch-2.MPQ')
     for fname in sorted(multi_archive.files):
         record_name = fname.decode('utf-8').split('\\')[1].split('.')[0]
         cls = dbc_classes.get(record_name, None)
         if not cls:
-            logging.debug(f'Warning: no record format found for {record_name}!')
+            logging.debug(
+                f'Warning: no record format found for {record_name}!')
             continue
 
         # Make a struct from this class.
@@ -201,7 +205,8 @@ def main(wow_dir: Text, output_dir: Text):
         dbc_file = DBCFile.parse(multi_archive.read_file(fname))
         record_struct = generate_struct(cls)
 
-        if record_struct.sizeof() != dbc_file.header.record_size or num_fields_in_struct(
+        if record_struct.sizeof(
+        ) != dbc_file.header.record_size or num_fields_in_struct(
                 record_struct) != dbc_file.header.field_count:
             logging.info(
                 f'{record_name} is not a valid size (size is "{record_struct.sizeof()}", should be "{dbc_file.header.record_size}") (field count is "{num_fields_in_struct(record_struct)}", should be "{dbc_file.header.field_count}")!'
@@ -238,7 +243,9 @@ def main(wow_dir: Text, output_dir: Text):
             records.append(struct_to_dict(record))
 
         output = json.dumps(records)
-        with gzip.GzipFile(filename=os.path.join(output_dir, f'{record_name}.json.gz'), mode='wb') as f:
+        with gzip.GzipFile(filename=os.path.join(output_dir,
+                                                 f'{record_name}.json.gz'),
+                           mode='wb') as f:
             f.write(output.encode('ascii'))
 
         # with open(os.path.join(output_dir, f'{record_name}.json'), 'wb') as f:
@@ -247,14 +254,16 @@ def main(wow_dir: Text, output_dir: Text):
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--wow_dir',
-                            type=str,
-                            required=True,
-                            help='The absolute path to the World of Warcraft directory.')
-    arg_parser.add_argument('--output_dir',
-                            type=str,
-                            required=True,
-                            help='The absolute path to the output JSON file directory.')
+    arg_parser.add_argument(
+        '--wow_dir',
+        type=str,
+        required=True,
+        help='The absolute path to the World of Warcraft directory.')
+    arg_parser.add_argument(
+        '--output_dir',
+        type=str,
+        required=True,
+        help='The absolute path to the output JSON file directory.')
 
     args = arg_parser.parse_args()
     main(args.wow_dir, args.output_dir)

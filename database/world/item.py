@@ -66,7 +66,9 @@ class Item(game_object.GameObject):
             return [enums.EquipmentSlot.BACK]
         if inventory_type in {it._2HWEAPON, it.WEAPONMAINHAND, it.WEAPON}:
             return [enums.EquipmentSlot.MAIN_HAND]
-        if inventory_type in {it.SHIELD, it.WEAPONOFFHAND, it.HOLDABLE, it.RELIC}:
+        if inventory_type in {
+                it.SHIELD, it.WEAPONOFFHAND, it.HOLDABLE, it.RELIC
+        }:
             return [enums.EquipmentSlot.OFF_HAND]
         if inventory_type in {it.THROWN, it.RANGEDRIGHT, it.RANGED}:
             return [enums.EquipmentSlot.RANGED]
@@ -90,9 +92,11 @@ class Item(game_object.GameObject):
             return self.in_inventory.player.position()
         if self.in_container:
             return self.in_container.container.position()
-        raise RuntimeError(f'item {self.id} ({self.base_item.name}) does not have an owner!')
+        raise RuntimeError(
+            f'item {self.id} ({self.base_item.name}) does not have an owner!')
 
-    def enchantment_map(self) -> Dict[enums.EnchantmentSlot, enchantment.Enchantment]:
+    def enchantment_map(
+            self) -> Dict[enums.EnchantmentSlot, enchantment.Enchantment]:
         return {ench.slot: ench.enchantment for ench in self.enchantments}
 
     #
@@ -132,8 +136,10 @@ class Item(game_object.GameObject):
 
         if self.in_container:
             fields.update({
-                f.OWNER: self.in_container.container.in_inventory.player.guid,
-                f.CONTAINED: self.in_container.container.guid,
+                f.OWNER:
+                self.in_container.container.in_inventory.player.guid,
+                f.CONTAINED:
+                self.in_container.container.guid,
             })
         elif self.in_inventory:
             fields.update({

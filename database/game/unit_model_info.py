@@ -15,5 +15,7 @@ class UnitModelInfo(db.Entity):
     unit_2_backlink = orm.Set('UnitTemplate', reverse='ModelId2')
     unit_3_backlink = orm.Set('UnitTemplate', reverse='ModelId3')
     unit_4_backlink = orm.Set('UnitTemplate', reverse='ModelId4')
-    chr_races_male_id_backlink = orm.Set('ChrRaces', reverse='male_display_info')
-    chr_races_female_id_backlink = orm.Set('ChrRaces', reverse='female_display_info')
+    chr_races_male_id_backlink = orm.Set('ChrRaces',
+                                         reverse='male_display_info')
+    chr_races_female_id_backlink = orm.Set('ChrRaces',
+                                           reverse='female_display_info')

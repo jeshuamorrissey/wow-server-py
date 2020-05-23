@@ -18,17 +18,20 @@ class ResponseCode(enum.IntEnum):
 
 @router.Handler(op_code.Client.CHAR_DELETE)
 @orm.db_session
-def handle_char_delete(pkt: char_delete.ClientCharDelete,
-                       session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_char_delete(
+        pkt: char_delete.ClientCharDelete,
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     realm = world.Realm[session.realm_name]
     account = world.Account[session.account_name]
 
     to_delete = world.Player.get(realm=realm, account=account, id=pkt.guid_low)
     if not to_delete:
-        session.log.error(f'Tried to delete character {pkt.guid_low}, but it does not exist')
+        session.log.error(
+            f'Tried to delete character {pkt.guid_low}, but it does not exist')
         return [(
             op_code.Server.CHAR_DELETE,
-            char_delete.ServerCharDelete.build(dict(error=ResponseCode.FAILED)),
+            char_delete.ServerCharDelete.build(
+                dict(error=ResponseCode.FAILED)),
         )]
 
     to_delete.delete()

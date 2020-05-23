@@ -21,17 +21,17 @@ ServerBattlefieldStatus = Struct(
                 lambda c: c.status_id,
                 {
                     enums.BattlegroundStatus.WAIT_QUEUE:
-                        Struct(
-                            'avg_wait_time_ms' / Int32ul,
-                            'queue_time_ms' / Int32ul,
-                        ),
+                    Struct(
+                        'avg_wait_time_ms' / Int32ul,
+                        'queue_time_ms' / Int32ul,
+                    ),
                     enums.BattlegroundStatus.WAIT_JOIN:
-                        Struct('remove_from_queue_ms' / Int32ul),
+                    Struct('remove_from_queue_ms' / Int32ul),
                     enums.BattlegroundStatus.IN_PROGRESS:
-                        Struct(
-                            'bg_auto_leave_ms' / Int32ul,
-                            'since_bg_start_ms' / Int32ul,
-                        ),
+                    Struct(
+                        'bg_auto_leave_ms' / Int32ul,
+                        'since_bg_start_ms' / Int32ul,
+                    ),
                 },
                 Const(b'\x00\x00\x00\x00'),
             ),

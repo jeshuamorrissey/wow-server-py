@@ -87,10 +87,14 @@ def make_client_server_packet(
     op_packet_file: Text,
     op_packet_filename: Text,
 ):
-    with open(os.path.join(output_path, 'packets', op_packet_filename), 'w') as f:
-        f.write(_CLIENT_SERVER_PACKET_FORMAT.format(op_camel_case=op_camel_case, op_name=op_name))
+    with open(os.path.join(output_path, 'packets', op_packet_filename),
+              'w') as f:
+        f.write(
+            _CLIENT_SERVER_PACKET_FORMAT.format(op_camel_case=op_camel_case,
+                                                op_name=op_name))
 
-    with open(os.path.join(output_path, 'handlers', op_packet_filename), 'w') as f:
+    with open(os.path.join(output_path, 'handlers', op_packet_filename),
+              'w') as f:
         f.write(
             _CLIENT_SERVER_HANDLER_FORMAT.format(op_packet_file=op_packet_file,
                                                  op_camel_case=op_camel_case,
@@ -104,12 +108,18 @@ def make_client_packet(
     op_packet_file: Text,
     op_packet_filename: Text,
 ):
-    with open(os.path.join(output_path, 'packets', op_packet_filename), 'w') as f:
-        f.write(_CLIENT_PACKET_FORMAT.format(op_camel_case=op_camel_case, op_name=op_name))
-
-    with open(os.path.join(output_path, 'handlers', op_packet_filename), 'w') as f:
+    with open(os.path.join(output_path, 'packets', op_packet_filename),
+              'w') as f:
         f.write(
-            _CLIENT_HANDLER_FORMAT.format(op_packet_file=op_packet_file, op_camel_case=op_camel_case, op_name=op_name))
+            _CLIENT_PACKET_FORMAT.format(op_camel_case=op_camel_case,
+                                         op_name=op_name))
+
+    with open(os.path.join(output_path, 'handlers', op_packet_filename),
+              'w') as f:
+        f.write(
+            _CLIENT_HANDLER_FORMAT.format(op_packet_file=op_packet_file,
+                                          op_camel_case=op_camel_case,
+                                          op_name=op_name))
 
 
 def make_server_packet(
@@ -117,7 +127,8 @@ def make_server_packet(
     op_camel_case: Text,
     op_packet_filename: Text,
 ):
-    with open(os.path.join(output_path, 'packets', op_packet_filename), 'w') as f:
+    with open(os.path.join(output_path, 'packets', op_packet_filename),
+              'w') as f:
         f.write(_SERVER_PACKET_FORMAT.format(op_camel_case=op_camel_case))
 
 
@@ -130,9 +141,11 @@ def main(output_path: Text, op_name: Text):
     op_camel_case = ''.join([part.title() for part in op_name.split('_')])
 
     if op_name in client_values and op_name in server_values:
-        make_client_server_packet(output_path, op_name, op_camel_case, op_packet_file, op_packet_filename)
+        make_client_server_packet(output_path, op_name, op_camel_case,
+                                  op_packet_file, op_packet_filename)
     elif op_name in client_values:
-        make_client_packet(output_path, op_name, op_camel_case, op_packet_file, op_packet_filename)
+        make_client_packet(output_path, op_name, op_camel_case, op_packet_file,
+                           op_packet_filename)
     elif op_name in server_values:
         make_server_packet(output_path, op_camel_case, op_packet_filename)
     else:

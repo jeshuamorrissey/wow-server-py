@@ -25,26 +25,31 @@ def main(output_file: Text):
         secondary_enum_field = None
 
         for attr in cls._attrs_:
-            if attr.py_type in (common.SingleEnumString, common.MultiEnumString):
+            if attr.py_type in (common.SingleEnumString,
+                                common.MultiEnumString):
                 enum_name = 'E' + cls.__name__
                 enum_field = attr.name
-            elif attr.py_type in (common.MultiEnumSecondaryString,):
+            elif attr.py_type in (common.MultiEnumSecondaryString, ):
                 secondary_enum_field = attr.name
 
         if not enum_name or not enum_field:
             continue
 
         if secondary_enum_field:
-            logging.info(f'Processing {cls.__name__} (enum fields "{enum_field}", "{secondary_enum_field}")')
+            logging.info(
+                f'Processing {cls.__name__} (enum fields "{enum_field}", "{secondary_enum_field}")'
+            )
         else:
-            logging.info(f'Processing {cls.__name__} (enum field "{enum_field}")')
+            logging.info(
+                f'Processing {cls.__name__} (enum field "{enum_field}")')
 
         SPECIAL_CHARS = string.punctuation.replace('%', '').replace('_', '')
 
         enums = {}
         with orm.db_session:
             for r in cls.select():
-                name = ''.join(c for c in getattr(r, enum_field) if c not in SPECIAL_CHARS)
+                name = ''.join(c for c in getattr(r, enum_field)
+                               if c not in SPECIAL_CHARS)
                 name = name.replace('%', '_percent')
                 if secondary_enum_field and getattr(r, secondary_enum_field):
                     name += '_' + getattr(r, secondary_enum_field)
@@ -71,10 +76,11 @@ def main(output_file: Text):
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--output_file',
-                            type=str,
-                            required=True,
-                            help='The absolute path to the output JSON file directory.')
+    arg_parser.add_argument(
+        '--output_file',
+        type=str,
+        required=True,
+        help='The absolute path to the output JSON file directory.')
 
     args = arg_parser.parse_args()
     main(args.output_file)

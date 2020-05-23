@@ -9,7 +9,9 @@ from world_server.packets import name_query
 
 @router.Handler(op_code.Client.NAME_QUERY)
 @orm.db_session
-def handle_name_query(pkt: name_query.ClientNameQuery, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_name_query(
+        pkt: name_query.ClientNameQuery,
+        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     player = world.Player[pkt.guid]
 
     return [(

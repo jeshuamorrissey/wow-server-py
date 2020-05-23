@@ -14,8 +14,10 @@ class Unit(game_object.GameObject):
     class_ = orm.Required(constants.ChrClasses)
     gender = orm.Required(enums.Gender)
 
-    sheathed_state = orm.Required(enums.SheathedState, default=enums.SheathedState.UNARMED)
-    stand_state = orm.Required(enums.StandState, default=enums.StandState.STAND)
+    sheathed_state = orm.Required(enums.SheathedState,
+                                  default=enums.SheathedState.UNARMED)
+    stand_state = orm.Required(enums.StandState,
+                               default=enums.StandState.STAND)
     emote_state = orm.Optional(int)
 
     # Stats.
@@ -33,9 +35,12 @@ class Unit(game_object.GameObject):
 
     # For NPC units, they will have some equipment.
     # These aren't real items, just visible templates.
-    npc_main_hand = orm.Optional(game.ItemTemplate, reverse='npc_main_hands_backlink')
-    npc_off_hand = orm.Optional(game.ItemTemplate, reverse='npc_off_hands_backlink')
-    npc_ranged = orm.Optional(game.ItemTemplate, reverse='npc_rangeds_backlink')
+    npc_main_hand = orm.Optional(game.ItemTemplate,
+                                 reverse='npc_main_hands_backlink')
+    npc_off_hand = orm.Optional(game.ItemTemplate,
+                                reverse='npc_off_hands_backlink')
+    npc_ranged = orm.Optional(game.ItemTemplate,
+                              reverse='npc_rangeds_backlink')
 
     auras = orm.Set('Aura', reverse='applied_to')
     applied_auras = orm.Set('Aura', reverse='applied_by')
@@ -97,8 +102,10 @@ class Unit(game_object.GameObject):
     channeled_by = orm.Set('Unit', reverse='channeling')
     mount = orm.Optional('Unit', reverse='mounted_by')
     mounted_by = orm.Optional('Unit', reverse='mount')
-    created_by_spell = orm.Optional('Spell', reverse='unit_created_by_backlink')
-    channeling_spell = orm.Optional('Spell', reverse='unit_channeling_backlink')
+    created_by_spell = orm.Optional('Spell',
+                                    reverse='unit_created_by_backlink')
+    channeling_spell = orm.Optional('Spell',
+                                    reverse='unit_channeling_backlink')
 
     # Unit location information.
     x = orm.Required(float)
@@ -262,8 +269,9 @@ class Unit(game_object.GameObject):
     def power_type(self) -> enums.PowerType:
         return self.class_.display_power
 
-    def virtual_item_fields(self, slot: enums.EquipmentSlot,
-                            item: Optional[game.ItemTemplate]) -> Dict[enums.UpdateField, Any]:
+    def virtual_item_fields(
+            self, slot: enums.EquipmentSlot,
+            item: Optional[game.ItemTemplate]) -> Dict[enums.UpdateField, Any]:
         if not item:
             return {}
 
@@ -283,9 +291,12 @@ class Unit(game_object.GameObject):
             return {}
 
         return {
-            DISPLAY: item.displayid,
-            INFO_0: (item.class_ | item.subclass << 8 | item.Material << 16 | item.InventoryType << 24),
-            INFO_1: item.sheath,
+            DISPLAY:
+            item.displayid,
+            INFO_0: (item.class_ | item.subclass << 8 | item.Material << 16
+                     | item.InventoryType << 24),
+            INFO_1:
+            item.sheath,
         }
 
     def melee_attack_power_modifier(self) -> int:
@@ -309,7 +320,8 @@ class Unit(game_object.GameObject):
     def power_cost_multiplier_field(self) -> Dict[enums.UpdateField, Any]:
         multiplier = 1.0
         return {
-            enums.UnitFields.POWER_COST_MULTIPLIER + self.power_type(): multiplier,
+            enums.UnitFields.POWER_COST_MULTIPLIER + self.power_type():
+            multiplier,
         }
 
     def calculate_strength(self) -> int:
@@ -334,39 +346,68 @@ class Unit(game_object.GameObject):
 
         if self.base_unit:
             # TODO: get data about virtual items for units
-            fields.update(self.virtual_item_fields(enums.EquipmentSlot.MAIN_HAND, self.npc_main_hand))
-            fields.update(self.virtual_item_fields(enums.EquipmentSlot.OFF_HAND, self.npc_off_hand))
-            fields.update(self.virtual_item_fields(enums.EquipmentSlot.RANGED, self.npc_ranged))
+            fields.update(
+                self.virtual_item_fields(enums.EquipmentSlot.MAIN_HAND,
+                                         self.npc_main_hand))
+            fields.update(
+                self.virtual_item_fields(enums.EquipmentSlot.OFF_HAND,
+                                         self.npc_off_hand))
+            fields.update(
+                self.virtual_item_fields(enums.EquipmentSlot.RANGED,
+                                         self.npc_ranged))
 
             fields.update({
-                f.BASEATTACKTIME: self.base_unit.MeleeBaseAttackTime,
-                f.OFFHANDATTACKTIME: self.base_unit.MeleeBaseAttackTime,
-                f.RANGEDATTACKTIME: self.base_unit.RangedBaseAttackTime,
-                f.MINDAMAGE: self.base_unit.MinMeleeDmg,
-                f.MAXDAMAGE: self.base_unit.MaxMeleeDmg,
-                f.MINOFFHANDDAMAGE: self.base_unit.MinMeleeDmg,
-                f.MAXOFFHANDDAMAGE: self.base_unit.MaxMeleeDmg,
-                f.MINRANGEDDAMAGE: self.base_unit.MinRangedDmg,
-                f.MAXRANGEDDAMAGE: self.base_unit.MaxRangedDmg,
-                f.NPC_FLAGS: self.base_unit.NpcFlags,
-                f.ARMOR: self.base_unit.Armor,
-                f.HOLY_RESISTANCE: self.base_unit.ResistanceHoly,
-                f.FIRE_RESISTANCE: self.base_unit.ResistanceFire,
-                f.NATURE_RESISTANCE: self.base_unit.ResistanceNature,
-                f.FROST_RESISTANCE: self.base_unit.ResistanceFrost,
-                f.SHADOW_RESISTANCE: self.base_unit.ResistanceShadow,
-                f.ARCANE_RESISTANCE: self.base_unit.ResistanceArcane,
-                f.ATTACK_POWER: self.base_unit.MeleeAttackPower,
-                f.RANGED_ATTACK_POWER: self.base_unit.RangedAttackPower,
+                f.BASEATTACKTIME:
+                self.base_unit.MeleeBaseAttackTime,
+                f.OFFHANDATTACKTIME:
+                self.base_unit.MeleeBaseAttackTime,
+                f.RANGEDATTACKTIME:
+                self.base_unit.RangedBaseAttackTime,
+                f.MINDAMAGE:
+                self.base_unit.MinMeleeDmg,
+                f.MAXDAMAGE:
+                self.base_unit.MaxMeleeDmg,
+                f.MINOFFHANDDAMAGE:
+                self.base_unit.MinMeleeDmg,
+                f.MAXOFFHANDDAMAGE:
+                self.base_unit.MaxMeleeDmg,
+                f.MINRANGEDDAMAGE:
+                self.base_unit.MinRangedDmg,
+                f.MAXRANGEDDAMAGE:
+                self.base_unit.MaxRangedDmg,
+                f.NPC_FLAGS:
+                self.base_unit.NpcFlags,
+                f.ARMOR:
+                self.base_unit.Armor,
+                f.HOLY_RESISTANCE:
+                self.base_unit.ResistanceHoly,
+                f.FIRE_RESISTANCE:
+                self.base_unit.ResistanceFire,
+                f.NATURE_RESISTANCE:
+                self.base_unit.ResistanceNature,
+                f.FROST_RESISTANCE:
+                self.base_unit.ResistanceFrost,
+                f.SHADOW_RESISTANCE:
+                self.base_unit.ResistanceShadow,
+                f.ARCANE_RESISTANCE:
+                self.base_unit.ResistanceArcane,
+                f.ATTACK_POWER:
+                self.base_unit.MeleeAttackPower,
+                f.RANGED_ATTACK_POWER:
+                self.base_unit.RangedAttackPower,
             })
 
         model_info = self.display_info()
         fields.update({
-            f.COMBATREACH: self.scale * model_info.combat_reach,
-            f.BOUNDINGRADIUS: self.scale * model_info.bounding_radius,
+            f.COMBATREACH:
+            self.scale * model_info.combat_reach,
+            f.BOUNDINGRADIUS:
+            self.scale * model_info.bounding_radius,
         })
 
-        aura_flags = [0] * 48  # 6 fields => 24 bytes => 48 nibbles, one per aura
+        aura_flags = [
+            0
+        ] * 48  # 6 fields => 24 bytes => 48 nibbles, one per aura
         aura_levels = [0] * 48  # 12 fields => 48 bytes, one per aura
         aura_applications = [0] * 48  # 12 fields => 48 bytes, one per aura
         aura_state = enums.AuraState.NONE
@@ -386,7 +427,9 @@ class Unit(game_object.GameObject):
             byte = i % 8
             aura_flags_fields[field] |= (aura_flag << (byte * 4))
 
-        fields.update({f.AURAFLAGS + i: val for i, val in enumerate(aura_flags_fields)})
+        fields.update(
+            {f.AURAFLAGS + i: val
+             for i, val in enumerate(aura_flags_fields)})
 
         # aura_levels is a list of bytes, each of which is part of a field.
         aura_levels_fields = [0] * 12
@@ -395,7 +438,10 @@ class Unit(game_object.GameObject):
             byte = i % 4
             aura_levels_fields[field] |= (aura_level << (byte * 8))
 
-        fields.update({f.AURALEVELS + i: val for i, val in enumerate(aura_levels_fields)})
+        fields.update({
+            f.AURALEVELS + i: val
+            for i, val in enumerate(aura_levels_fields)
+        })
 
         # aura_applications is a list of bytes, each of which is part of a field.
         aura_applications_fields = [0] * 12
@@ -404,49 +450,89 @@ class Unit(game_object.GameObject):
             byte = i % 4
             aura_applications_fields[field] |= (aura_application << (byte * 8))
 
-        fields.update({f.AURALEVELS + i: val for i, val in enumerate(aura_applications_fields)})
+        fields.update({
+            f.AURALEVELS + i: val
+            for i, val in enumerate(aura_applications_fields)
+        })
 
         # AURASTATE is a set of flags (just a single byte).
         fields[f.AURASTATE] = aura_state
 
         fields.update({
-            f.CHARM: self.control.guid if self.control else None,
-            f.SUMMON: self.summon.guid if self.summon else None,
-            f.CHARMEDBY: self.controller.guid if self.controller else None,
-            f.SUMMONEDBY: self.summoner.guid if self.summoner else None,
-            f.CREATEDBY: self.created_by.guid if self.created_by else None,
-            f.TARGET: self.target.guid if self.target else None,
-            f.PERSUADED: self.created_by.guid if self.created_by else None,
-            f.CHANNEL: self.channeling.guid if self.channeling else None,
-            f.HEALTH: self.health(),
-            f.POWER_START + self.power_type(): self.power(),
-            f.MAXHEALTH: self.max_health(),
-            f.MAX_POWER_START + self.power_type(): self.max_power(),
-            f.LEVEL: self.level,
-            f.FACTIONTEMPLATE: self.faction_template(),
-            f.BYTES_0: self.bytes_0(),
-            f.FLAGS: self.flags(),
-            f.DISPLAYID: self.display_info().id,
-            f.NATIVEDISPLAYID: self.display_info().id,
-            f.MOUNTDISPLAYID: self.mount.display_info().id if self.mount else 0,
-            f.BYTES_1: self.bytes_1(),
-            f.DYNAMIC_FLAGS: self.dynamic_flags(),
-            f.CHANNEL_SPELL: self.channeling_spell.id if self.channeling_spell else 0,
-            f.MOD_CAST_SPEED: self.calculate_cast_speed_mod(),
-            f.CREATED_BY_SPELL: self.created_by_spell.id if self.created_by_spell else 0,
-            f.NPC_EMOTESTATE: self.emote_state,
-            f.STRENGTH: self.calculate_strength(),
-            f.AGILITY: self.calculate_agility(),
-            f.STAMINA: self.calculate_stamina(),
-            f.INTELLECT: self.calculate_intellect(),
-            f.SPIRIT: self.calculate_spirit(),
-            f.BASE_MANA: self.base_power,
-            f.BASE_HEALTH: self.base_health,
-            f.BYTES_2: self.bytes_2(),
-            f.ATTACK_POWER_MODS: self.melee_attack_power_modifier(),
-            f.ATTACK_POWER_MULTIPLIER: self.melee_attack_power_multiplier(),
-            f.RANGED_ATTACK_POWER_MODS: self.ranged_attack_power_modifier(),
-            f.RANGED_ATTACK_POWER_MULTIPLIER: self.ranged_attack_power_multiplier(),
+            f.CHARM:
+            self.control.guid if self.control else None,
+            f.SUMMON:
+            self.summon.guid if self.summon else None,
+            f.CHARMEDBY:
+            self.controller.guid if self.controller else None,
+            f.SUMMONEDBY:
+            self.summoner.guid if self.summoner else None,
+            f.CREATEDBY:
+            self.created_by.guid if self.created_by else None,
+            f.TARGET:
+            self.target.guid if self.target else None,
+            f.PERSUADED:
+            self.created_by.guid if self.created_by else None,
+            f.CHANNEL:
+            self.channeling.guid if self.channeling else None,
+            f.HEALTH:
+            self.health(),
+            f.POWER_START + self.power_type():
+            self.power(),
+            f.MAXHEALTH:
+            self.max_health(),
+            f.MAX_POWER_START + self.power_type():
+            self.max_power(),
+            f.LEVEL:
+            self.level,
+            f.FACTIONTEMPLATE:
+            self.faction_template(),
+            f.BYTES_0:
+            self.bytes_0(),
+            f.FLAGS:
+            self.flags(),
+            f.DISPLAYID:
+            self.display_info().id,
+            f.NATIVEDISPLAYID:
+            self.display_info().id,
+            f.MOUNTDISPLAYID:
+            self.mount.display_info().id if self.mount else 0,
+            f.BYTES_1:
+            self.bytes_1(),
+            f.DYNAMIC_FLAGS:
+            self.dynamic_flags(),
+            f.CHANNEL_SPELL:
+            self.channeling_spell.id if self.channeling_spell else 0,
+            f.MOD_CAST_SPEED:
+            self.calculate_cast_speed_mod(),
+            f.CREATED_BY_SPELL:
+            self.created_by_spell.id if self.created_by_spell else 0,
+            f.NPC_EMOTESTATE:
+            self.emote_state,
+            f.STRENGTH:
+            self.calculate_strength(),
+            f.AGILITY:
+            self.calculate_agility(),
+            f.STAMINA:
+            self.calculate_stamina(),
+            f.INTELLECT:
+            self.calculate_intellect(),
+            f.SPIRIT:
+            self.calculate_spirit(),
+            f.BASE_MANA:
+            self.base_power,
+            f.BASE_HEALTH:
+            self.base_health,
+            f.BYTES_2:
+            self.bytes_2(),
+            f.ATTACK_POWER_MODS:
+            self.melee_attack_power_modifier(),
+            f.ATTACK_POWER_MULTIPLIER:
+            self.melee_attack_power_multiplier(),
+            f.RANGED_ATTACK_POWER_MODS:
+            self.ranged_attack_power_modifier(),
+            f.RANGED_ATTACK_POWER_MULTIPLIER:
+            self.ranged_attack_power_multiplier(),
         })
 
         fields.update(self.power_cost_modifier_field())

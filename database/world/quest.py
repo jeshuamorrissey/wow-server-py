@@ -29,11 +29,13 @@ class Quest(db.Entity):
     orm.PrimaryKey(player, base_quest)
 
     @classmethod
-    def New(cls, player: Player, base_quest: game.QuestTemplate, **kwargs) -> 'Quest':
+    def New(cls, player: Player, base_quest: game.QuestTemplate,
+            **kwargs) -> 'Quest':
         quest = Quest(
             player=player,
             base_quest=base_quest,
-            due=int(time.time()) + base_quest.duration if base_quest.duration else None,
+            due=int(time.time()) +
+            base_quest.duration if base_quest.duration else None,
             **kwargs,
         )
 

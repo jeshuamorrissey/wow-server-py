@@ -9,7 +9,8 @@ from . import unit
 
 
 class Pet(unit.Unit):
-    name_timestamp = orm.Required(datetime.datetime, default=lambda: datetime.datetime.now())
+    name_timestamp = orm.Required(datetime.datetime,
+                                  default=lambda: datetime.datetime.now())
     talent_points = orm.Required(int, default=0)
 
     def bytes_1(self) -> int:

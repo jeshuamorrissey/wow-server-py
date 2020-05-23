@@ -9,7 +9,6 @@ class Session(socketserver.BaseRequestHandler):
     receiving packets from the user and calling their appropriate
     handler functions.
     """
-
     def setup(self):
         """Setup the session with some common infrastructure.
 
@@ -64,7 +63,8 @@ class Session(socketserver.BaseRequestHandler):
                 data = b''
 
             if len(data) != data_len:
-                self.log.warn(f'Short read, wanted {data_len}, got {len(data)}')
+                self.log.warn(
+                    f'Short read, wanted {data_len}, got {len(data)}')
                 continue
 
             pkt_format = self.server.packet_formats.get(op_code, None)

@@ -15,7 +15,6 @@ class GUID(int):
       - The first 4 bytes will be the LOW part.
       - The second 4 bytes will be the HIGH part.
     """
-
     @property
     def low(self) -> int:
         return self & 0xFFFFFFFF

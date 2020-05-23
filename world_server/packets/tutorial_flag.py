@@ -4,5 +4,5 @@ from world_server import op_code, router
 
 ClientTutorialFlag = router.ClientPacket.Register(
     op_code.Client.TUTORIAL_FLAG,
-    Struct('flag' / Int32ul,),
+    Struct('flag' / Int32ul, ),
 )

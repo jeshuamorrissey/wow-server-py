@@ -22,7 +22,8 @@ class Router(object):
 
     def __call__(self, fn: Callable):
         if self._key in self.ROUTES:
-            raise RuntimeError(f'Tried to register 2 handlers for op {self._key.name}')
+            raise RuntimeError(
+                f'Tried to register 2 handlers for op {self._key.name}')
         self.ROUTES[self._key] = fn
         return fn
 

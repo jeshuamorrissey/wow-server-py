@@ -12,7 +12,9 @@ from database import common, data
 db = orm.Database()
 
 
-def SetupDatabase(db_file: Text, clear_database: bool = False, clear_dynamic_database: bool = False):
+def SetupDatabase(db_file: Text,
+                  clear_database: bool = False,
+                  clear_dynamic_database: bool = False):
     # Import database entities.
     from database import constants
     from database import game
@@ -23,7 +25,9 @@ def SetupDatabase(db_file: Text, clear_database: bool = False, clear_dynamic_dat
         os.remove(db_file)
 
     # Connect to the SQLite database.
-    db.bind(provider='sqlite', filename=db_file, create_db=not os.path.exists(db_file))
+    db.bind(provider='sqlite',
+            filename=db_file,
+            create_db=not os.path.exists(db_file))
     db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
     db.generate_mapping(check_tables=False)
 
