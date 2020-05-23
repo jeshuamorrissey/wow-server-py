@@ -14,16 +14,6 @@ jobs:
           python-version: 3.x
       - name: Install pipenv
         run: pip install pipenv
-      - name: Get pip cache dir
-        id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
-      - name: pip cache
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
       - name: Install dependecies
         run: pipenv install -d
       - name: Run test
@@ -38,20 +28,10 @@ jobs:
           python-version: 3.x
       - name: Install pipenv
         run: pip install pipenv
-      - name: Get pip cache dir
-        id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
-      - name: pip cache
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
       - name: Install dependecies
         run: pipenv install -d
       - name: Run test
-        run:
+        run: |
           pipenv run coverage
           pipenv run upload-coverage --token=${CODECOV_UPLOAD_TOKEN?}
         env:
