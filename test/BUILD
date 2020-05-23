@@ -21,6 +21,7 @@ py_library(
         requirement("atomicwrites"),
         requirement("py"),
         requirement("pluggy"),
+        requirement("importlib_metadata"),
     ],
 )
 
