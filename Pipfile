@@ -21,3 +21,9 @@ importlib-metadata = "==1.6.0"
 
 [requires]
 python_version = "3.8"
+
+[scripts]
+start = "python wow_server.py"
+test = "python -m pytest test"
+coverage = "python -m pytest test --cov=. --cov-report=html" 
+coverage-ci = "python -m pytest test --cov=. && python -m codecov --token=${CODECOV_UPLOAD_TOKEN?}" 

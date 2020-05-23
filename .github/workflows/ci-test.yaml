@@ -9,13 +9,14 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Install dependecies
+        uses: VaultVulp/action-pipenv@v2.0.1
         with:
-          python-version: 3.x
-      - name: Setup environment
-        run: pip install pipenv && pipenv install
-      - name: Run Tests
-        run: python -m pytest test
+          command: install -d
+      - name: Run test
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: run test
   
   coverage:
     runs-on: ubuntu-latest
@@ -24,14 +25,14 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - name: Setup environment
-        run: pip install pipenv && pipenv install
-      - name: Generate coverage report
-        run: python -m pytest test --cov=.
-      - name: Upload coverage reports
-        run: |
-          pip install codecov
-          codecov --token="${CODECOV_UPLOAD_TOKEN?}"
+      - name: Install dependecies
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: install -d
+      - name: Run coverage-ci
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: run coverage-ci
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
