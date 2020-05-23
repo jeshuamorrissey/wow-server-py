@@ -26,5 +26,7 @@ python_version = "3.8"
 [scripts]
 start = "python wow_server.py"
 test = "python -m pytest test"
-coverage = "python -m pytest test --cov=. --cov-report=html" 
+test-file = "python -m pytest"
+coverage = "python -m pytest test --cov=. --cov-report=html"
+coverage-file = "python -m pytest --cov=. --cov-report=html"
 upload-coverage = "python -m codecov"
