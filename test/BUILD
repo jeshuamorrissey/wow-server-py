@@ -20,6 +20,7 @@ py_library(
         requirement("six"),
         requirement("atomicwrites"),
         requirement("py"),
+        requirement("pluggy"),
     ],
 )
 
