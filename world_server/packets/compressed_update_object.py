@@ -1,4 +1,4 @@
-from construct import Compressed, Struct, Int32ul, Rebuild
+from construct import Compressed, Int32ul, Struct
 
 from world_server.packets.update_object import ServerUpdateObject
 

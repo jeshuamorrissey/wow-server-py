@@ -1,5 +1,5 @@
 import enum
-from typing import Dict, Text, Type
+from typing import Dict, Type
 
 
 class System:

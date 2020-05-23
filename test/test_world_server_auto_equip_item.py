@@ -1,18 +1,10 @@
-import enum
-import io
-import logging
-import sys
-import unittest
-from typing import Text
 from unittest import mock
 
-import pytest
 from pony import orm
 
-from database import data, enums
-from world_server import op_code, systems
+from database import enums
+from world_server import op_code
 from world_server.handlers import auto_equip_item as handler
-from world_server.packets import auth_response
 from world_server.packets import auto_equip_item as packet
 from world_server.packets import inventory_change_failure
 

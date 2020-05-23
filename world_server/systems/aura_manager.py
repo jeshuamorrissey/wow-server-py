@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 
 from pony import orm
 
-from database import constants, game, world
+from database import constants, world
 from world_server import op_code, system
 from world_server.packets import update_aura_duration
 from world_server.session import Session

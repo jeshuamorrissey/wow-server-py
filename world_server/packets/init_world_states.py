@@ -1,4 +1,4 @@
-from construct import Int32ul, Float32l, Struct, Int16ul, Rebuild, GreedyRange
+from construct import GreedyRange, Int16ul, Int32ul, Rebuild, Struct
 
 ServerInitWorldStates = Struct(
     'map' / Int32ul,

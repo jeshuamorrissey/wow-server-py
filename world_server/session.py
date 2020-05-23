@@ -1,4 +1,3 @@
-import threading
 from typing import Optional, Text, Tuple
 
 from pony import orm

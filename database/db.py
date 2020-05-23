@@ -14,9 +14,7 @@ db = orm.Database()
 
 def SetupDatabase(db_file: Text, clear_database: bool = False, clear_dynamic_database: bool = False):
     # Import database entities.
-    from database import constants
-    from database import game
-    from database import world
+    pass
 
     # Clear the database if requested.
     if clear_database and db_file != ':memory:' and os.path.exists(db_file):

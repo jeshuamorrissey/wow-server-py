@@ -1,8 +1,4 @@
-import enum
-import sys
 from unittest import mock
-
-import pytest
 
 from world_server import op_code
 from world_server.handlers import battlefield_status as handler

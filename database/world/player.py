@@ -1,7 +1,7 @@
 import datetime
 import time
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Text, Tuple, Union
+from typing import Any, Dict, List, Optional, Text, Tuple
 
 from pony import orm
 

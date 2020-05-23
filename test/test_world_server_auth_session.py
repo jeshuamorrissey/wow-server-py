@@ -1,14 +1,5 @@
-import enum
-import io
-import logging
-import sys
-import unittest
-from typing import Text
 from unittest import mock
 
-import pytest
-
-from database import data, enums
 from world_server import op_code
 from world_server.handlers import auth_session as handler
 from world_server.packets import auth_response

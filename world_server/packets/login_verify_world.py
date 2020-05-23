@@ -1,4 +1,4 @@
-from construct import Int32ul, Float32l, Struct
+from construct import Float32l, Int32ul, Struct
 
 ServerLoginVerifyWorld = Struct(
     'map' / Int32ul,

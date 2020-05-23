@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Text, List
+from typing import Callable, Dict
 
 import construct
 

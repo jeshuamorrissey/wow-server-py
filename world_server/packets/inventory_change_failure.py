@@ -1,7 +1,6 @@
-import enum
 from typing import List, Tuple
 
-from construct import Default, Enum, If, Int8ul, Int32ul, Int64ul, Struct
+from construct import Default, If, Int8ul, Int32ul, Int64ul, Struct
 
 from database import enums
 from world_server import op_code

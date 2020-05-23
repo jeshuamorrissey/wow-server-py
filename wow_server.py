@@ -1,12 +1,9 @@
 import argparse
-import tempfile
 import datetime
-import enum
-import logging
 import os
+import tempfile
 import threading
 import time
-from typing import Text
 
 import coloredlogs
 from pony import orm

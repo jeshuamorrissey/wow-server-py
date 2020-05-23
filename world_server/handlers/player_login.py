@@ -61,7 +61,6 @@ def handle_player_login(pkt: player_login.ClientPlayerLogin,
     aura_packets = system.Register.Get(system.System.ID.AURA_MANAGER).login(player, session)
 
     # Make a list of return packets.
-    import time
     packets = [
         (
             op_code.Server.LOGIN_VERIFY_WORLD,

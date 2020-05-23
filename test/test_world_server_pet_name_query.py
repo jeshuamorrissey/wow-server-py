@@ -1,8 +1,4 @@
-import sys
-
-import pytest
-
-from database import world, enums, game, constants
+from database import constants, enums, game, world
 from world_server import op_code
 from world_server.handlers import pet_name_query as handler
 from world_server.packets import pet_name_query as packet

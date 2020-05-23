@@ -1,4 +1,4 @@
-from construct import Array, CString, Int32ul, Int64ul, Struct
+from construct import Array, CString, Int32ul, Struct
 
 from world_server import op_code, router
 

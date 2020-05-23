@@ -1,13 +1,9 @@
-import enum
-import sys
 from unittest import mock
 
-import pytest
-
+from database import game
 from world_server import op_code
 from world_server.handlers import item_query_single as handler
 from world_server.packets import item_query_single as packet
-from database import game
 
 
 def test_handle_item_query_single(mocker, fake_db):

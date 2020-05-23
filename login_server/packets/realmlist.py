@@ -1,7 +1,6 @@
 from construct import (BitStruct, Const, CString, Flag, Float32l, GreedyRange, Int8ul, Int32ul, Padding, Rebuild,
                        Struct)
 
-from common import srp
 from login_server import op_code, router
 
 ClientRealmlist = router.ClientPacket.Register(op_code.Client.REALMLIST,

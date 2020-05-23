@@ -2,7 +2,6 @@ from typing import Tuple
 
 from pony import orm
 
-from database import constants
 from database.db import db
 
 

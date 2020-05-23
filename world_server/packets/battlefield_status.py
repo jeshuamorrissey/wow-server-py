@@ -1,4 +1,4 @@
-from construct import Const, If, Int8ul, Int32ul, Struct, Switch
+from construct import Const, If, Int32ul, Struct, Switch
 
 from database import enums
 from world_server import op_code, router

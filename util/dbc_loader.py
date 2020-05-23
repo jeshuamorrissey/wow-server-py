@@ -5,7 +5,7 @@ import gzip
 import json
 import logging
 import os
-from typing import Any, Dict, List, Set, Text, Type
+from typing import Any, Dict, Set, Text, Type
 
 import coloredlogs
 from construct import (Adapter, Array, Bytes, Computed, Const, Float32l, Int32ul, Int64ul, Struct)

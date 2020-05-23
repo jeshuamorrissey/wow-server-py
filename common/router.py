@@ -1,5 +1,5 @@
 import enum
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict
 
 
 class Router(object):

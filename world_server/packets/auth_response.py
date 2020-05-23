@@ -1,8 +1,6 @@
 import enum
 
-from construct import Const, Enum, If, Int8ul, Struct
-
-from world_server import op_code, router
+from construct import Const, If, Int8ul, Struct
 
 
 class ErrorCode(enum.IntEnum):

@@ -3,7 +3,6 @@ from typing import List, Tuple
 
 from pony import orm
 
-from common import srp
 from database import world
 from world_server import op_code, router, session
 from world_server.packets import char_delete

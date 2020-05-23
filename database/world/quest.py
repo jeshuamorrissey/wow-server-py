@@ -1,4 +1,3 @@
-import enum
 import time
 
 from pony import orm

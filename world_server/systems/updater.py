@@ -1,11 +1,10 @@
-import enum
 from typing import Dict, Iterable, Optional, Tuple
 
 from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes, GreedyRange, If, Int8ul, Int32ul, Int64ul,
                        Rebuild, Struct, Switch)
 from pony import orm
 
-from database import constants, enums, game, world
+from database import enums, world
 from world_server import config, op_code, session, system
 from world_server.packets import compressed_update_object, update_object
 

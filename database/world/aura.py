@@ -1,5 +1,3 @@
-import enum
-
 from pony import orm
 
 from database.db import db

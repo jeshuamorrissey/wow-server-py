@@ -1,8 +1,4 @@
-import sys
-
-import pytest
-
-from database import world, enums
+from database import enums
 from world_server import op_code
 from world_server.handlers import name_query as handler
 from world_server.packets import name_query as packet

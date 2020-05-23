@@ -2,7 +2,6 @@ import gzip
 import json
 import logging
 import os
-import string
 import time
 from typing import IO, Dict, List, Optional, Set, Text, Type, Union
 

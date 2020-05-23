@@ -1,7 +1,7 @@
 from pony import orm
 
-from database.db import db
 from database.constants import common
+from database.db import db
 
 
 class AreaPOI(db.Entity):

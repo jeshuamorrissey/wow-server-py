@@ -6,7 +6,7 @@ import struct
 from construct import (Adapter, Array, Byte, Bytes, Const, Debugger, Enum, Float32l, GreedyBytes, GreedyRange, If,
                        IfThenElse, Int8ul, Int32ul, Int64ul, Rebuild, Struct, Switch)
 
-from database import constants, enums, game, world
+from database import enums, world
 
 
 class PackedGUIDAdapter(Adapter):

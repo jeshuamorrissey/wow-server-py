@@ -1,14 +1,6 @@
-import enum
-import io
-import logging
-import sys
-import unittest
-from typing import Text
 from unittest import mock
 
-import pytest
-
-from database import data, enums
+from database import enums
 from login_server import op_code
 from login_server.handlers import realmlist as handler
 from login_server.packets import realmlist as packet

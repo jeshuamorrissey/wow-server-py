@@ -17,22 +17,3 @@ Based on this data, enum values can be auto-generated using gen_enums.py:
 TODO(jeshua): make a framework for changing these. This would required
               building a new patch MPQ for the client.
 """
-from .animation_data import *
-from .area_poi import *
-from .area_trigger import *
-from .attack_anim_kits import *
-from .attack_anim_types import *
-from .auction_house import *
-from .bank_bag_slot_prices import *
-from .chr_classes import *
-from .chr_races import *
-from .cinematic_camera import *
-from .cinematic_sequences import *
-from .creature_type import *
-from .faction import *
-from .item_class import *
-from .item_sub_class import *
-from .languages import *
-from .resistances import *
-from .skill_line import *
-from .spell import *

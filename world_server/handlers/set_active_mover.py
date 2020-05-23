@@ -3,7 +3,7 @@ from typing import List, Tuple
 from pony import orm
 
 from world_server import op_code, router, session
-from world_server.packets import pong, set_active_mover
+from world_server.packets import set_active_mover
 
 
 @router.Handler(op_code.Client.SET_ACTIVE_MOVER)

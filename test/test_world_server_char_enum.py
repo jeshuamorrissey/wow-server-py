@@ -1,18 +1,8 @@
-import enum
-import io
-import logging
-import sys
-import unittest
-from typing import Text
 from unittest import mock
 
-import pytest
-from pony import orm
-
-from database import constants, data, enums
-from world_server import op_code, systems
+from database import constants, enums
+from world_server import op_code
 from world_server.handlers import char_enum as handler
-from world_server.packets import auth_response
 from world_server.packets import char_enum as packet
 
 

@@ -1,8 +1,8 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 from pony import orm
 
-from database import common, enums, game
+from database import enums, game
 from database.db import db
 
 from . import game_object

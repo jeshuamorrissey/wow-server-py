@@ -1,6 +1,4 @@
-from construct import Enum, Int8ul, Int32ul, Struct
-
-from database import enums
+from construct import Int8ul, Int32ul, Struct
 
 ServerMeetingstoneSetqueue = Struct(
     'area_id' / Int32ul,

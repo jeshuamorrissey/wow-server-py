@@ -1,9 +1,3 @@
-import enum
-import sys
-
-import pytest
-
-from world_server import op_code
 from world_server.handlers import move_time_skipped as handler
 from world_server.packets import move_time_skipped as packet
 

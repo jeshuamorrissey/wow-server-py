@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from pony import orm
 
-from database import enums, game
+from database import enums
 from database.db import db
 from world_server import system
 

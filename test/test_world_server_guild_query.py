@@ -1,13 +1,9 @@
-import enum
-import sys
 from unittest import mock
 
-import pytest
-
+from database import world
 from world_server import op_code
 from world_server.handlers import guild_query as handler
 from world_server.packets import guild_query as packet
-from database import world
 
 
 def test_handle_guild_query(mocker, fake_db):

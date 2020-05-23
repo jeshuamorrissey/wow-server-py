@@ -1,6 +1,5 @@
 from construct import BytesInteger, Const, If, Int8ul, Struct
 
-from common import srp
 from login_server import op_code, router
 
 ClientLoginProof = router.ClientPacket.Register(
