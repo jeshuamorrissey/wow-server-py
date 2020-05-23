@@ -9,14 +9,21 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install pipenv
+        if: ${{ matrix.os }} == 'windows-latest'
+        run: |
+          pip install pipenv
+      - name: Install pipenv
+        if: ${{ matrix.os }} != 'windows-latest'
+        run: |
+          sudo pip install pipenv
       - name: Install dependecies
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: install -d
+        run: pipenv install -d
       - name: Run test
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: run test
+        run: pipenv run test
   
   coverage:
     runs-on: ubuntu-latest
@@ -25,14 +32,18 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
+      - name: Install pipenv
+        if: ${{ matrix.os }} == 'windows-latest'
+        run: |
+          pip install pipenv
+      - name: Install pipenv
+        if: ${{ matrix.os }} != 'windows-latest'
+        run: |
+          sudo pip install pipenv
       - name: Install dependecies
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: install -d
-      - name: Run coverage-ci
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: run coverage-ci
+        run: pipenv install -d
+      - name: Run test
+        run: pipenv run coverage-ci
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
 
