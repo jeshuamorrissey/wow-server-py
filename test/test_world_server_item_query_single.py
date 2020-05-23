@@ -15,11 +15,10 @@ def test_handle_item_query_single(mocker, fake_db):
 
     item = game.ItemTemplate.get(entry=11922)
 
-    client_pkt = packet.ClientItemQuerySingle.parse(
-        packet.ClientItemQuerySingle.build(dict(
-            entry=item.entry,
-            guid=0,
-        )))
+    client_pkt = packet.ClientItemQuerySingle.parse(packet.ClientItemQuerySingle.build(dict(
+        entry=item.entry,
+        guid=0,
+    )))
 
     response_pkts = handler.handle_item_query_single(client_pkt, mock_session)
 
@@ -29,7 +28,3 @@ def test_handle_item_query_single(mocker, fake_db):
     response_pkt = packet.ServerItemQuerySingle.parse(response_bytes)
     assert response_op == op_code.Server.ITEM_QUERY_SINGLE_RESPONSE
     assert response_pkt.entry == item.entry
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

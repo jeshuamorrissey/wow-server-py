@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 from pony import orm
 
@@ -192,7 +191,3 @@ def test_handle_char_create_name_in_use(mocker, fake_db):
     response_pkt = packet.ServerCharCreate.parse(response_bytes)
     assert response_op == op_code.Server.CHAR_CREATE
     assert response_pkt.error == handler.ResponseCode.NAME_IN_USE
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

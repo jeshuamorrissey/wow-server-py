@@ -15,10 +15,9 @@ ClientLoginProof = router.ClientPacket.Register(
 
 ServerLoginProof = Struct(
     'error' / Int8ul,
-    'proof' / If(
-        lambda self: self.error == 0,
-        Struct(
-            'proof' / BytesInteger(20, swapped=True),
-            'unk1' / Const(int(0).to_bytes(4, 'little')),
-        )),
+    'proof' / If(lambda self: self.error == 0,
+                 Struct(
+                     'proof' / BytesInteger(20, swapped=True),
+                     'unk1' / Const(int(0).to_bytes(4, 'little')),
+                 )),
 )

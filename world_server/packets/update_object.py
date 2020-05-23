@@ -3,9 +3,8 @@
 import enum
 import struct
 
-from construct import (Adapter, Array, Byte, Bytes, Const, Debugger, Enum,
-                       Float32l, GreedyBytes, GreedyRange, If, IfThenElse,
-                       Int8ul, Int32ul, Int64ul, Rebuild, Struct, Switch)
+from construct import (Adapter, Array, Byte, Bytes, Const, Debugger, Enum, Float32l, GreedyBytes, GreedyRange, If,
+                       IfThenElse, Int8ul, Int32ul, Int64ul, Rebuild, Struct, Switch)
 
 from database import constants, enums, game, world
 
@@ -182,7 +181,7 @@ FullMovementUpdate = Struct(
             ),
             'target' / If(
                 lambda this: this.flags & enums.SplineFlags.Final_Point and not (this.flags & enums.SplineFlags.
-                                                                                Final_Target),
+                                                                                 Final_Target),
                 Int64ul,
             ),
             'angle' / If(

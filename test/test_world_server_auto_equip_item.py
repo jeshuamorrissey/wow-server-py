@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 from pony import orm
 
@@ -262,7 +261,3 @@ def test_handle_auto_equip_item_without_equipment_slot(mocker, fake_db):
     response_pkt = inventory_change_failure.ServerInventoryChangeFailure.parse(response_bytes)
     assert response_op == op_code.Server.INVENTORY_CHANGE_FAILURE
     assert response_pkt.code == enums.InventoryChangeError.NO_EQUIPMENT_SLOT_AVAILABLE
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

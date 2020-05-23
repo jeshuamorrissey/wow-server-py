@@ -1,5 +1,6 @@
 import enum
 
+
 class EAnimationData(enum.IntEnum):
     ARROW = 166
     ARROW_BIRTH = 204
@@ -210,6 +211,7 @@ class EAnimationData(enum.IntEnum):
     WALKBACKWARDS = 13
     WHIRLWIND = 126
 
+
 class EAuctionHouse(enum.IntEnum):
     ALLIANCE_AUCTION_HOUSE = 2
     BLACKWATER_AUCTION_HOUSE = 7
@@ -218,6 +220,7 @@ class EAuctionHouse(enum.IntEnum):
     STORMWIND_AUCTION_HOUSE = 1
     THUNDER_BLUFF_AUCTION_HOUSE = 5
     UNDERCITY_AUCTION_HOUSE = 4
+
 
 class EChrClasses(enum.IntEnum):
     DRUID = 11
@@ -230,6 +233,7 @@ class EChrClasses(enum.IntEnum):
     WARLOCK = 9
     WARRIOR = 1
 
+
 class EChrRaces(enum.IntEnum):
     DWARF = 3
     GNOME = 7
@@ -240,6 +244,7 @@ class EChrRaces(enum.IntEnum):
     TAUREN = 6
     TROLL = 8
     UNDEAD = 5
+
 
 class ECreatureType(enum.IntEnum):
     BEAST = 1
@@ -253,6 +258,7 @@ class ECreatureType(enum.IntEnum):
     NOT_SPECIFIED = 10
     TOTEM = 11
     UNDEAD = 6
+
 
 class EFaction(enum.IntEnum):
     ALLIANCE = 469
@@ -446,6 +452,7 @@ class EFaction(enum.IntEnum):
     WORGEN = 24
     ZANDALAR_TRIBE = 270
 
+
 class EItemClass(enum.IntEnum):
     ARMOR = 4
     CONSUMABLE = 0
@@ -463,6 +470,7 @@ class EItemClass(enum.IntEnum):
     RECIPE = 9
     TRADE_GOODS = 7
     WEAPON = 2
+
 
 class EItemSubClass(enum.IntEnum):
     ALCHEMY = 6
@@ -531,6 +539,7 @@ class EItemSubClass(enum.IntEnum):
     WAND = 19
     WAND_O_B_S_O_L_E_T_E = 0
 
+
 class ELanguages(enum.IntEnum):
     COMMON = 7
     DARNASSIAN = 2
@@ -546,6 +555,7 @@ class ELanguages(enum.IntEnum):
     TITAN = 9
     TROLL = 14
 
+
 class EResistances(enum.IntEnum):
     ARCANE = 6
     FIRE = 2
@@ -554,6 +564,7 @@ class EResistances(enum.IntEnum):
     NATURE = 3
     PHYSICAL = 0
     SHADOW = 5
+
 
 class ESkillLine(enum.IntEnum):
     AFFLICTION = 355

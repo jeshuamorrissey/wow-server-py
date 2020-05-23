@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 from pony import orm
 
@@ -84,7 +83,3 @@ def test_handle_char_delete_not_exists(mocker, fake_db):
     response_pkt = packet.ServerCharDelete.parse(response_bytes)
     assert response_op == op_code.Server.CHAR_DELETE
     assert response_pkt.error == handler.ResponseCode.FAILED
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

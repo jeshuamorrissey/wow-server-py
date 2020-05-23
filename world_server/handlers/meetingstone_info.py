@@ -9,9 +9,8 @@ from world_server.packets import meetingstone_info, meetingstone_setqueue
 
 @router.Handler(op_code.Client.MEETINGSTONE_INFO)
 @orm.db_session
-def handle_meetingstone_info(
-        pkt: meetingstone_info.ClientMeetingstoneInfo,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_meetingstone_info(pkt: meetingstone_info.ClientMeetingstoneInfo,
+                             session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     # NOTE: Not implementing meeting stones; there will be other
     # ways to teleport to instances (if that is even something I want).
     return [(

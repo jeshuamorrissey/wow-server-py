@@ -278,14 +278,14 @@ class Player(unit.Unit):
 
     @classmethod
     def New(
-            cls,
-            account: Account,
-            realm: Realm,
-            name: Text,
-            race: constants.ChrRaces,
-            class_: constants.ChrClasses,
-            gender: enums.Gender,
-            **kwargs,
+        cls,
+        account: Account,
+        realm: Realm,
+        name: Text,
+        race: constants.ChrRaces,
+        class_: constants.ChrClasses,
+        gender: enums.Gender,
+        **kwargs,
     ) -> 'Player':
         """Create a new player and return it.
 

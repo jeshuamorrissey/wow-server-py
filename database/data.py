@@ -73,7 +73,8 @@ def _load(db: orm.Database, cls_name: Text, cls: Type, module: Text):
                         except orm.ObjectNotFound:
                             setattr(obj, k[:-3], None)
 
-                        orm.flush()  # flush here to force a save and to avoid save chains
+                        # Flush here to force a save and to avoid save chains.
+                        orm.flush()
 
 
 def _sorted_by_dependencies(classes: Dict[Text, Type]) -> List[Set[Text]]:

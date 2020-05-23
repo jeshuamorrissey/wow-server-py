@@ -157,9 +157,9 @@ class Updater(system.System):
         )
 
     def _make_update_object(
-            self,
-            player: world.Player,
-            game_objects: Iterable[world.GameObject],
+        self,
+        player: world.Player,
+        game_objects: Iterable[world.GameObject],
     ) -> Tuple[op_code.Server, bytes]:
         out_of_range_guids = []
         update_blocks = []

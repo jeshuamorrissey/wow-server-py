@@ -12,8 +12,7 @@ from world_server.packets import battlefield_status as packet
 def test_handle_battlefield_status(mocker, fake_db):
     mock_session = mock.MagicMock()
 
-    client_pkt = packet.ClientBattlefieldStatus.parse(
-        packet.ClientBattlefieldStatus.build(dict()))
+    client_pkt = packet.ClientBattlefieldStatus.parse(packet.ClientBattlefieldStatus.build(dict()))
 
     response_pkts = handler.handler(client_pkt, mock_session)
 
@@ -36,7 +35,3 @@ def test_handle_battlefield_status(mocker, fake_db):
     assert response_op == op_code.Server.BATTLEFIELD_STATUS
     assert response_pkt.queue_slot == 2
     assert response_pkt.data is None
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 
 from database import data, enums
@@ -107,7 +106,3 @@ def test_handle_auth_session_unknown_account(mocker, fake_db):
     response_pkt = auth_response.ServerAuthResponse.parse(response_bytes)
     assert response_op == op_code.Server.AUTH_RESPONSE
     assert auth_response.ErrorCode.UNKNOWN_ACCOUNT == auth_response.ErrorCode(response_pkt.error)
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

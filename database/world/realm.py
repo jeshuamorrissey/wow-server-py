@@ -6,6 +6,7 @@ from database.db import db
 
 
 class Realm(db.Entity):
+
     class Type(enum.IntEnum):
         PVE = 0
         PVP = 1

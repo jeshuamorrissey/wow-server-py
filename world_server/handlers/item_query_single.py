@@ -10,7 +10,7 @@ from world_server.packets import item_query_single
 @router.Handler(op_code.Client.ITEM_QUERY_SINGLE)
 @orm.db_session
 def handle_item_query_single(pkt: item_query_single.ClientItemQuerySingle,
-                session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+                             session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     item = game.ItemTemplate[pkt.entry]
 
     return [(

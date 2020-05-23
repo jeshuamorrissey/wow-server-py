@@ -26,17 +26,14 @@ from world_server import system
 
 
 def setup_db(args: argparse.Namespace):
-    db.SetupDatabase(args.db_file,
-                     clear_database=args.reset_database,
-                     clear_dynamic_database=args.reset_world_database)
+    db.SetupDatabase(args.db_file, clear_database=args.reset_database, clear_dynamic_database=args.reset_world_database)
 
     # Generate some test data.
     # Clear the world database tables so they can be created again.
     if args.reset_world_database:
         with orm.db_session:
             account = world.Account.New(username='jeshua', password='jeshua')
-            realm = world.Realm(name='Brisbane',
-                                hostport=f'{args.host}:{args.world_port}')
+            realm = world.Realm(name='Brisbane', hostport=f'{args.host}:{args.world_port}')
             guild = world.Guild(
                 name='Shadow Warriors',
                 emblem_style=1,
@@ -94,8 +91,7 @@ def setup_db(args: argparse.Namespace):
 
             bag = world.Container.New(base_item=game.ItemTemplate[14156])
             jeshua.bags()[0].item = bag
-            bag.items()[0].item = world.Container.New(
-                base_item=game.ItemTemplate[14156])
+            bag.items()[0].item = world.Container.New(base_item=game.ItemTemplate[14156])
 
             world.PlayerSkill(
                 player=jeshua,
@@ -110,10 +106,8 @@ def setup_db(args: argparse.Namespace):
                 rank=world.GuildRank.get(guild=guild, slot=0),
             )
 
-            world.Quest.New(jeshua,
-                            game.QuestTemplate.get(title='With Duration'))
-            world.Quest.New(jeshua,
-                            game.QuestTemplate.get(title='Without Duration'))
+            world.Quest.New(jeshua, game.QuestTemplate.get(title='With Duration'))
+            world.Quest.New(jeshua, game.QuestTemplate.get(title='Without Duration'))
 
             world.Aura(
                 slot=0,
@@ -166,31 +160,28 @@ def main(args: argparse.Namespace):
     setup_db(args)
 
     # Create the packet handling threads.
-    auth_thread = threading.Thread(
-        target=server.run,
-        kwargs=dict(
-            name='AUTH',
-            host=args.host,
-            port=args.auth_port,
-            session_type=login_session.Session,
-            packet_formats=login_router.ClientPacket.ROUTES,
-            handlers=login_router.Handler.ROUTES,
-        ))
+    auth_thread = threading.Thread(target=server.run,
+                                   kwargs=dict(
+                                       name='AUTH',
+                                       host=args.host,
+                                       port=args.auth_port,
+                                       session_type=login_session.Session,
+                                       packet_formats=login_router.ClientPacket.ROUTES,
+                                       handlers=login_router.Handler.ROUTES,
+                                   ))
 
-    world_thread = threading.Thread(
-        target=server.run,
-        kwargs=dict(
-            name='WORLD',
-            host=args.host,
-            port=args.world_port,
-            session_type=world_session.Session,
-            packet_formats=world_router.ClientPacket.ROUTES,
-            handlers=world_router.Handler.ROUTES,
-        ))
+    world_thread = threading.Thread(target=server.run,
+                                    kwargs=dict(
+                                        name='WORLD',
+                                        host=args.host,
+                                        port=args.world_port,
+                                        session_type=world_session.Session,
+                                        packet_formats=world_router.ClientPacket.ROUTES,
+                                        handlers=world_router.Handler.ROUTES,
+                                    ))
 
     # Start the aura manager.
-    aura_manager_thread = threading.Thread(
-        target=system.Register.Get(system.System.ID.AURA_MANAGER).run)
+    aura_manager_thread = threading.Thread(target=system.Register.Get(system.System.ID.AURA_MANAGER).run)
     aura_manager_thread.start()
 
     auth_thread.start()
@@ -202,37 +193,27 @@ def main(args: argparse.Namespace):
 
 
 if __name__ == '__main__':
-    argument_parser = argparse.ArgumentParser(
-        description='Server to handle the initial login connection.')
-    argument_parser.add_argument(
-        '--auth_port',
-        type=int,
-        default=5000,
-        help='The port to list for AUTH connections on.')
-    argument_parser.add_argument(
-        '--world_port',
-        type=int,
-        default=5001,
-        help='The port to list for WORLD connections on.')
-    argument_parser.add_argument('--host',
+    argument_parser = argparse.ArgumentParser(description='Server to handle the initial login connection.')
+    argument_parser.add_argument('--auth_port',
+                                 type=int,
+                                 default=5000,
+                                 help='The port to list for AUTH connections on.')
+    argument_parser.add_argument('--world_port',
+                                 type=int,
+                                 default=5001,
+                                 help='The port to list for WORLD connections on.')
+    argument_parser.add_argument('--host', type=str, default='127.0.0.1', help='The host to list for connections on.')
+    argument_parser.add_argument('--db_file',
                                  type=str,
-                                 default='127.0.0.1',
-                                 help='The host to list for connections on.')
-    argument_parser.add_argument(
-        '--db_file',
-        type=str,
-        default=os.path.join(tempfile.gettempdir(), 'wow_server.db'),
-        help='The file to store the World database in.')
-    argument_parser.add_argument(
-        '--reset_database',
-        action='store_true',
-        help='If True, the DBC database will be reloaded.')
-    argument_parser.add_argument(
-        '--reset_world_database',
-        action='store_true',
-        help='If True, the World database will be reloaded.')
-    argument_parser.set_defaults(reset_database=False,
-                                 reset_world_database=True)
+                                 default=os.path.join(tempfile.gettempdir(), 'wow_server.db'),
+                                 help='The file to store the World database in.')
+    argument_parser.add_argument('--reset_database',
+                                 action='store_true',
+                                 help='If True, the DBC database will be reloaded.')
+    argument_parser.add_argument('--reset_world_database',
+                                 action='store_true',
+                                 help='If True, the World database will be reloaded.')
+    argument_parser.set_defaults(reset_database=False, reset_world_database=True)
     coloredlogs.install(level='DEBUG')
 
     main(argument_parser.parse_args())

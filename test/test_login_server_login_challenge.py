@@ -50,7 +50,3 @@ def test_handle_login_challenge(account_name: Text, expected_error: enums.LoginE
         assert mock_session.account_name == account_name
         assert mock_session.b is not None
         assert mock_session.B == response.challenge.B
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))
