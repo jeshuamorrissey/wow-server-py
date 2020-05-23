@@ -16,9 +16,7 @@ from .realm import Realm
 
 class PlayerInventorySlot(db.Entity):
     player = orm.Required('Player')
-    slot = orm.Required(int,
-                        min=enums.InventorySlots.EQUIPMENT_START,
-                        max=enums.InventorySlots.KEYRING_END)
+    slot = orm.Required(int, min=enums.InventorySlots.EQUIPMENT_START, max=enums.InventorySlots.KEYRING_END)
     item = orm.Optional('Item')
 
     orm.PrimaryKey(player, slot)
@@ -39,8 +37,7 @@ class PlayerInventorySlot(db.Entity):
             if not item.can_equip_to_slot(equipment_slot):
                 return False
 
-        if (s.BAG_START <= self.slot < s.BAG_END or
-                s.BANK_BAG_START <= self.slot < s.BANK_BAG_END):
+        if (s.BAG_START <= self.slot < s.BAG_END or s.BANK_BAG_START <= self.slot < s.BANK_BAG_END):
             if not isinstance(item, container.Container):
                 return False
 
@@ -164,51 +161,38 @@ class Player(unit.Unit):
     def swap_items(self, src_slot, dst_slot) -> enums.InventoryChangeError:
         pass
 
-    def _inv_slice(self, start: int,
-                   end: int) -> Dict[int, PlayerInventorySlot]:
-        return {
-            pi.slot - start: pi
-            for pi in self.inventory
-            if pi.slot >= start and pi.slot < end
-        }
+    def _inv_slice(self, start: int, end: int) -> Dict[int, PlayerInventorySlot]:
+        return {pi.slot - start: pi for pi in self.inventory if pi.slot >= start and pi.slot < end}
 
     def equipment(self) -> Dict[enums.EquipmentSlot, PlayerInventorySlot]:
         return {
-            enums.EquipmentSlot(s): i for s, i in self._inv_slice(
-                enums.InventorySlots.EQUIPMENT_START,
-                enums.InventorySlots.EQUIPMENT_END).items()
+            enums.EquipmentSlot(s): i for s, i in self._inv_slice(enums.InventorySlots.EQUIPMENT_START,
+                                                                  enums.InventorySlots.EQUIPMENT_END).items()
         }
 
     def bags(self) -> Dict[int, PlayerInventorySlot]:
-        return self._inv_slice(enums.InventorySlots.BAG_START,
-                               enums.InventorySlots.BAG_END)
+        return self._inv_slice(enums.InventorySlots.BAG_START, enums.InventorySlots.BAG_END)
 
     def backpack(self) -> Dict[int, PlayerInventorySlot]:
-        return self._inv_slice(enums.InventorySlots.BACKPACK_START,
-                               enums.InventorySlots.BACKPACK_END)
+        return self._inv_slice(enums.InventorySlots.BACKPACK_START, enums.InventorySlots.BACKPACK_END)
 
     def bank(self) -> Dict[int, PlayerInventorySlot]:
-        return self._inv_slice(enums.InventorySlots.BANK_START,
-                               enums.InventorySlots.BANK_END)
+        return self._inv_slice(enums.InventorySlots.BANK_START, enums.InventorySlots.BANK_END)
 
     def bank_bags(self) -> Dict[int, PlayerInventorySlot]:
-        return self._inv_slice(enums.InventorySlots.BANK_BAG_START,
-                               enums.InventorySlots.BANK_BAG_END)
+        return self._inv_slice(enums.InventorySlots.BANK_BAG_START, enums.InventorySlots.BANK_BAG_END)
 
     def buyback_items(self) -> Dict[int, Item]:
-        return self._inv_slice(enums.InventorySlots.BUYBACK_START,
-                               enums.InventorySlots.BUYBACK_END)
+        return self._inv_slice(enums.InventorySlots.BUYBACK_START, enums.InventorySlots.BUYBACK_END)
 
     def keyring(self) -> Dict[int, Item]:
-        return self._inv_slice(enums.InventorySlots.KEYRING_START,
-                               enums.InventorySlots.KEYRING_END)
+        return self._inv_slice(enums.InventorySlots.KEYRING_START, enums.InventorySlots.KEYRING_END)
 
     def tutorial_flags(self) -> List[int]:
         """Convert the tutorial flag list into a list of bytes."""
         result = [0] * 8
         for i in range(len(result)):
-            for flag_idx, flag_val in enumerate(self.tutorials[i * 32:i * 32 +
-                                                               32]):
+            for flag_idx, flag_val in enumerate(self.tutorials[i * 32:i * 32 + 32]):
                 if flag_val:
                     result[i] |= (1 << (flag_idx % 32))
 
@@ -223,8 +207,7 @@ class Player(unit.Unit):
         """
         if bag_slot == 255:
             return PlayerInventorySlot.get(player=self, slot=slot)
-        return PlayerInventorySlot.get(player=self,
-                                       slot=bag_slot).item.items()[slot]
+        return PlayerInventorySlot.get(player=self, slot=bag_slot).item.items()[slot]
 
     def player_flags(self) -> enums.PlayerFlags:
         f = enums.PlayerFlags.NONE
@@ -263,9 +246,7 @@ class Player(unit.Unit):
 
         return f
 
-    def visible_item_fields(
-            self, slot: enums.EquipmentSlot,
-            item: Optional[Item]) -> Dict[enums.UpdateField, Any]:
+    def visible_item_fields(self, slot: enums.EquipmentSlot, item: Optional[Item]) -> Dict[enums.UpdateField, Any]:
         fields_start = enums.PlayerFields.VISIBLE_ITEM_START + (slot * 12)
         if item:
             enchantments = item.enchantment_map()
@@ -289,8 +270,7 @@ class Player(unit.Unit):
 
         return {f: 0 for f in range(fields_start, fields_start + 11 + 1)}
 
-    def inventory_fields(self, slot: enums.EquipmentSlot,
-                         item: Optional[Item]) -> Dict[enums.UpdateField, Any]:
+    def inventory_fields(self, slot: enums.EquipmentSlot, item: Optional[Item]) -> Dict[enums.UpdateField, Any]:
         field = enums.PlayerFields.INVENTORY_START + (slot * 2)
         if item:
             return {field: item.guid}
@@ -298,14 +278,14 @@ class Player(unit.Unit):
 
     @classmethod
     def New(
-            cls,
-            account: Account,
-            realm: Realm,
-            name: Text,
-            race: constants.ChrRaces,
-            class_: constants.ChrClasses,
-            gender: enums.Gender,
-            **kwargs,
+        cls,
+        account: Account,
+        realm: Realm,
+        name: Text,
+        race: constants.ChrRaces,
+        class_: constants.ChrClasses,
+        gender: enums.Gender,
+        **kwargs,
     ) -> 'Player':
         """Create a new player and return it.
 
@@ -322,13 +302,10 @@ class Player(unit.Unit):
             The newly created character.
         """
         starting_location = game.StartingLocations.get(race=race.id)
-        starting_items = game.StartingItems.get(race=race.id,
-                                                class_=class_.id,
-                                                gender=gender)
+        starting_items = game.StartingItems.get(race=race.id, class_=class_.id, gender=gender)
 
         team = enums.Team.ALLIANCE
-        if race.id in (enums.EChrRaces.ORC, enums.EChrRaces.UNDEAD,
-                       enums.EChrRaces.TAUREN, enums.EChrRaces.TROLL):
+        if race.id in (enums.EChrRaces.ORC, enums.EChrRaces.UNDEAD, enums.EChrRaces.TAUREN, enums.EChrRaces.TROLL):
             team = enums.Team.HORDE
 
         # Get starting stats.
@@ -359,8 +336,7 @@ class Player(unit.Unit):
             **kwargs,
         )
 
-        for slot in range(enums.InventorySlots.EQUIPMENT_START,
-                          enums.InventorySlots.KEYRING_END):
+        for slot in range(enums.InventorySlots.EQUIPMENT_START, enums.InventorySlots.KEYRING_END):
             PlayerInventorySlot(
                 player=player,
                 slot=slot,
@@ -369,8 +345,7 @@ class Player(unit.Unit):
         equipment = player.equipment()
         for equipment_dict in starting_items.equipment:
             slot = enums.EquipmentSlot[equipment_dict['equipment_slot']]
-            equipment[slot].item = Item.New(
-                game.ItemTemplate[equipment_dict['entry']])
+            equipment[slot].item = Item.New(game.ItemTemplate[equipment_dict['entry']])
 
         backpack = player.backpack()
         for i, entry in enumerate(starting_items.items):
@@ -402,8 +377,7 @@ class Player(unit.Unit):
 
         return base
 
-    def calculate_damage(self,
-                         slot: enums.EquipmentSlot) -> Tuple[float, float]:
+    def calculate_damage(self, slot: enums.EquipmentSlot) -> Tuple[float, float]:
         equipment = self.equipment()
 
         base = 1.0, 1.0
@@ -446,8 +420,7 @@ class Player(unit.Unit):
             return int(-school - 1)
         return int(school + 1)
 
-    def calculate_bonus_damage_percent(self,
-                                       school: enums.SpellSchool) -> float:
+    def calculate_bonus_damage_percent(self, school: enums.SpellSchool) -> float:
         return 1.0
 
     def calculate_melee_attack_power(self) -> int:
@@ -562,8 +535,7 @@ class Player(unit.Unit):
         for equipment_slot in enums.EquipmentSlot:
             slot = equipment[equipment_slot]
             if slot.item:
-                fields.update(
-                    self.visible_item_fields(equipment_slot, slot.item))
+                fields.update(self.visible_item_fields(equipment_slot, slot.item))
                 fields.update(self.inventory_fields(equipment_slot, slot.item))
 
         # Populate backpack fields.
@@ -571,48 +543,28 @@ class Player(unit.Unit):
             if slot.item:
                 fields[f.INVENTORY_START + (slot.slot * 2)] = slot.item.guid
             else:
-                fields[f.INVENTORY_START +
-                       (slot.slot * 2)] = game_object.GUID(0)
+                fields[f.INVENTORY_START + (slot.slot * 2)] = game_object.GUID(0)
 
         fields.update({
-            uf.BASEATTACKTIME:
-                self.calculate_attack_time(enums.EquipmentSlot.MAIN_HAND),
-            uf.OFFHANDATTACKTIME:
-                self.calculate_attack_time(enums.EquipmentSlot.OFF_HAND),
-            uf.RANGEDATTACKTIME:
-                self.calculate_attack_time(enums.EquipmentSlot.RANGED),
-            uf.MINDAMAGE:
-                self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[0],
-            uf.MAXDAMAGE:
-                self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[1],
-            uf.MINOFFHANDDAMAGE:
-                self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[0],
-            uf.MAXOFFHANDDAMAGE:
-                self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[1],
-            uf.MINRANGEDDAMAGE:
-                self.calculate_damage(enums.EquipmentSlot.RANGED)[0],
-            uf.MAXRANGEDDAMAGE:
-                self.calculate_damage(enums.EquipmentSlot.RANGED)[1],
-            uf.ATTACK_POWER:
-                self.calculate_melee_attack_power(),
-            uf.RANGED_ATTACK_POWER:
-                self.calculate_ranged_attack_power(),
-            uf.COMBATREACH:
-                1.5,  # TODO: make this config
-            uf.ARMOR:
-                self.calculate_armor(),
-            uf.HOLY_RESISTANCE:
-                self.calculate_holy_resistance(),
-            uf.FIRE_RESISTANCE:
-                self.calculate_fire_resistance(),
-            uf.NATURE_RESISTANCE:
-                self.calculate_nature_resistance(),
-            uf.FROST_RESISTANCE:
-                self.calculate_frost_resistance(),
-            uf.SHADOW_RESISTANCE:
-                self.calculate_shadow_resistance(),
-            uf.ARCANE_RESISTANCE:
-                self.calculate_arcane_resistance(),
+            uf.BASEATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.MAIN_HAND),
+            uf.OFFHANDATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.OFF_HAND),
+            uf.RANGEDATTACKTIME: self.calculate_attack_time(enums.EquipmentSlot.RANGED),
+            uf.MINDAMAGE: self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[0],
+            uf.MAXDAMAGE: self.calculate_damage(enums.EquipmentSlot.MAIN_HAND)[1],
+            uf.MINOFFHANDDAMAGE: self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[0],
+            uf.MAXOFFHANDDAMAGE: self.calculate_damage(enums.EquipmentSlot.OFF_HAND)[1],
+            uf.MINRANGEDDAMAGE: self.calculate_damage(enums.EquipmentSlot.RANGED)[0],
+            uf.MAXRANGEDDAMAGE: self.calculate_damage(enums.EquipmentSlot.RANGED)[1],
+            uf.ATTACK_POWER: self.calculate_melee_attack_power(),
+            uf.RANGED_ATTACK_POWER: self.calculate_ranged_attack_power(),
+            uf.COMBATREACH: 1.5,  # TODO: make this config
+            uf.ARMOR: self.calculate_armor(),
+            uf.HOLY_RESISTANCE: self.calculate_holy_resistance(),
+            uf.FIRE_RESISTANCE: self.calculate_fire_resistance(),
+            uf.NATURE_RESISTANCE: self.calculate_nature_resistance(),
+            uf.FROST_RESISTANCE: self.calculate_frost_resistance(),
+            uf.SHADOW_RESISTANCE: self.calculate_shadow_resistance(),
+            uf.ARCANE_RESISTANCE: self.calculate_arcane_resistance(),
         })
 
         if self.guild_membership:
@@ -650,12 +602,9 @@ class Player(unit.Unit):
         for i, quest in enumerate(self.quests):
             start_field = f.QUEST_LOG_1_1 + (i * 3)
             fields.update({
-                start_field + 0:
-                    quest.base_quest.id,
-                start_field + 1:
-                    quest.flags(),
-                start_field + 2:
-                    quest.due - int(time.time()) if quest.due else 0,
+                start_field + 0: quest.base_quest.id,
+                start_field + 1: quest.flags(),
+                start_field + 2: quest.due - int(time.time()) if quest.due else 0,
             })
 
         # Stat changes.
@@ -720,56 +669,30 @@ class Player(unit.Unit):
                 fields[field] = fields.get(field, 0) | byte
 
         fields.update({
-            f.FLAGS:
-                self.player_flags(),
-            f.BYTES:
-                self.skin_color | self.face << 8 | self.hair_style << 16 |
-                self.hair_color << 24,
-            f.BYTES_2:
-                self.feature,
-            f.BYTES_3:
-                self.gender,
-            f.COMBO_TARGET:
-                self.combo_target.guid if self.combo_target else 0,
-            f.XP:
-                self.xp,
-            f.NEXT_LEVEL_XP:
-                enums.NextLevelXP(self.level),
-            f.CHARACTER_POINTS1:
-                self.level,  # TODO: talents
-            f.CHARACTER_POINTS2:
-                enums.MaxNumberOfProfessions(),  # TODO: professions are spells?
-            f.BLOCK_PERCENTAGE:
-                self.calculate_block_percent(),
-            f.DODGE_PERCENTAGE:
-                self.calculate_dodge_percent(),
-            f.PARRY_PERCENTAGE:
-                self.calculate_parry_percent(),
-            f.CRIT_PERCENTAGE:
-                self.calculate_melee_crit_percent(),
-            f.RANGED_CRIT_PERCENTAGE:
-                self.calculate_ranged_crit_percent(),
-            f.REST_STATE_EXPERIENCE:
-                self.rested_xp,
-            f.COINAGE:
-                self.money,
-            f.BYTES_4:
-                self.bytes_4(),
-            f.AMMO_ID:
-                self.get_ammo(),
-            f.BYTES2:
-                self.bytes_5(),
-            f.WATCHED_FACTION_INDEX:
-                self.watched_faction.reputation_index
-                if self.watched_faction else -1,
-            f.TRACK_CREATURES:
-                0,  # TODO: spells
-            f.TRACK_RESOURCES:
-                0,  # TODO: spells
-            f.SELF_RES_SPELL:
-                0,  # TODO: spell ID of self resurrecting spell
-            f.FARSIGHT:
-                0,  # TODO: world objects
+            f.FLAGS: self.player_flags(),
+            f.BYTES: self.skin_color | self.face << 8 | self.hair_style << 16 | self.hair_color << 24,
+            f.BYTES_2: self.feature,
+            f.BYTES_3: self.gender,
+            f.COMBO_TARGET: self.combo_target.guid if self.combo_target else 0,
+            f.XP: self.xp,
+            f.NEXT_LEVEL_XP: enums.NextLevelXP(self.level),
+            f.CHARACTER_POINTS1: self.level,  # TODO: talents
+            f.CHARACTER_POINTS2: enums.MaxNumberOfProfessions(),  # TODO: professions are spells?
+            f.BLOCK_PERCENTAGE: self.calculate_block_percent(),
+            f.DODGE_PERCENTAGE: self.calculate_dodge_percent(),
+            f.PARRY_PERCENTAGE: self.calculate_parry_percent(),
+            f.CRIT_PERCENTAGE: self.calculate_melee_crit_percent(),
+            f.RANGED_CRIT_PERCENTAGE: self.calculate_ranged_crit_percent(),
+            f.REST_STATE_EXPERIENCE: self.rested_xp,
+            f.COINAGE: self.money,
+            f.BYTES_4: self.bytes_4(),
+            f.AMMO_ID: self.get_ammo(),
+            f.BYTES2: self.bytes_5(),
+            f.WATCHED_FACTION_INDEX: self.watched_faction.reputation_index if self.watched_faction else -1,
+            f.TRACK_CREATURES: 0,  # TODO: spells
+            f.TRACK_RESOURCES: 0,  # TODO: spells
+            f.SELF_RES_SPELL: 0,  # TODO: spell ID of self resurrecting spell
+            f.FARSIGHT: 0,  # TODO: world objects
         })
 
         return {**super(Player, self).update_fields(), **fields}

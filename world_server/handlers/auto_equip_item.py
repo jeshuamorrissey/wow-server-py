@@ -9,8 +9,7 @@ from world_server.packets import auto_equip_item, inventory_change_failure
 
 @router.Handler(op_code.Client.AUTO_EQUIP_ITEM)
 @orm.db_session
-def handler(pkt: auto_equip_item.ClientAutoEquipItem,
-            session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handler(pkt: auto_equip_item.ClientAutoEquipItem, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     player = world.Player[session.player_id]
     ec = enums.InventoryChangeError
 

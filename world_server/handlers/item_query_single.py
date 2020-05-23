@@ -9,9 +9,8 @@ from world_server.packets import item_query_single
 
 @router.Handler(op_code.Client.ITEM_QUERY_SINGLE)
 @orm.db_session
-def handle_item_query_single(
-        pkt: item_query_single.ClientItemQuerySingle,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_item_query_single(pkt: item_query_single.ClientItemQuerySingle,
+                             session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     item = game.ItemTemplate[pkt.entry]
 
     return [(
@@ -75,8 +74,7 @@ def handle_item_query_single(
                         charges=getattr(item, f'spellcharges_{i}'),
                         cooldown=getattr(item, f'spellcooldown_{i}'),
                         category=getattr(item, f'spellcategory_{i}'),
-                        category_cooldown=getattr(item,
-                                                  f'spellcategorycooldown_{i}'),
+                        category_cooldown=getattr(item, f'spellcategorycooldown_{i}'),
                     ) for i in range(1, 5 + 1)
                 ],
                 bonding=item.bonding,

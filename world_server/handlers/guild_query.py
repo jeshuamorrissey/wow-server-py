@@ -9,9 +9,8 @@ from world_server.packets import guild_command_result, guild_query
 
 @router.Handler(op_code.Client.GUILD_QUERY)
 @orm.db_session
-def handle_guild_query(
-        pkt: guild_query.ClientGuildQuery,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_guild_query(pkt: guild_query.ClientGuildQuery,
+                       session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     try:
         guild = world.Guild[pkt.id]
 

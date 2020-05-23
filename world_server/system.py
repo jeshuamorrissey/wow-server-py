@@ -38,6 +38,5 @@ class Register:
             RuntimeError: raised if the system does not exist.
         """
         if id not in cls.SYSTEMS:
-            raise RuntimeError(
-                f'Request for system {id}, but it is not registered')
+            raise RuntimeError(f'Request for system {id}, but it is not registered')
         return cls.SYSTEMS[id]

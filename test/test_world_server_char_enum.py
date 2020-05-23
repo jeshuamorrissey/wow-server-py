@@ -18,10 +18,7 @@ from world_server.packets import char_enum as packet
 
 def test_handle_char_enum(mocker, fake_db):
     # Setup database.
-    account = fake_db.Account(name='account',
-                              salt_str='11',
-                              verifier_str='22',
-                              session_key_str='33')
+    account = fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
     player = fake_db.Player.New(
         id=10,
@@ -62,8 +59,7 @@ def test_handle_char_enum(mocker, fake_db):
         gender=enums.Gender.FEMALE,
     )
 
-    client_pkt = packet.ClientCharEnum.parse(packet.ClientCharEnum.build(
-        dict()))
+    client_pkt = packet.ClientCharEnum.parse(packet.ClientCharEnum.build(dict()))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'

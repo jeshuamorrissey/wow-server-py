@@ -9,8 +9,7 @@ from world_server.packets import tutorial_flag
 
 @router.Handler(op_code.Client.TUTORIAL_FLAG)
 @orm.db_session
-def handler(pkt: tutorial_flag.ClientTutorialFlag,
-            session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handler(pkt: tutorial_flag.ClientTutorialFlag, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     player = world.Player[session.player_id]
     player.tutorials[pkt.flag] = True
     return []

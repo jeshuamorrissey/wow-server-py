@@ -17,10 +17,7 @@ from world_server.packets import auth_session as packet
 
 def test_handle_auth_session(mocker, fake_db):
     # Setup database.
-    fake_db.Account(name='account',
-                    salt_str='11',
-                    verifier_str='22',
-                    session_key_str='33')
+    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
 
     client_pkt = packet.ClientAuthSession.parse(
         packet.ClientAuthSession.build(
@@ -46,16 +43,12 @@ def test_handle_auth_session(mocker, fake_db):
     response_op, response_bytes = response_pkts[0]
     response_pkt = auth_response.ServerAuthResponse.parse(response_bytes)
     assert response_op == op_code.Server.AUTH_RESPONSE
-    assert auth_response.ErrorCode.OK == auth_response.ErrorCode(
-        response_pkt.error)
+    assert auth_response.ErrorCode.OK == auth_response.ErrorCode(response_pkt.error)
 
 
 def test_handle_auth_session_invalid_proof(mocker, fake_db):
     # Setup database.
-    fake_db.Account(name='account',
-                    salt_str='11',
-                    verifier_str='22',
-                    session_key_str='33')
+    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
 
     client_pkt = packet.ClientAuthSession.parse(
         packet.ClientAuthSession.build(
@@ -81,16 +74,12 @@ def test_handle_auth_session_invalid_proof(mocker, fake_db):
     response_op, response_bytes = response_pkts[0]
     response_pkt = auth_response.ServerAuthResponse.parse(response_bytes)
     assert response_op == op_code.Server.AUTH_RESPONSE
-    assert auth_response.ErrorCode.FAILED == auth_response.ErrorCode(
-        response_pkt.error)
+    assert auth_response.ErrorCode.FAILED == auth_response.ErrorCode(response_pkt.error)
 
 
 def test_handle_auth_session_unknown_account(mocker, fake_db):
     # Setup database.
-    fake_db.Account(name='account',
-                    salt_str='11',
-                    verifier_str='22',
-                    session_key_str='33')
+    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
 
     client_pkt = packet.ClientAuthSession.parse(
         packet.ClientAuthSession.build(
@@ -116,5 +105,4 @@ def test_handle_auth_session_unknown_account(mocker, fake_db):
     response_op, response_bytes = response_pkts[0]
     response_pkt = auth_response.ServerAuthResponse.parse(response_bytes)
     assert response_op == op_code.Server.AUTH_RESPONSE
-    assert auth_response.ErrorCode.UNKNOWN_ACCOUNT == auth_response.ErrorCode(
-        response_pkt.error)
+    assert auth_response.ErrorCode.UNKNOWN_ACCOUNT == auth_response.ErrorCode(response_pkt.error)

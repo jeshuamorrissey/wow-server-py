@@ -1,5 +1,4 @@
-from construct import (Bytes, BytesInteger, Compressed, CString, Default,
-                       Int32ul, Struct)
+from construct import (Bytes, BytesInteger, Compressed, CString, Default, Int32ul, Struct)
 
 from world_server import op_code, router
 

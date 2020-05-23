@@ -15,11 +15,10 @@ def test_handle_item_query_single(mocker, fake_db):
 
     item = game.ItemTemplate.get(entry=11922)
 
-    client_pkt = packet.ClientItemQuerySingle.parse(
-        packet.ClientItemQuerySingle.build(dict(
-            entry=item.entry,
-            guid=0,
-        )))
+    client_pkt = packet.ClientItemQuerySingle.parse(packet.ClientItemQuerySingle.build(dict(
+        entry=item.entry,
+        guid=0,
+    )))
 
     response_pkts = handler.handle_item_query_single(client_pkt, mock_session)
 

@@ -11,10 +11,7 @@ from world_server.packets import name_query as packet
 def test_handle_name_query(mocker, fake_db):
     mock_session = mocker.MagicMock()
 
-    account = fake_db.Account(name='account',
-                              salt_str='11',
-                              verifier_str='22',
-                              session_key_str='33')
+    account = fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
     fake_db.Player.New(
         id=10,
@@ -26,8 +23,7 @@ def test_handle_name_query(mocker, fake_db):
         gender=enums.Gender.MALE,
     )
 
-    client_pkt = packet.ClientNameQuery.parse(
-        packet.ClientNameQuery.build(dict(guid=10)))
+    client_pkt = packet.ClientNameQuery.parse(packet.ClientNameQuery.build(dict(guid=10)))
 
     response_pkts = handler.handle_name_query(client_pkt, mock_session)
 

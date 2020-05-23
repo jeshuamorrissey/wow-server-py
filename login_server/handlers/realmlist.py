@@ -9,9 +9,7 @@ from login_server.packets import realmlist
 
 @router.Handler(op_code.Client.REALMLIST)
 @orm.db_session
-def handle_realmlist(
-        pkt: realmlist.ClientRealmlist,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_realmlist(pkt: realmlist.ClientRealmlist, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     account = world.Account[session.account_name]
     realms = [
         dict(
@@ -26,12 +24,8 @@ def handle_realmlist(
             name=realm.name,
             hostport=realm.hostport,
             population=0,  # TODO: calculate relative population
-            n_characters=orm.count(
-                p
-                for p in world.Player
-                if p.realm == realm and p.account == account),
-        )
-        for realm in world.Realm.select()
+            n_characters=orm.count(p for p in world.Player if p.realm == realm and p.account == account),
+        ) for realm in world.Realm.select()
     ]
 
     return [(

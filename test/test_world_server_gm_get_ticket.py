@@ -12,8 +12,7 @@ from world_server.packets import gm_get_ticket as packet
 def test_handle_gm_get_ticket(mocker, fake_db):
     mock_session = mock.MagicMock()
 
-    client_pkt = packet.ClientGmGetTicket.parse(
-        packet.ClientGmGetTicket.build(dict()))
+    client_pkt = packet.ClientGmGetTicket.parse(packet.ClientGmGetTicket.build(dict()))
 
     response_pkts = handler.handler(client_pkt, mock_session)
 

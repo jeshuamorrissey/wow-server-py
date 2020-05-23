@@ -27,8 +27,7 @@ def test_handle_guild_query(mocker, fake_db):
     world.GuildRank(guild=guild, slot=1, name='Rank 1')
     world.GuildRank(guild=guild, slot=2, name='Rank 2')
 
-    client_pkt = packet.ClientGuildQuery.parse(
-        packet.ClientGuildQuery.build(dict(id=1)))
+    client_pkt = packet.ClientGuildQuery.parse(packet.ClientGuildQuery.build(dict(id=1)))
 
     response_pkts = handler.handle_guild_query(client_pkt, mock_session)
 

@@ -18,10 +18,7 @@ from world_server.packets import char_delete as packet
 
 def test_handle_char_delete(mocker, fake_db):
     # Setup database.
-    account = fake_db.Account(name='account',
-                              salt_str='11',
-                              verifier_str='22',
-                              session_key_str='33')
+    account = fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
     player = fake_db.Player.New(
         id=10,
@@ -33,11 +30,10 @@ def test_handle_char_delete(mocker, fake_db):
         gender=enums.Gender.MALE,
     )
 
-    client_pkt = packet.ClientCharDelete.parse(
-        packet.ClientCharDelete.build(dict(
-            guid_low=player.id,
-            guid_high=0,
-        )))
+    client_pkt = packet.ClientCharDelete.parse(packet.ClientCharDelete.build(dict(
+        guid_low=player.id,
+        guid_high=0,
+    )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'
@@ -58,10 +54,7 @@ def test_handle_char_delete(mocker, fake_db):
 
 def test_handle_char_delete_not_exists(mocker, fake_db):
     # Setup database.
-    account = fake_db.Account(name='account',
-                              salt_str='11',
-                              verifier_str='22',
-                              session_key_str='33')
+    account = fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
     player = fake_db.Player.New(
         id=10,
@@ -73,11 +66,10 @@ def test_handle_char_delete_not_exists(mocker, fake_db):
         gender=enums.Gender.MALE,
     )
 
-    client_pkt = packet.ClientCharDelete.parse(
-        packet.ClientCharDelete.build(dict(
-            guid_low=player.id + 1,
-            guid_high=0,
-        )))
+    client_pkt = packet.ClientCharDelete.parse(packet.ClientCharDelete.build(dict(
+        guid_low=player.id + 1,
+        guid_high=0,
+    )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = account.name

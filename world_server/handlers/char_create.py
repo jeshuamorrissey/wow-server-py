@@ -38,9 +38,8 @@ class ResponseCode(enum.IntEnum):
 
 @router.Handler(op_code.Client.CHAR_CREATE)
 @orm.db_session
-def handle_char_create(
-        pkt: char_create.ClientCharCreate,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_char_create(pkt: char_create.ClientCharCreate,
+                       session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     account = world.Account[session.account_name]
     realm = world.Realm[session.realm_name]
 
@@ -48,27 +47,22 @@ def handle_char_create(
     if len(account.characters) >= config.MAX_CHARACTERS_PER_ACCOUNT:
         return [(
             op_code.Server.CHAR_CREATE,
-            char_create.ServerCharCreate.build(
-                dict(error=ResponseCode.ACCOUNT_LIMIT)),
+            char_create.ServerCharCreate.build(dict(error=ResponseCode.ACCOUNT_LIMIT)),
         )]
 
     # Server limit.
     if orm.count(
-            p for p in world.Player if p.account == account and p.realm == realm
-    ) >= config.MAX_CHARACTERS_PER_REALM:
+            p for p in world.Player if p.account == account and p.realm == realm) >= config.MAX_CHARACTERS_PER_REALM:
         return [(
             op_code.Server.CHAR_CREATE,
-            char_create.ServerCharCreate.build(
-                dict(error=ResponseCode.SERVER_LIMIT)),
+            char_create.ServerCharCreate.build(dict(error=ResponseCode.SERVER_LIMIT)),
         )]
 
     # Name already in use.
-    if orm.count(
-            p for p in world.Player if p.name.upper() == pkt.name.upper()) > 0:
+    if orm.count(p for p in world.Player if p.name.upper() == pkt.name.upper()) > 0:
         return [(
             op_code.Server.CHAR_CREATE,
-            char_create.ServerCharCreate.build(
-                dict(error=ResponseCode.NAME_IN_USE)),
+            char_create.ServerCharCreate.build(dict(error=ResponseCode.NAME_IN_USE)),
         )]
 
     world.Player.New(

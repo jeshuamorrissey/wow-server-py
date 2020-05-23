@@ -12,8 +12,7 @@ from world_server.packets import battlefield_status as packet
 def test_handle_battlefield_status(mocker, fake_db):
     mock_session = mock.MagicMock()
 
-    client_pkt = packet.ClientBattlefieldStatus.parse(
-        packet.ClientBattlefieldStatus.build(dict()))
+    client_pkt = packet.ClientBattlefieldStatus.parse(packet.ClientBattlefieldStatus.build(dict()))
 
     response_pkts = handler.handler(client_pkt, mock_session)
 

@@ -6,10 +6,8 @@ from pony import orm
 
 from database import world
 from world_server import op_code, router, session, system
-from world_server.packets import (account_data_times, action_buttons,
-                                  init_world_states, initial_spells,
-                                  login_verify_world, player_login,
-                                  set_action_button, trigger_cinematic,
+from world_server.packets import (account_data_times, action_buttons, init_world_states, initial_spells,
+                                  login_verify_world, player_login, set_action_button, trigger_cinematic,
                                   tutorial_flags, update_aura_duration)
 
 
@@ -22,9 +20,8 @@ class ResponseCode(enum.IntEnum):
 
 @router.Handler(op_code.Client.PLAYER_LOGIN)
 @orm.db_session
-def handle_player_login(
-        pkt: player_login.ClientPlayerLogin,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_player_login(pkt: player_login.ClientPlayerLogin,
+                        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     player = world.Player[pkt.guid_low]
     session.player_id = player.id
 
@@ -55,16 +52,13 @@ def handle_player_login(
             type=pa.type,
         )
 
-    action_buttons_pkt = action_buttons.ServerActionButtons.build(
-        dict(actions=actions))
+    action_buttons_pkt = action_buttons.ServerActionButtons.build(dict(actions=actions))
 
     # Add the player to the map.
-    update_op, update_pkt = system.Register.Get(system.System.ID.UPDATER).login(
-        player, session)
+    update_op, update_pkt = system.Register.Get(system.System.ID.UPDATER).login(player, session)
 
     # Send information about the player's auras.
-    aura_packets = system.Register.Get(system.System.ID.AURA_MANAGER).login(
-        player, session)
+    aura_packets = system.Register.Get(system.System.ID.AURA_MANAGER).login(player, session)
 
     # Make a list of return packets.
     import time
@@ -82,22 +76,19 @@ def handle_player_login(
         ),
         (
             op_code.Server.ACCOUNT_DATA_TIMES,
-            account_data_times.ServerAccountDataTimes.build(
-                dict(data_times=[0] * 32)),
+            account_data_times.ServerAccountDataTimes.build(dict(data_times=[0] * 32)),
         ),
         (
             op_code.Server.INIT_WORLD_STATES,
-            init_world_states.ServerInitWorldStates.build(
-                dict(
-                    map=player.map,
-                    zone=player.zone,
-                    blocks=[],
-                )),
+            init_world_states.ServerInitWorldStates.build(dict(
+                map=player.map,
+                zone=player.zone,
+                blocks=[],
+            )),
         ),
         (
             op_code.Server.TUTORIAL_FLAGS,
-            tutorial_flags.ServerTutorialFlags.build(
-                dict(tutorials=player.tutorial_flags())),
+            tutorial_flags.ServerTutorialFlags.build(dict(tutorials=player.tutorial_flags())),
         ),
         (
             op_code.Server.INITIAL_SPELLS,
@@ -120,8 +111,7 @@ def handle_player_login(
         cinematic = player.race.cinematic_sequence_id
         packets.append((
             op_code.Server.TRIGGER_CINEMATIC,
-            trigger_cinematic.ServerTriggerCinematic.build(
-                dict(sequence_id=cinematic)),
+            trigger_cinematic.ServerTriggerCinematic.build(dict(sequence_id=cinematic)),
         ))
 
     # TODO: send bindpoint update

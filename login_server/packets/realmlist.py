@@ -1,12 +1,11 @@
-from construct import (BitStruct, Const, CString, Flag, Float32l, GreedyRange,
-                       Int8ul, Int32ul, Padding, Rebuild, Struct)
+from construct import (BitStruct, Const, CString, Flag, Float32l, GreedyRange, Int8ul, Int32ul, Padding, Rebuild,
+                       Struct)
 
 from common import srp
 from login_server import op_code, router
 
-ClientRealmlist = router.ClientPacket.Register(
-    op_code.Client.REALMLIST,
-    Struct('unk1' / Const(int(0).to_bytes(4, 'little'))))
+ClientRealmlist = router.ClientPacket.Register(op_code.Client.REALMLIST,
+                                               Struct('unk1' / Const(int(0).to_bytes(4, 'little'))))
 
 ServerRealmlist = Struct(
     'unk1' / Const(int(0).to_bytes(4, 'little')),

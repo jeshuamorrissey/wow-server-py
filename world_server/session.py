@@ -109,8 +109,7 @@ class Session(session.Session):
     def handle(self):
         """Send an initial AUTH_CHALLENGE packet when starting."""
         self.auth_challenge_seed = srp.Random(4)
-        pkt = auth_challenge.ServerAuthChallenge.build(
-            dict(seed=self.auth_challenge_seed))
+        pkt = auth_challenge.ServerAuthChallenge.build(dict(seed=self.auth_challenge_seed))
         self.send_packet(op_code.Server.AUTH_CHALLENGE, pkt)
 
         # Continue to handle requests like normal.

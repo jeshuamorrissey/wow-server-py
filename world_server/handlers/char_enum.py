@@ -10,9 +10,7 @@ from world_server.packets import char_enum
 
 @router.Handler(op_code.Client.CHAR_ENUM)
 @orm.db_session
-def handle_char_enum(
-        pkt: char_enum.ClientCharEnum,
-        session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_char_enum(pkt: char_enum.ClientCharEnum, session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     account = world.Account[session.account_name]
 
     characters = []
@@ -25,9 +23,7 @@ def handle_char_enum(
         for _, ei in sorted(character.equipment().items()):
             item = ei.item
             if item:
-                equipment.append(
-                    dict(display_id=item.base_item.displayid,
-                         inventory_type=item.base_item.InventoryType))
+                equipment.append(dict(display_id=item.base_item.displayid, inventory_type=item.base_item.InventoryType))
             else:
                 equipment.append(dict(display_id=0, inventory_type=0))
 

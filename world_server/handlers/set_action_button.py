@@ -11,8 +11,7 @@ from world_server.packets import set_action_button
 @orm.db_session
 def handle_ping(pkt: set_action_button.ClientSetActionButton,
                 session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
-    existing_button = world.PlayerActionButton.get(player=session.player_id,
-                                                   slot=pkt.slot)
+    existing_button = world.PlayerActionButton.get(player=session.player_id, slot=pkt.slot)
     if existing_button:
         existing_button.action = pkt.action
         existing_button.type = pkt.type

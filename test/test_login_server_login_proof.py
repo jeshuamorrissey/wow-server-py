@@ -16,14 +16,13 @@ from login_server.packets import login_proof as packet
 
 def test_handle_login_proof_invalid_session(fake_db):
     client_pkt = packet.ClientLoginProof.parse(
-        packet.ClientLoginProof.build(
-            dict(
-                A=1,
-                M=2,
-                crc_hash=3,
-                number_of_keys=4,
-                security_flags=5,
-            )))
+        packet.ClientLoginProof.build(dict(
+            A=1,
+            M=2,
+            crc_hash=3,
+            number_of_keys=4,
+            security_flags=5,
+        )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = None
@@ -44,14 +43,13 @@ def test_handle_login_proof_invalid_password(mocker, fake_db):
     fake_db.Account(name='account', salt_str='11', verifier_str='22')
 
     client_pkt = packet.ClientLoginProof.parse(
-        packet.ClientLoginProof.build(
-            dict(
-                A=1,
-                M=2,
-                crc_hash=3,
-                number_of_keys=4,
-                security_flags=5,
-            )))
+        packet.ClientLoginProof.build(dict(
+            A=1,
+            M=2,
+            crc_hash=3,
+            number_of_keys=4,
+            security_flags=5,
+        )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'
@@ -76,14 +74,13 @@ def test_handler_login_proof(mocker, fake_db):
     fake_db.Account(name='account', salt_str='11', verifier_str='22')
 
     client_pkt = packet.ClientLoginProof.parse(
-        packet.ClientLoginProof.build(
-            dict(
-                A=1,
-                M=2,
-                crc_hash=3,
-                number_of_keys=4,
-                security_flags=5,
-            )))
+        packet.ClientLoginProof.build(dict(
+            A=1,
+            M=2,
+            crc_hash=3,
+            number_of_keys=4,
+            security_flags=5,
+        )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'

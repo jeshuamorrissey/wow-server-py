@@ -29,8 +29,7 @@ def test_handle_pet_name_query(mocker, fake_db):
         base_power=100,
     )
 
-    client_pkt = packet.ClientPetNameQuery.parse(
-        packet.ClientPetNameQuery.build(dict(pet_number=10, pet_guid=10)))
+    client_pkt = packet.ClientPetNameQuery.parse(packet.ClientPetNameQuery.build(dict(pet_number=10, pet_guid=10)))
 
     response_pkts = handler.handle_pet_name_query(client_pkt, mock_session)
 
@@ -46,8 +45,7 @@ def test_handle_pet_name_query(mocker, fake_db):
 def test_handle_pet_name_query_no_pet(mocker, fake_db):
     mock_session = mocker.MagicMock()
 
-    client_pkt = packet.ClientPetNameQuery.parse(
-        packet.ClientPetNameQuery.build(dict(pet_number=10, pet_guid=10)))
+    client_pkt = packet.ClientPetNameQuery.parse(packet.ClientPetNameQuery.build(dict(pet_number=10, pet_guid=10)))
 
     response_pkts = handler.handle_pet_name_query(client_pkt, mock_session)
 

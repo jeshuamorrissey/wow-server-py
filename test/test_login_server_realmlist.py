@@ -17,9 +17,7 @@ from login_server.packets import realmlist as packet
 def test_handle_realmlist(mocker, fake_db):
     # Setup database.
     account = fake_db.Account(name='account', salt_str='11', verifier_str='22')
-    account2 = fake_db.Account(name='account2',
-                               salt_str='11',
-                               verifier_str='22')
+    account2 = fake_db.Account(name='account2', salt_str='11', verifier_str='22')
     r1 = fake_db.Realm(name='r1', hostport='r1')
     r2 = fake_db.Realm(name='r2', hostport='r2')
     fake_db.Player.New(
@@ -58,8 +56,7 @@ def test_handle_realmlist(mocker, fake_db):
         gender=enums.Gender.MALE,
     )
 
-    client_pkt = packet.ClientRealmlist.parse(
-        packet.ClientRealmlist.build(dict()))
+    client_pkt = packet.ClientRealmlist.parse(packet.ClientRealmlist.build(dict()))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'

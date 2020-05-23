@@ -1,5 +1,4 @@
-from construct import (BytesInteger, Const, If, Int8ul, Int16ul, Int32ub,
-                       Int32ul, PaddedString, PascalString, Struct)
+from construct import (BytesInteger, Const, If, Int8ul, Int16ul, Int32ub, Int32ul, PaddedString, PascalString, Struct)
 
 from common import srp
 from login_server import op_code, router

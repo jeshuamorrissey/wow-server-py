@@ -13,29 +13,26 @@ def handler(pkt: battlefield_status.ClientBattlefieldStatus,
     return [
         (
             op_code.Server.BATTLEFIELD_STATUS,
-            battlefield_status.ServerBattlefieldStatus.build(
-                dict(
-                    queue_slot=0,
-                    map_id=0,
-                    data=None,
-                )),
+            battlefield_status.ServerBattlefieldStatus.build(dict(
+                queue_slot=0,
+                map_id=0,
+                data=None,
+            )),
         ),
         (
             op_code.Server.BATTLEFIELD_STATUS,
-            battlefield_status.ServerBattlefieldStatus.build(
-                dict(
-                    queue_slot=1,
-                    map_id=0,
-                    data=None,
-                )),
+            battlefield_status.ServerBattlefieldStatus.build(dict(
+                queue_slot=1,
+                map_id=0,
+                data=None,
+            )),
         ),
         (
             op_code.Server.BATTLEFIELD_STATUS,
-            battlefield_status.ServerBattlefieldStatus.build(
-                dict(
-                    queue_slot=2,
-                    map_id=0,
-                    data=None,
-                )),
+            battlefield_status.ServerBattlefieldStatus.build(dict(
+                queue_slot=2,
+                map_id=0,
+                data=None,
+            )),
         ),
     ]

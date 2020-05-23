@@ -147,11 +147,9 @@ class Spell(db.Entity):
     minimum_reputation = orm.Required(int, unsigned=True)
     required_aura_vision = orm.Required(int, unsigned=True)
 
-    chr_races_login_effect_backlink = orm.Set('ChrRaces',
-                                              reverse='login_effect')
+    chr_races_login_effect_backlink = orm.Set('ChrRaces', reverse='login_effect')
     chr_races_combat_stun_backlink = orm.Set('ChrRaces', reverse='combat_stun')
-    chr_races_res_sickness_backlink = orm.Set('ChrRaces',
-                                              reverse='res_sickness')
+    chr_races_res_sickness_backlink = orm.Set('ChrRaces', reverse='res_sickness')
     aura_base_spell_backlink = orm.Set('Aura', reverse='base_spell')
     unit_created_by_backlink = orm.Set('Unit', reverse='created_by_spell')
     unit_channeling_backlink = orm.Set('Unit', reverse='channeling_spell')

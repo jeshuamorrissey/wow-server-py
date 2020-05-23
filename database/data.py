@@ -57,8 +57,7 @@ def _load(db: orm.Database, cls_name: Text, cls: Type, module: Text):
             # Load the non-FK components.
             for r in records:
                 for attr in cls._attrs_:
-                    if issubclass(attr.py_type, db.Entity) and r.get(
-                            attr.name, None) == '0':
+                    if issubclass(attr.py_type, db.Entity) and r.get(attr.name, None) == '0':
                         del r[attr.name]
 
                 cls(**{k: r.get(k, None) for k in keys})
@@ -74,8 +73,8 @@ def _load(db: orm.Database, cls_name: Text, cls: Type, module: Text):
                         except orm.ObjectNotFound:
                             setattr(obj, k[:-3], None)
 
-                        orm.flush(
-                        )  # flush here to force a save and to avoid save chains
+                        # Flush here to force a save and to avoid save chains.
+                        orm.flush()
 
 
 def _sorted_by_dependencies(classes: Dict[Text, Type]) -> List[Set[Text]]:
@@ -92,9 +91,7 @@ def _sorted_by_dependencies(classes: Dict[Text, Type]) -> List[Set[Text]]:
         the same time, but phases must be sequential.
     """
     # First, build up a simple dependency graph.
-    dependencies: Dict[Text, Set[Text]] = {
-        entity_name: set() for entity_name in classes
-    }
+    dependencies: Dict[Text, Set[Text]] = {entity_name: set() for entity_name in classes}
     for entity_name, entity_type in classes.items():
         for attr in entity_type._attrs_:
             attr_type_name = attr.py_type.__name__
@@ -127,9 +124,7 @@ def _sorted_by_dependencies(classes: Dict[Text, Type]) -> List[Set[Text]]:
 
         # If we got the same phase again, then we have reached a cycle :(
         if phase == last_phase:
-            raise RuntimeError(
-                'Dependency graph produced a cycle! Are backlinks named correctly?'
-            )
+            raise RuntimeError('Dependency graph produced a cycle! Are backlinks named correctly?')
 
         # If there was nothing in this phase, we must be done.
         if not phase:
@@ -194,9 +189,7 @@ def load_constants(db: orm.Database):
     Args:
         db: The database to load the constants into.
     """
-    classes = _find_subclasses(db.Entity,
-                               include_prefix=('database.constants',
-                                               'database.game'))
+    classes = _find_subclasses(db.Entity, include_prefix=('database.constants', 'database.game'))
     load_order = _sorted_by_dependencies(classes)
     _profile: Dict[Text, float] = {}
     _longest_name_len = 0
@@ -212,8 +205,6 @@ def load_constants(db: orm.Database):
 
     logging.debug('Profile information for database loading: ')
     _longest_name_len = max(len(name) for name in _profile.keys())
-    for name, process_time in sorted(_profile.items(),
-                                     key=lambda i: i[1],
-                                     reverse=True):
+    for name, process_time in sorted(_profile.items(), key=lambda i: i[1], reverse=True):
         display_name = (' ' * (_longest_name_len - len(name))) + name
         logging.debug('{}: {:.4f}s'.format(display_name, process_time))

@@ -1,9 +1,8 @@
 import enum
 from typing import Dict, Iterable, Optional, Tuple
 
-from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes,
-                       GreedyRange, If, Int8ul, Int32ul, Int64ul, Rebuild,
-                       Struct, Switch)
+from construct import (Array, Bytes, Const, Enum, Float32l, GreedyBytes, GreedyRange, If, Int8ul, Int32ul, Int64ul,
+                       Rebuild, Struct, Switch)
 from pony import orm
 
 from database import constants, enums, game, world
@@ -32,8 +31,7 @@ class Updater(system.System):
         # Caches to keep track of what players have seen.
         self._update_cache: Dict[int, PlayerUpdateCache] = {}
 
-    def _make_movement_update(self,
-                              game_object: world.GameObject) -> Optional[dict]:
+    def _make_movement_update(self, game_object: world.GameObject) -> Optional[dict]:
         """Return either a FullMovementUpdate or PositionMovementUpdate.
 
         The returned dictionary can be used to construct the appropriate
@@ -80,8 +78,7 @@ class Updater(system.System):
 
         return None
 
-    def _make_update_block(self, player: world.Player,
-                           game_object: world.GameObject) -> dict:
+    def _make_update_block(self, player: world.Player, game_object: world.GameObject) -> dict:
         """Return a FullUpdateBlock, ValuesUpdateBlock or OutOfRangeUpdateBlock.
 
         Args:  
@@ -98,16 +95,11 @@ class Updater(system.System):
         values_update = game_object.update_fields()
 
         # Get the cached updates.
-        last_movement_update = player_cache.movement_updates.get(
-            game_object.id, None)
+        last_movement_update = player_cache.movement_updates.get(game_object.id, None)
         last_values_update = player_cache.values_updates.get(game_object.id, {})
 
         # Work out the delta in the values update.
-        values_update_diff = {
-            k: v
-            for k, v in values_update.items()
-            if last_values_update.get(k, None) != v
-        }
+        values_update_diff = {k: v for k, v in values_update.items() if last_values_update.get(k, None) != v}
 
         # Work out the update type.
         update_type = None
@@ -204,8 +196,7 @@ class Updater(system.System):
         if len(update_object_pkt) > config.MAX_UPDATE_OBJECT_PACKET_SIZE:
             op = op_code.Server.COMPRESSED_UPDATE_OBJECT
             update_object_pkt = compressed_update_object.ServerCompressedUpdateObject.build(
-                dict(uncompressed_size=len(update_object_pkt),
-                     data=update_data))
+                dict(uncompressed_size=len(update_object_pkt), data=update_data))
 
         return (op, update_object_pkt)
 
@@ -219,15 +210,13 @@ class Updater(system.System):
             player: The player to log in.
             session: The session the player can be contacted on.
         """
-        session.log.info(
-            f'Updater: registered new player {player.name} (id = {player.id})')
+        session.log.info(f'Updater: registered new player {player.name} (id = {player.id})')
         self.players[player.id] = session
         self._update_cache[player.id] = PlayerUpdateCache()
 
         op, update_object_pkt = self._make_update_object(
             player,
-            (o for o in world.GameObject.select()
-             if o.distance_to(player) < config.MAX_UPDATE_DISTANCE),
+            (o for o in world.GameObject.select() if o.distance_to(player) < config.MAX_UPDATE_DISTANCE),
         )
 
         return op, update_object_pkt
@@ -242,8 +231,7 @@ class Updater(system.System):
             player: The player to log in.
             session: The session the player can be contacted on.
         """
-        self.players[player.id].log.info(
-            f'Updater: player logout {player.name} (id = {player.id})')
+        self.players[player.id].log.info(f'Updater: player logout {player.name} (id = {player.id})')
         del self.players[player.id]
         del self._update_cache[player.id]
 
@@ -258,7 +246,6 @@ class Updater(system.System):
             game_object: The object which is being updated.
         """
         for player_id, session in self.players.items():
-            op, update_object_pkt = self._make_update_object(
-                world.GameObject[player_id], [game_object])
+            op, update_object_pkt = self._make_update_object(world.GameObject[player_id], [game_object])
             if op and update_object_pkt:
                 session.send_packet(op, update_object_pkt)

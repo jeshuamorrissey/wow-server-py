@@ -78,7 +78,6 @@ class Container(Item):
             if ci.item:
                 fields[enums.ContainerFields.SLOT_1 + (slot * 2)] = ci.item.guid
             else:
-                fields[enums.ContainerFields.SLOT_1 +
-                       (slot * 2)] = game_object.GUID(0)
+                fields[enums.ContainerFields.SLOT_1 + (slot * 2)] = game_object.GUID(0)
 
         return {**super(Container, self).update_fields(), **fields}
