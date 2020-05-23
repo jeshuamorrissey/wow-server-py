@@ -16,6 +16,9 @@ jobs:
           BAZEL_BIN: bazel.exe
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
       - name: Setup Bazel
         uses: abhinavsingh/setup-bazel@v3
       - name: Mount bazel cache
@@ -32,8 +35,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
       - name: Setup environment
-        run: pip install -r requirements.txt
+        run: pip install wheel && pip install -r requirements.txt
       - name: Generate coverage report
         run: |
           cd "${{ github.workspace }}"
