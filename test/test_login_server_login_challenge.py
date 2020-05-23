@@ -11,14 +11,16 @@ import pytest
 from database import enums
 from login_server import op_code
 from login_server.handlers.login_challenge import handle_login_challenge
-from login_server.packets.login_challenge import (ClientLoginChallenge, ServerLoginChallenge)
+from login_server.packets.login_challenge import (ClientLoginChallenge,
+                                                  ServerLoginChallenge)
 
 
 @pytest.mark.parametrize('account_name,expected_error', [
     ('account_exists', enums.LoginErrorCode.OK),
     ('account_does_not_exist', enums.LoginErrorCode.UNKNOWN_ACCOUNT),
 ])
-def test_handle_login_challenge(account_name: Text, expected_error: enums.LoginErrorCode, fake_db):
+def test_handle_login_challenge(account_name: Text,
+                                expected_error: enums.LoginErrorCode, fake_db):
     fake_db.Account(name='account_exists', salt_str='11', verifier_str='22')
 
     client_pkt = ClientLoginChallenge.parse(
@@ -50,7 +52,3 @@ def test_handle_login_challenge(account_name: Text, expected_error: enums.LoginE
         assert mock_session.account_name == account_name
         assert mock_session.b is not None
         assert mock_session.B == response.challenge.B
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

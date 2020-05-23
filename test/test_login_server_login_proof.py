@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 
 from database import enums
@@ -17,13 +16,14 @@ from login_server.packets import login_proof as packet
 
 def test_handle_login_proof_invalid_session(fake_db):
     client_pkt = packet.ClientLoginProof.parse(
-        packet.ClientLoginProof.build(dict(
-            A=1,
-            M=2,
-            crc_hash=3,
-            number_of_keys=4,
-            security_flags=5,
-        )))
+        packet.ClientLoginProof.build(
+            dict(
+                A=1,
+                M=2,
+                crc_hash=3,
+                number_of_keys=4,
+                security_flags=5,
+            )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = None
@@ -44,13 +44,14 @@ def test_handle_login_proof_invalid_password(mocker, fake_db):
     fake_db.Account(name='account', salt_str='11', verifier_str='22')
 
     client_pkt = packet.ClientLoginProof.parse(
-        packet.ClientLoginProof.build(dict(
-            A=1,
-            M=2,
-            crc_hash=3,
-            number_of_keys=4,
-            security_flags=5,
-        )))
+        packet.ClientLoginProof.build(
+            dict(
+                A=1,
+                M=2,
+                crc_hash=3,
+                number_of_keys=4,
+                security_flags=5,
+            )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'
@@ -75,13 +76,14 @@ def test_handler_login_proof(mocker, fake_db):
     fake_db.Account(name='account', salt_str='11', verifier_str='22')
 
     client_pkt = packet.ClientLoginProof.parse(
-        packet.ClientLoginProof.build(dict(
-            A=1,
-            M=2,
-            crc_hash=3,
-            number_of_keys=4,
-            security_flags=5,
-        )))
+        packet.ClientLoginProof.build(
+            dict(
+                A=1,
+                M=2,
+                crc_hash=3,
+                number_of_keys=4,
+                security_flags=5,
+            )))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'
@@ -101,7 +103,3 @@ def test_handler_login_proof(mocker, fake_db):
     assert response_pkt.error == enums.LoginErrorCode.OK
     assert response_pkt.proof.proof == 1
     assert fake_db.Account.get(name='account').session_key_str == '1'
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

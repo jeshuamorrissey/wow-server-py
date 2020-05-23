@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 
 from database import data, enums
@@ -18,7 +17,9 @@ from login_server.packets import realmlist as packet
 def test_handle_realmlist(mocker, fake_db):
     # Setup database.
     account = fake_db.Account(name='account', salt_str='11', verifier_str='22')
-    account2 = fake_db.Account(name='account2', salt_str='11', verifier_str='22')
+    account2 = fake_db.Account(name='account2',
+                               salt_str='11',
+                               verifier_str='22')
     r1 = fake_db.Realm(name='r1', hostport='r1')
     r2 = fake_db.Realm(name='r2', hostport='r2')
     fake_db.Player.New(
@@ -57,7 +58,8 @@ def test_handle_realmlist(mocker, fake_db):
         gender=enums.Gender.MALE,
     )
 
-    client_pkt = packet.ClientRealmlist.parse(packet.ClientRealmlist.build(dict()))
+    client_pkt = packet.ClientRealmlist.parse(
+        packet.ClientRealmlist.build(dict()))
 
     mock_session = mock.MagicMock()
     mock_session.account_name = 'account'
@@ -76,7 +78,3 @@ def test_handle_realmlist(mocker, fake_db):
     assert response_pkt.realms[0].n_characters == 2
     assert response_pkt.realms[1].name == 'r2'
     assert response_pkt.realms[1].n_characters == 1
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

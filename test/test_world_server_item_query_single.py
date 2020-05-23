@@ -29,7 +29,3 @@ def test_handle_item_query_single(mocker, fake_db):
     response_pkt = packet.ServerItemQuerySingle.parse(response_bytes)
     assert response_op == op_code.Server.ITEM_QUERY_SINGLE_RESPONSE
     assert response_pkt.entry == item.entry
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

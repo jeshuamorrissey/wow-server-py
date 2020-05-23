@@ -52,7 +52,3 @@ def test_handle_pet_name_query_no_pet(mocker, fake_db):
     response_pkts = handler.handle_pet_name_query(client_pkt, mock_session)
 
     assert len(response_pkts) == 0
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

@@ -77,7 +77,3 @@ def test_handle_char_enum(mocker, fake_db):
     response_pkt = packet.ServerCharEnum.parse(response_bytes)
     assert response_op == op_code.Server.CHAR_ENUM
     assert len(response_pkt.characters) == 2
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

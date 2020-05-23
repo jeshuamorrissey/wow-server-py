@@ -24,7 +24,3 @@ def test_handle_gm_get_ticket(mocker, fake_db):
     assert response_op == op_code.Server.GM_GET_TICKET
     assert response_pkt.status == 0xA0
     assert response_pkt.ticket is None
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

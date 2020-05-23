@@ -25,7 +25,3 @@ def test_handle_meetingstone_info(mocker, fake_db):
     assert response_op == op_code.Server.MEETINGSTONE_SETQUEUE
     assert response_pkt.area_id == 0
     assert response_pkt.status == enums.MeetingStoneQueueStatus.NONE
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

@@ -6,7 +6,6 @@ import unittest
 from typing import Text
 from unittest import mock
 
-
 import pytest
 from pony import orm
 
@@ -19,7 +18,10 @@ from world_server.packets import char_create as packet
 
 def test_handle_char_create(mocker, fake_db):
     # Setup database.
-    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
+    fake_db.Account(name='account',
+                    salt_str='11',
+                    verifier_str='22',
+                    session_key_str='33')
     fake_db.Realm(name='r1', hostport='r1')
 
     client_pkt = packet.ClientCharCreate.parse(
@@ -58,7 +60,10 @@ def test_handle_char_create(mocker, fake_db):
 
 def test_handle_char_create_account_limit(mocker, fake_db):
     # Setup database.
-    account = fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
+    account = fake_db.Account(name='account',
+                              salt_str='11',
+                              verifier_str='22',
+                              session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
     realm2 = fake_db.Realm(name='r2', hostport='r1')
     fake_db.Player.New(
@@ -105,7 +110,10 @@ def test_handle_char_create_account_limit(mocker, fake_db):
 
 def test_handle_char_create_server_limit(mocker, fake_db):
     # Setup database.
-    account = fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
+    account = fake_db.Account(name='account',
+                              salt_str='11',
+                              verifier_str='22',
+                              session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
     fake_db.Player.New(
         id=10,
@@ -147,13 +155,20 @@ def test_handle_char_create_server_limit(mocker, fake_db):
     response_op, response_bytes = response_pkts[0]
     response_pkt = packet.ServerCharCreate.parse(response_bytes)
     assert response_op == op_code.Server.CHAR_CREATE
-    assert handler.ResponseCode(response_pkt.error) == handler.ResponseCode.SERVER_LIMIT
+    assert handler.ResponseCode(
+        response_pkt.error) == handler.ResponseCode.SERVER_LIMIT
 
 
 def test_handle_char_create_name_in_use(mocker, fake_db):
     # Setup database.
-    fake_db.Account(name='account', salt_str='11', verifier_str='22', session_key_str='33')
-    account2 = fake_db.Account(name='account2', salt_str='11', verifier_str='22', session_key_str='33')
+    fake_db.Account(name='account',
+                    salt_str='11',
+                    verifier_str='22',
+                    session_key_str='33')
+    account2 = fake_db.Account(name='account2',
+                               salt_str='11',
+                               verifier_str='22',
+                               session_key_str='33')
     realm = fake_db.Realm(name='r1', hostport='r1')
     fake_db.Player.New(
         id=10,
@@ -192,7 +207,3 @@ def test_handle_char_create_name_in_use(mocker, fake_db):
     response_pkt = packet.ServerCharCreate.parse(response_bytes)
     assert response_op == op_code.Server.CHAR_CREATE
     assert response_pkt.error == handler.ResponseCode.NAME_IN_USE
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

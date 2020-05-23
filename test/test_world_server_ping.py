@@ -24,7 +24,3 @@ def test_handle_move_time_skipped(mocker, fake_db):
 
     response_pkt = pong.ServerPong.parse(response_pkt_data)
     assert response_pkt.pong == 1
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

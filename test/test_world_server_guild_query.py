@@ -40,7 +40,3 @@ def test_handle_guild_query(mocker, fake_db):
     assert response_pkt.id == 1
     assert response_pkt.name == 'name'
     assert response_pkt.rank_names == ['Rank 0', 'Rank 1', 'Rank 2'] + [''] * 7
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

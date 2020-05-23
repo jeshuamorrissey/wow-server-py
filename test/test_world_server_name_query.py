@@ -38,7 +38,3 @@ def test_handle_name_query(mocker, fake_db):
     assert response_op == op_code.Server.NAME_QUERY_RESPONSE
     assert response_pkt.name == 'test'
     assert response_pkt.realm_name == 'r1'
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))

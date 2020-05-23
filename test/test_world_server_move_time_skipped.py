@@ -17,7 +17,3 @@ def test_handle_move_time_skipped(mocker, fake_db):
     response_pkts = handler.handler(client_pkt, mock_session)
 
     assert len(response_pkts) == 0
-
-
-if __name__ == '__main__':
-    sys.exit(pytest.main([__file__]))
