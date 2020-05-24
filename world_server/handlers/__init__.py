@@ -1,1 +1,27 @@
 ## AUTO-GENEATED USING gen_init_files.py
+import world_server.handlers.auth_session
+import world_server.handlers.auto_equip_item
+import world_server.handlers.battlefield_status
+import world_server.handlers.char_create
+import world_server.handlers.char_delete
+import world_server.handlers.char_enum
+import world_server.handlers.gm_get_ticket
+import world_server.handlers.guild_query
+import world_server.handlers.item_query_single
+import world_server.handlers.meetingstone_info
+import world_server.handlers.move_time_skipped
+import world_server.handlers.name_query
+import world_server.handlers.pet_name_query
+import world_server.handlers.ping
+import world_server.handlers.player_login
+import world_server.handlers.query_next_mail_time
+import world_server.handlers.query_time
+import world_server.handlers.request_pet_info
+import world_server.handlers.request_raid_info
+import world_server.handlers.set_action_button
+import world_server.handlers.set_active_mover
+import world_server.handlers.stand_state_change
+import world_server.handlers.swap_inv_item
+import world_server.handlers.swap_item
+import world_server.handlers.tutorial_flag
+import world_server.handlers.update_account_data
