@@ -2,7 +2,7 @@ import gzip
 import json
 import logging
 import os
-import string
+import sys
 import time
 from typing import IO, Dict, List, Optional, Set, Text, Type, Union
 
@@ -18,13 +18,15 @@ def _load(db: orm.Database, cls_name: Text, cls: Type, module: Text):
         cls: The type of the class to load.
         module: The module the class is in (either "constants" or "game")
     """
-    base_file = f'database/{module}/data/{cls_name}'
+    base_path = getattr(sys, '_MEIPASS', '.')
+    base_file = f'{base_path}/database/{module}/data/{cls_name}'
     data_file = None
     if os.path.exists(f'{base_file}.json.gz'):
         data_file = f'{base_file}.json.gz'
     elif os.path.exists(f'{base_file}.json'):
         data_file = f'{base_file}.json'
     else:
+        logging.warning(f'Could not find data file for class {cls_name}')
         return
 
     with orm.db_session:

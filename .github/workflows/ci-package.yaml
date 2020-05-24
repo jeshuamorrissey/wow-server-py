@@ -1,0 +1,24 @@
+name: Unit Tests
+on:
+  push:
+    # branches:
+    #   - master
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install pipenv
+        run: pip install pipenv
+      - name: Install dependecies
+        run: pipenv install
+      - name: Run test
+        run: pipenv run package
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist-windows
+          path: dist/wow_server.exe

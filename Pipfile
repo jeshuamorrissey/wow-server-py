@@ -9,6 +9,7 @@ pytest-cov = "==2.8.1"
 pytest-mock = "==2.0.0"
 pytest = "==4.6.9"
 codecov = "*"
+pyinstaller = "*"
 
 [packages]
 atomicwrites = "==1.3.0"
@@ -28,3 +29,4 @@ start = "python wow_server.py"
 test = "python -m pytest test"
 coverage = "python -m pytest test --cov=. --cov-report=html" 
 upload-coverage = "python -m codecov"
+package = "pyinstaller wow_server.spec" 
