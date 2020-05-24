@@ -1,12 +1,9 @@
 import argparse
-import tempfile
 import datetime
-import enum
-import logging
 import os
+import sys
 import threading
 import time
-from typing import Text
 
 import coloredlogs
 from pony import orm
@@ -157,6 +154,7 @@ def setup_db(args: argparse.Namespace):
 
 def main(args: argparse.Namespace):
     # Load the database.
+    print(args.db_file)
     setup_db(args)
 
     # Create the packet handling threads.
@@ -205,7 +203,7 @@ if __name__ == '__main__':
     argument_parser.add_argument('--host', type=str, default='127.0.0.1', help='The host to list for connections on.')
     argument_parser.add_argument('--db_file',
                                  type=str,
-                                 default=os.path.join(tempfile.gettempdir(), 'wow_server.db'),
+                                 default=os.path.join(os.path.dirname(sys.executable), 'wow_server.db'),
                                  help='The file to store the World database in.')
     argument_parser.add_argument('--reset_database',
                                  action='store_true',
