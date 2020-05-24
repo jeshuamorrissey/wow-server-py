@@ -15,7 +15,7 @@ jobs:
       - name: Install pipenv
         run: pip install pipenv
       - name: Install dependecies
-        run: pipenv -d install
+        run: pipenv install -d
       - name: Package binary
         run: pipenv run package
       - uses: actions/upload-artifact@v2
