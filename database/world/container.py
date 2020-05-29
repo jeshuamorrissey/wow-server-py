@@ -16,8 +16,7 @@ class ContainerSlot(db.Entity):
 
     orm.PrimaryKey(container, slot)
 
-    def after_update(self):
-        print('ContainerSlot', self.container, self.item)
+    def trigger_update(self):
         self.container.after_update()
         if self.item:
             self.item.after_update()
@@ -35,6 +34,9 @@ class Container(Item):
 
     def items(self) -> Dict[int, ContainerSlot]:
         return {slot.slot: slot for slot in self.slots}
+
+    def is_empty(self) -> bool:
+        return not any(self.items().values())
 
     #
     # Class Methods (should be overwritten in children).
