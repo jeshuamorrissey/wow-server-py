@@ -1,8 +1,44 @@
-import os
-
-for module in os.listdir(os.path.dirname(__file__)):
-    if module == '__init__.py' or module[-3:] != '.py':
-        continue
-    __import__(f'world_server.packets.{module[:-3]}', locals(), globals())
-
-del module
+## AUTO-GENEATED USING gen_init_files.py
+import world_server.packets.account_data_times
+import world_server.packets.action_buttons
+import world_server.packets.auth_challenge
+import world_server.packets.auth_response
+import world_server.packets.auth_session
+import world_server.packets.auto_equip_item
+import world_server.packets.battlefield_status
+import world_server.packets.char_create
+import world_server.packets.char_delete
+import world_server.packets.char_enum
+import world_server.packets.compressed_update_object
+import world_server.packets.gm_get_ticket
+import world_server.packets.guild_command_result
+import world_server.packets.guild_query
+import world_server.packets.init_world_states
+import world_server.packets.initial_spells
+import world_server.packets.inventory_change_failure
+import world_server.packets.item_query_single
+import world_server.packets.login_verify_world
+import world_server.packets.meetingstone_info
+import world_server.packets.meetingstone_setqueue
+import world_server.packets.move_time_skipped
+import world_server.packets.name_query
+import world_server.packets.pet_name_query
+import world_server.packets.ping
+import world_server.packets.player_login
+import world_server.packets.pong
+import world_server.packets.query_next_mail_time
+import world_server.packets.query_time
+import world_server.packets.raid_instance_info
+import world_server.packets.request_pet_info
+import world_server.packets.request_raid_info
+import world_server.packets.set_action_button
+import world_server.packets.set_active_mover
+import world_server.packets.stand_state_change
+import world_server.packets.swap_inv_item
+import world_server.packets.swap_item
+import world_server.packets.trigger_cinematic
+import world_server.packets.tutorial_flag
+import world_server.packets.tutorial_flags
+import world_server.packets.update_account_data
+import world_server.packets.update_aura_duration
+import world_server.packets.update_object

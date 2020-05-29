@@ -6,34 +6,48 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - name: Install pipenv
-        run: pip install pipenv
-      - name: Install dependecies
-        run: pipenv install -d
-      - name: Run test
-        run: pipenv run test
-  
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+
+      # Load the venv cache.
+      - name: cache venv
+        id: cache-venv
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        uses: actions/cache@v2
         with:
-          python-version: 3.x
+          path: .venv
+          key: ${{ runner.os }}-py-venv-${{ hashFiles('Pipfile.lock') }}
+
+      - name: cache pip cache
+        uses: actions/cache@v2
+        if: ${{ contains(matrix.os, 'windows') }}
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
+      # Install pipenv (assuming we don't already have a venv hit).
       - name: Install pipenv
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: pip install pipenv
       - name: Install dependecies
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: pipenv install -d
-      - name: Run test
+        env:
+          PIPENV_VENV_IN_PROJECT: true
+
+      # Run the tests.
+      - name: Run tests (Windows)
+        if: ${{ contains(matrix.os, 'windows') }}
+        run: .venv\Scripts\python.exe -m pytest -n auto test
+
+      - name: Run tests (Linux)
+        if: ${{ contains(matrix.os, 'ubuntu') }}
         run: |
-          pipenv run coverage
-          pipenv run upload-coverage --token=${CODECOV_UPLOAD_TOKEN?}
+          .venv/bin/python -m pytest -n auto --cov-report=xml --cov=. test
+          .venv/bin/python -m codecov -t "${CODECOV_UPLOAD_TOKEN?}"
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
-

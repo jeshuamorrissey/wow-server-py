@@ -5,5 +5,7 @@ __pycache__
 .venv
 .vscode
 bazel-*
+build
+dist
 htmlcov
 test/memory
