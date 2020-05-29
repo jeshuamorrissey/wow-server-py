@@ -12,6 +12,16 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: pip cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
       - name: Install pipenv
         run: pip install pipenv
       - name: Install dependecies
