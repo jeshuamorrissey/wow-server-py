@@ -46,5 +46,5 @@ jobs:
       - name: Run tests (Linux)
         if: ${{ contains(matrix.os, 'ubuntu') }}
         run: |
-          .venv/bin/python -m pytest -n auto test
-          .venv/bin/python -m codecov -t ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+          .venv/bin/python -m pytest -n auto --cov-report=xml --cov=. test
+          .venv/bin/python -m codecov -t ${{ secrets.CODECOV_UPLOAD_TOKEN }} -F unittests
