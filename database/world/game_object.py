@@ -81,7 +81,6 @@ class GameObject(db.Entity):
         return 0x06
 
     def after_update(self):
-        print('updating ', self.id)
         system.Register.Get(system.System.ID.UPDATER).update_object(self)
 
     def update_fields(self) -> Dict[enums.UpdateField, Any]:

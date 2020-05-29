@@ -21,11 +21,15 @@ class PlayerInventorySlot(db.Entity):
 
     orm.PrimaryKey(player, slot)
 
-    def after_update(self):
-        print('PlayerInventorySlot', self.player, self.item)
+    def trigger_update(self):
         self.player.after_update()
         if self.item:
             self.item.after_update()
+
+    def is_bag_slot(self):
+        s = enums.InventorySlots
+        return ((self.slot >= s.BAG_START and self.slot < s.BAG_END) or
+                (self.slot >= s.BANK_BAG_START and self.slot < s.BANK_BAG_END))
 
     def can_contain(self, item: Optional[Item]) -> bool:
         if not item:
@@ -37,9 +41,8 @@ class PlayerInventorySlot(db.Entity):
             if not item.can_equip_to_slot(equipment_slot):
                 return False
 
-        if (s.BAG_START <= self.slot < s.BAG_END or s.BANK_BAG_START <= self.slot < s.BANK_BAG_END):
-            if not isinstance(item, container.Container):
-                return False
+        if self.is_bag_slot() and not isinstance(item, container.Container):
+            return False
 
         return True
 
@@ -158,8 +161,30 @@ class Player(unit.Unit):
     created_items = orm.Set('Item')
     dual_arbiter = orm.Optional('Player', reverse='dual_arbiter')
 
-    def swap_items(self, src_slot, dst_slot) -> enums.InventoryChangeError:
-        pass
+    def swap_items(self, src_slot, dst_slot) -> Optional[enums.InventoryChangeError]:
+        s = enums.InventorySlots
+
+        if not src_slot or not dst_slot or not src_slot.item:
+            return None
+
+        if not dst_slot.can_contain(src_slot.item):
+            return enums.InventoryChangeError.ITEM_DOESNT_GO_TO_SLOT
+
+        if (not dst_slot.is_bag_slot() and isinstance(src_slot.item, container.Container) and
+                not src_slot.item.is_empty()):
+            return enums.InventoryChangeError.CAN_ONLY_DO_WITH_EMPTY_BAGS
+
+        if dst_slot.item:
+            if not src_slot.can_contain(dst_slot.item):
+                return enums.InventoryChangeError.ITEM_DOESNT_GO_TO_SLOT
+
+        # Swap is valid, do it.
+        # Manually trigger an update, because for some reason it doesn't work automatically.
+        src_slot.item, dst_slot.item = dst_slot.item, src_slot.item
+        src_slot.trigger_update()
+        dst_slot.trigger_update()
+
+        return enums.InventoryChangeError.OK
 
     def _inv_slice(self, start: int, end: int) -> Dict[int, PlayerInventorySlot]:
         return {pi.slot - start: pi for pi in self.inventory if pi.slot >= start and pi.slot < end}
@@ -534,9 +559,8 @@ class Player(unit.Unit):
         # Populate equipment fields.
         for equipment_slot in enums.EquipmentSlot:
             slot = equipment[equipment_slot]
-            if slot.item:
-                fields.update(self.visible_item_fields(equipment_slot, slot.item))
-                fields.update(self.inventory_fields(equipment_slot, slot.item))
+            fields.update(self.visible_item_fields(equipment_slot, slot.item))
+            fields.update(self.inventory_fields(equipment_slot, slot.item))
 
         # Populate backpack fields.
         for slot in self.inventory:
