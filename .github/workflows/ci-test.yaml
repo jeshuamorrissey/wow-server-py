@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('Pipfile.lock') }}
       - name: Install pipenv
         run: pip install pipenv
       - name: Install dependecies
