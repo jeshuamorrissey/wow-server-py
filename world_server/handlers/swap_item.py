@@ -15,7 +15,5 @@ def handle_swap_item(pkt: swap_item.ClientSwapItem, session: session.Session) ->
     src_slot = player.get_item(pkt.source_bag, pkt.source_slot)
     dst_slot = player.get_item(pkt.dest_bag, pkt.dest_slot)
 
-    code = player.swap_items(src_slot, dst_slot)
-    if code != enums.InventoryChangeError.OK:
-        return inventory_change_failure.error(code)
+    player.swap_items(src_slot, dst_slot)
     return []
