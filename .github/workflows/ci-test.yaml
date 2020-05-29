@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: ${{ runner.os }}-pip-${{ hashFiles('Pipfile.lock') }}
+          key: ${{ runner.os }}-py-venv-${{ hashFiles('Pipfile.lock') }}
 
       # Install pipenv (assuming we don't already have a venv hit).
       - name: Install pipenv
