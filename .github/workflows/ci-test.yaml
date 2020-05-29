@@ -16,10 +16,17 @@ jobs:
       # Load the venv cache.
       - name: cache venv
         id: cache-venv
+        if: ${{ contains(matrix.os, 'ubuntu') }}
         uses: actions/cache@v2
         with:
           path: .venv
           key: ${{ runner.os }}-py-venv-${{ hashFiles('Pipfile.lock') }}
+
+      - uses: actions/cache@v2
+        if: ${{ contains(matrix.os, 'windows') }}
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
 
       # Install pipenv (assuming we don't already have a venv hit).
       - name: Install pipenv
