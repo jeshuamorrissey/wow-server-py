@@ -36,13 +36,13 @@ jobs:
         if: ${{ contains(matrix.os, 'windows') }}
         run: |
           .venv\Scripts\activate
-          python -m pytest test
+          python -m pytest -n auto test
 
       - name: Run tests (Linux)
         if: ${{ contains(matrix.os, 'ubuntu') }}
         run: |
           . ./.venv/bin/activate
-          python -m pytest test
+          python -m pytest -n auto test
 
   coverage:
     runs-on: ubuntu-latest
