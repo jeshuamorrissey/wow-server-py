@@ -16,7 +16,6 @@ jobs:
       # Load the venv cache.
       - name: cache venv
         id: cache-venv
-        if: ${{ contains(matrix.os, 'ubuntu') }}
         uses: actions/cache@v2
         with:
           path: .venv
@@ -41,6 +40,4 @@ jobs:
         if: ${{ contains(matrix.os, 'ubuntu') }}
         run: |
           .venv/bin/python -m pytest -n auto test
-          .venv/bin/python -m codecov
-        env:
-          CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
+          .venv/bin/python -m codecov -t ${{ secrets.CODECOV_UPLOAD_TOKEN }}
