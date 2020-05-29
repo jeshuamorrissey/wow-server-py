@@ -9,8 +9,8 @@ from world_server.packets import query_next_mail_time
 
 @router.Handler(op_code.Client.QUERY_NEXT_MAIL_TIME)
 @orm.db_session
-def handler(pkt: query_next_mail_time.ClientQueryNextMailTime,
-            session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_query_next_mail_time(pkt: query_next_mail_time.ClientQueryNextMailTime,
+                                session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     player = world.Player[session.player_id]
 
     next_mail_time = -1
