@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Package Binary
 on:
   push:
     branches:
