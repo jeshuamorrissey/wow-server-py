@@ -23,10 +23,10 @@ jobs:
 
       # Install pipenv (assuming we don't already have a venv hit).
       - name: Install pipenv
-        if: steps.cache-venv.outputs.cache-hit != 'true'
+        # if: steps.cache-venv.outputs.cache-hit != 'true'
         run: pip install pipenv
       - name: Install dependecies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
+        # if: steps.cache-venv.outputs.cache-hit != 'true'
         run: pipenv install -d
         env:
           PIPENV_VENV_IN_PROJECT: true
@@ -38,40 +38,8 @@ jobs:
 
       - name: Run tests (Linux)
         if: ${{ contains(matrix.os, 'ubuntu') }}
-        run: .venv/bin/python -m pytest -n auto test
-
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-
-      # Load the venv cache.
-      - name: cache venv
-        id: cache-venv
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: ${{ runner.os }}-py-venv-${{ hashFiles('Pipfile.lock') }}
-
-      # Install pipenv (assuming we don't already have a venv hit).
-      - name: Install pipenv
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: pip install pipenv
-      - name: Install dependecies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: pipenv install -d
-        env:
-          PIPENV_VENV_IN_PROJECT: true
-
-      # Collect coverage.
-      - name: Run tests
-        if: ${{ contains(matrix.os, 'linux') }}
         run: |
-          . ./venv/bin/activate
-          python -m pytest -n auto test --cov=. --cov-report=html
-          python -m codecov
+          .venv/bin/python -m pytest -n auto test
+          .venv/bin/python -m codecov
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
