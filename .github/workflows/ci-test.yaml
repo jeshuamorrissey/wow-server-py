@@ -12,25 +12,37 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
-      - name: Get pip cache dir
-        id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
 
-      - name: pip cache
+      # Load the venv cache.
+      - name: cache venv
         uses: actions/cache@v2
         with:
-          path: ${{ steps.pip-cache.outputs.dir }}
+          path: .venv
           key: ${{ runner.os }}-pip-${{ hashFiles('Pipfile.lock') }}
+
+      # Install pipenv (assuming we don't already have a venv hit).
       - name: Install pipenv
+        if: steps.cache-primes.outputs.cache-hit != 'true'
         run: pip install pipenv
       - name: Install dependecies
+        if: steps.cache-primes.outputs.cache-hit != 'true'
         run: pipenv install -d
         env:
           PIPENV_VENV_IN_PROJECT: true
-      - name: Run test
-        run: pipenv run test
-  
+
+      # Run the tests.
+      - name: Run tests (Windows)
+        if: ${{ contains(matrix.os, 'windows') }}
+        run: |
+          .\venv\Scripts\activate
+          python -m pytest test
+
+      - name: Run tests (Linux)
+        if: ${{ contains(matrix.os, 'linux') }}
+        run: |
+          . ./venv/bin/activate
+          python -m pytest test
+
   coverage:
     runs-on: ubuntu-latest
     steps:
@@ -38,14 +50,30 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
+
+      # Load the venv cache.
+      - name: cache venv
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('Pipfile.lock') }}
+
+      # Install pipenv (assuming we don't already have a venv hit).
       - name: Install pipenv
+        if: steps.cache-primes.outputs.cache-hit != 'true'
         run: pip install pipenv
       - name: Install dependecies
+        if: steps.cache-primes.outputs.cache-hit != 'true'
         run: pipenv install -d
-      - name: Run test
+        env:
+          PIPENV_VENV_IN_PROJECT: true
+
+      # Collect coverage.
+      - name: Run tests
+        if: ${{ contains(matrix.os, 'linux') }}
         run: |
-          pipenv run coverage
-          pipenv run upload-coverage --token=${CODECOV_UPLOAD_TOKEN?}
+          . ./venv/bin/activate
+          python -m pytest test --cov=. --cov-report=html
+          python -m codecov
         env:
           CODECOV_UPLOAD_TOKEN: ${{ secrets.CODECOV_UPLOAD_TOKEN }}
-
