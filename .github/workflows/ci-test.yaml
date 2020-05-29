@@ -22,7 +22,8 @@ jobs:
           path: .venv
           key: ${{ runner.os }}-py-venv-${{ hashFiles('Pipfile.lock') }}
 
-      - uses: actions/cache@v2
+      - name: cache pip cache
+        uses: actions/cache@v2
         if: ${{ contains(matrix.os, 'windows') }}
         with:
           path: ~\AppData\Local\pip\Cache
