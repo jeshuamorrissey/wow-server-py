@@ -16,6 +16,7 @@ jobs:
       # Load the venv cache.
       - name: cache venv
         id: cache-venv
+        if: ${{ contains(matrix.os, 'ubuntu') }}
         uses: actions/cache@v2
         with:
           path: .venv
@@ -23,10 +24,10 @@ jobs:
 
       # Install pipenv (assuming we don't already have a venv hit).
       - name: Install pipenv
-        # if: steps.cache-venv.outputs.cache-hit != 'true'
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: pip install pipenv
       - name: Install dependecies
-        # if: steps.cache-venv.outputs.cache-hit != 'true'
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: pipenv install -d
         env:
           PIPENV_VENV_IN_PROJECT: true
