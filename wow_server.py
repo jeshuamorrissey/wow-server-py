@@ -154,6 +154,7 @@ def setup_db(args: argparse.Namespace):
 
 def main(args: argparse.Namespace):
     # Load the database.
+    print(args.db_file)
     setup_db(args)
 
     # Create the packet handling threads.
@@ -183,8 +184,6 @@ def main(args: argparse.Namespace):
 
     auth_thread.start()
     world_thread.start()
-
-    system.Register.Get(system.System.ID.AURA_MANAGER).run()
 
     aura_manager_thread.join()
     auth_thread.join()
