@@ -21,6 +21,9 @@ class ContainerSlot(db.Entity):
         if self.item:
             self.item.after_update()
 
+    def is_bag_slot(self) -> bool:
+        return False
+
     def can_contain(self, item: Optional[Item]) -> bool:
         if not item:
             return True

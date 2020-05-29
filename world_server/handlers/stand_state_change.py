@@ -9,8 +9,8 @@ from world_server.packets import stand_state_change
 
 @router.Handler(op_code.Client.STAND_STATE_CHANGE)
 @orm.db_session
-def handler(pkt: stand_state_change.ClientStandStateChange,
-            session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
+def handle_stand_state_change(pkt: stand_state_change.ClientStandStateChange,
+                              session: session.Session) -> List[Tuple[op_code.Server, bytes]]:
     player = world.Player[session.player_id]
     player.stand_state = pkt.state
     return []

@@ -51,6 +51,6 @@ def handler(pkt: auto_equip_item.ClientAutoEquipItem, session: session.Session) 
                 dst_slot = slot
 
     # Make the swap.
-    src_slot.item, dst_slot.item = dst_slot.item, src_slot.item
+    player.swap_items(src_slot, dst_slot)
 
     return []
