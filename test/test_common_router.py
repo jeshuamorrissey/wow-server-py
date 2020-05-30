@@ -21,6 +21,7 @@ def test_router():
     assert len(router.Router.ROUTES) == FakeOpCode.OP2
     assert router.Router.ROUTES[FakeOpCode.OP1] == '1'
     assert router.Router.ROUTES[FakeOpCode.OP2] == two
+    two()
 
 
 def test_router_multiple_register_decorator():
@@ -36,8 +37,11 @@ def test_router_multiple_register_decorator():
         def _():
             pass
 
+        _()
+
     assert len(router.Router.ROUTES) == 1
     assert router.Router.ROUTES[FakeOpCode.OP2] == two
+    two()
 
 
 def test_router_multiple_register_fn():
