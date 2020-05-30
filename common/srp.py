@@ -32,7 +32,7 @@ def HexToInt(hex_string: str, endian: str = 'big') -> int:
     """
     # Make sure the hex string is an even length (just add a 0 to the end).
     if len(hex_string) % 2 == 1:
-        hex_string = '\x00' + hex_string
+        hex_string = '0' + hex_string if endian == 'little' else hex_string + '0'
     return int.from_bytes(bytes(bytearray.fromhex(hex_string)), endian)
 
 
@@ -128,9 +128,6 @@ def CalculateSessionKey(A: int, B: int, b: int, v: int, s: int, account_name: st
     def Interleave(S: int) -> int:
         """Apply the SHA_Interleave function on S."""
         T = IntToBytes(S)[::-1]
-        if len(T) % 2 == 1:
-            T = T[1:]
-
         G = IntToBytes(_H(T[0::2]))[::-1]  # hash all even elements
         H = IntToBytes(_H(T[1::2]))[::-1]  # hash all odd elements
         return HexToInt(bytearray(itertools.chain(*zip(G, H))).hex(), 'little')

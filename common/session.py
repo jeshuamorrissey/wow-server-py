@@ -51,30 +51,30 @@ class Session(socketserver.BaseRequestHandler):
         while True:
             op_code, data_len = self.read_header()
             if op_code is None:
-                self.log.debug('client disconnect')
+                self.log.warning('client disconnect')
                 return
 
             self.log.debug(f'<-- {op_code.name}')
             if data_len > 0:
                 data = self.request.recv(data_len)
                 if data == b'' or op_code is None:
-                    self.log.debug('client disconnect')
+                    self.log.warning('client disconnect')
                     return
             else:
                 data = b''
 
             if len(data) != data_len:
-                self.log.warn(f'Short read, wanted {data_len}, got {len(data)}')
+                self.log.warning(f'short read, wanted {data_len}, got {len(data)}')
                 continue
 
             pkt_format = self.server.packet_formats.get(op_code, None)
             if not pkt_format:
-                self.log.warning(f'Unknown packet format for {op_code.name}')
+                self.log.warning(f'unknown packet format for {op_code.name}')
                 continue
 
             handler = self.server.handlers.get(op_code, None)
             if not handler:
-                self.log.warning(f'Unhandled opcode {op_code.name}')
+                self.log.warning(f'unhandled opcode {op_code.name}')
                 continue
 
             responses = handler(pkt_format.parse(data), self)
