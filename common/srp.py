@@ -128,9 +128,6 @@ def CalculateSessionKey(A: int, B: int, b: int, v: int, s: int, account_name: st
     def Interleave(S: int) -> int:
         """Apply the SHA_Interleave function on S."""
         T = IntToBytes(S)[::-1]
-        if len(T) % 2 == 1:
-            T = T[1:]
-
         G = IntToBytes(_H(T[0::2]))[::-1]  # hash all even elements
         H = IntToBytes(_H(T[1::2]))[::-1]  # hash all odd elements
         return HexToInt(bytearray(itertools.chain(*zip(G, H))).hex(), 'little')
