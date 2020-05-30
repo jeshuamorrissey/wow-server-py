@@ -32,7 +32,7 @@ def HexToInt(hex_string: str, endian: str = 'big') -> int:
     """
     # Make sure the hex string is an even length (just add a 0 to the end).
     if len(hex_string) % 2 == 1:
-        hex_string = '\x00' + hex_string
+        hex_string = '0' + hex_string if endian == 'little' else hex_string + '0'
     return int.from_bytes(bytes(bytearray.fromhex(hex_string)), endian)
 
 
