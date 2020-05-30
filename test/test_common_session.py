@@ -37,8 +37,6 @@ class FakeSession(session.Session):
             super(FakeSession, self).handle()
 
     def write_header(self, op: Any, data: bytes) -> bytes:
-        if not self.write_headers:
-            return b''
         return self.write_headers.pop(0).format(op=op, data=data.decode()).encode()
 
     def read_header(self) -> Tuple[int, int]:
