@@ -1,6 +1,7 @@
 import enum
 from typing import Any, Tuple
 
+import pytest
 from construct import Int8ul, Struct
 
 from common import session
@@ -44,6 +45,16 @@ class FakeSession(session.Session):
         if not self.read_headers:
             return (None, 0)
         return self.read_headers.pop(0)
+
+
+def test_unimplement_functions(mocker):
+    session = FakeSession(mocker)
+
+    with pytest.raises(NotImplementedError):
+        super(FakeSession, session).read_header()
+
+    with pytest.raises(NotImplementedError):
+        super(FakeSession, session).write_header(FakeOpCode.OP1, b'data')
 
 
 def test_handle_client_disconnect_no_packet(mocker):
