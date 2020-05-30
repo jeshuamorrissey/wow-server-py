@@ -13,8 +13,7 @@ class FakeSession(session.Session):
         super(FakeSession, self).__init__(request=mocker.MagicMock(), client_address='fake', server=mocker.MagicMock())
 
     def handle(self, run=False):
-        if run:
-            super(FakeSession, self).handle()
+        pass
 
 
 def test_read_header_short_read(mocker):
