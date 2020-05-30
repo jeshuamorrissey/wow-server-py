@@ -190,28 +190,35 @@ def main(args: argparse.Namespace):
     world_thread.join()
 
 
-if __name__ == '__main__':
-    argument_parser = argparse.ArgumentParser(description='Server to handle the initial login connection.')
-    argument_parser.add_argument('--auth_port',
-                                 type=int,
-                                 default=5000,
-                                 help='The port to list for AUTH connections on.')
-    argument_parser.add_argument('--world_port',
-                                 type=int,
-                                 default=5001,
-                                 help='The port to list for WORLD connections on.')
-    argument_parser.add_argument('--host', type=str, default='127.0.0.1', help='The host to list for connections on.')
-    argument_parser.add_argument('--db_file',
-                                 type=str,
-                                 default=os.path.join(os.path.dirname(sys.executable), 'wow_server.db'),
-                                 help='The file to store the World database in.')
-    argument_parser.add_argument('--reset_database',
-                                 action='store_true',
-                                 help='If True, the DBC database will be reloaded.')
-    argument_parser.add_argument('--reset_world_database',
-                                 action='store_true',
-                                 help='If True, the World database will be reloaded.')
-    argument_parser.set_defaults(reset_database=False, reset_world_database=True)
-    coloredlogs.install(level='DEBUG')
+def wow_server():
+    if __name__ == '__main__':
+        argument_parser = argparse.ArgumentParser(description='Server to handle the initial login connection.')
+        argument_parser.add_argument('--auth_port',
+                                     type=int,
+                                     default=5000,
+                                     help='The port to list for AUTH connections on.')
+        argument_parser.add_argument('--world_port',
+                                     type=int,
+                                     default=5001,
+                                     help='The port to list for WORLD connections on.')
+        argument_parser.add_argument('--host',
+                                     type=str,
+                                     default='127.0.0.1',
+                                     help='The host to list for connections on.')
+        argument_parser.add_argument('--db_file',
+                                     type=str,
+                                     default=os.path.join(os.path.dirname(sys.executable), 'wow_server.db'),
+                                     help='The file to store the World database in.')
+        argument_parser.add_argument('--reset_database',
+                                     action='store_true',
+                                     help='If True, the DBC database will be reloaded.')
+        argument_parser.add_argument('--reset_world_database',
+                                     action='store_true',
+                                     help='If True, the World database will be reloaded.')
+        argument_parser.set_defaults(reset_database=False, reset_world_database=True)
+        coloredlogs.install(level='DEBUG')
 
-    main(argument_parser.parse_args())
+        main(argument_parser.parse_args())
+
+
+wow_server()

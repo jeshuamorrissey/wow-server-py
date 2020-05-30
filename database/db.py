@@ -23,9 +23,12 @@ def SetupDatabase(db_file: Text, clear_database: bool = False, clear_dynamic_dat
         os.remove(db_file)
 
     # Connect to the SQLite database.
-    db.bind(provider='sqlite', filename=db_file, create_db=not os.path.exists(db_file))
-    db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
-    db.generate_mapping(check_tables=False)
+    try:
+        db.bind(provider='sqlite', filename=db_file, create_db=not os.path.exists(db_file))
+        db.provider.converter_classes.append((enum.Enum, common.EnumConverter))
+        db.generate_mapping(check_tables=False)
+    except orm.core.BindingError:
+        pass  # database was already bound
 
     # If necessary, drop the dynamic portion of the database.
     if clear_dynamic_database:
