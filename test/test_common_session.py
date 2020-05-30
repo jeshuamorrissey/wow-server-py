@@ -6,6 +6,7 @@ from construct import Int8ul, Struct
 from common import session
 
 FakePacket = Struct('num' / Int8ul)
+ZeroLengthPacket = Struct()
 
 
 class AnyStringWith(str):
@@ -127,6 +128,35 @@ def test_handle_single_response(mocker):
         ]
 
     session.server.packet_formats = {FakeOpCode.OP1: FakePacket}
+    session.server.handlers = {FakeOpCode.OP1: _fake_handler}
+
+    session.handle(run=True)
+
+    session.request.sendall.assert_has_calls([
+        mocker.call(b'header(2)data(resp1)01resp1'),
+        mocker.call(b'header(2)data(resp2)02resp2'),
+    ])
+    session.log.warning.assert_has_calls([
+        mocker.call('client disconnect'),
+    ])
+
+
+def test_handle_zero_length_packet(mocker):
+    session = FakeSession(mocker)
+    session.read_headers.append((FakeOpCode.OP1, 0))
+    session.write_headers.append('header({op})data({data})01')
+    session.write_headers.append('header({op})data({data})02')
+    session.request.recv.side_effect = Exception('should not be called')
+
+    def _fake_handler(pkt, session_):
+        assert session == session_
+
+        return [
+            (FakeOpCode.OP2, b'resp1'),
+            (FakeOpCode.OP2, b'resp2'),
+        ]
+
+    session.server.packet_formats = {FakeOpCode.OP1: ZeroLengthPacket}
     session.server.handlers = {FakeOpCode.OP1: _fake_handler}
 
     session.handle(run=True)
